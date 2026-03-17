@@ -84,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 form.reset();
             } else {
                 notify('error', result.message);
+                alert(result.message);
                 console.log('incorrect username and password');
             }
         })

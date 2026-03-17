@@ -1,24 +1,25 @@
 <?php
-require_once '../config/database.php';
-header('Content-Type: application/json');
+// database.php
+header('Content-Type: application/json'); // ensures JSON for fetch
 
-$input = json_decode(file_get_contents('php://input'), true);
+$host = "localhost";
+$db   = "dbsmarteval";
+$user = "root"; 
+$pass = "";       
+$charset = 'utf8mb4';
 
-$studentId = $input['student_id'] ?? '';
-$password = $input['password_hash'] ?? '';
+$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // throw exceptions
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES   => false,
+];
 
-if(!$studentId || !$password){
-    echo json_encode(['success'=>false,'message'=>'Missing fields']);
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (\PDOException $e) {
+    // Return JSON instead of HTML error
+    echo json_encode(['status'=>'error','message'=>'Database connection failed: '.$e->getMessage()]);
     exit;
 }
-
-$stmt = $pdo->prepare("SELECT * FROM students WHERE student_id = ?");
-$stmt->execute([$studentId]);
-$active = $stmt->fetch();
-
-if($active){
-    echo json_encode(['success'=>false,'message'=>'Student already exists']);
-} else {
-    // Insert logic here if needed
-    echo json_encode(['success'=>true,'message'=>'User registered successfully']);
-}
+?>

@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 notify('success', result.message);
                 window.location.href = '../../views/student/evaluation.view.php';
                 console.log(result);
-                form.reset();
+                //form.reset();
             } else {
                 notify('error', result.message);
                 console.log('incorrect username and password');

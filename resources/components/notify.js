@@ -6,10 +6,10 @@ const closeToast = document.getElementById('close-toast');
 
 const ToastTypes = {
     success: {
-      border: 'border-emerald-200',
+      border: 'border-green-200',
       icon: '<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11.917 9.724 16.5 19 7.5"/>',
       icontxt: 'text-green-700',
-      iconBg: 'bg-emerald-200',
+      iconBg: 'bg-green-200',
       txtColor: 'text-green-700'
     },
     error: {
@@ -49,6 +49,5 @@ export function notify(type, message, duration = 5000){
       toast.classList.remove('show');
       clearTimeout(hideTimeout);
     }
-
 
 }
