@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+  }
+
+  .animate-fade-slide {
+    animation: fade-slide 0.8s ease-out forwards;
+  }
+
+  @keyframes fade-slide {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+}
+
+#notification {
+  opacity: 0;  
+  transform: translateX(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none; 
+}
+
+#notification.show {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;   /* allow clicks when visible */
+}
