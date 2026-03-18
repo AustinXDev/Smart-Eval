@@ -3,8 +3,8 @@ session_start();
 require_once '../config/database.php'; // now always returns JSON if DB fails
 
 $input = json_decode(file_get_contents('php://input'), true);
-$student_id = $input['student_id'] ?? '';
-$password = $input['password'] ?? '';
+$student_id = trim($input['student_id'] ?? '');
+$password = trim($input['password'] ?? '');
 $IP = $_SERVER['REMOTE_ADDR']; // get client IP address
 
 $maxAttempts = 3;
@@ -17,7 +17,8 @@ $attemptData = $stmtCountAttempts->fetch();
 $currentAttemptCount = $attemptData['attempt_count'];
 
 // Calculate remaining attempts
-$remainingAttempts = $maxAttempts - $currentAttemptCount;
+$currentAttemptCount++;
+$remainingAttempts = max($maxAttempts - $currentAttemptCount, 0);
 
 if($attemptData['attempt_count'] >= $maxAttempts){
   echo json_encode(['status' => 'error', 'message' => "Too many failed login attempts. Try again after {$lockTime} minutes."]);

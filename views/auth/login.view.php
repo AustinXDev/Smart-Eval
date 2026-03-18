@@ -42,16 +42,14 @@
             <span class="absolute left-5 top-3 md:left-4 md:top-3.5">
               <img class="w-6 h-6 md:w-8 md:h-8" src="../../public/assets/icons/user.png" alt="user-icon.png">
             </span>
-            <div class="h-full w-0.5 bg-gray-300 absolute left-14"></div>
-            <input class="bg-gray-100 w-full font-roboto py-4 pl-17 text-sm shadow-md rounded-sm focus:border-purple-900 focus:outline-2 focus:outline-purple-900 md:py-4 md:text-lg" type="text" name="student_id" id="inputStudentID" placeholder="Student ID Number (ex. 00-0000)" required>
+            <input class="bg-gray-100 w-full font-roboto py-4 pl-15 text-sm shadow-md rounded-sm focus:border-purple-900 focus:outline-2 focus:outline-purple-900 md:py-4 md:text-lg" type="text" name="student_id" id="inputStudentID" placeholder="Student ID Number (ex. 00-0000)" required>
           </div>
           <div class="relative">
             <span class="absolute left-5 top-3.5 md:left-4 md:top-3.5">
               <img class="w-6 h-6 md:w-8 md:h-8" src="../../public/assets/icons/key.png" alt="password-icon.png">
             </span>
-            <div class="h-full w-0.5 bg-gray-300 absolute left-14"></div>
             <div></div>
-            <input class="bg-gray-100 w-full font-roboto py-4 pl-17 text-sm shadow-md rounded-sm focus:border-purple-900 focus:outline-2 focus:outline-purple-900 md:py-4 md:text-lg" type="password" name="password" id="inputPassword" placeholder="Password" required>
+            <input class="bg-gray-100 w-full font-roboto py-4 pl-15 text-sm shadow-md rounded-sm focus:border-purple-900 focus:outline-2 focus:outline-purple-900 md:py-4 md:text-lg" type="password" name="password" id="inputPassword" placeholder="Password" required>
             <div class="absolute right-12 top-4">
               <div class="relative">
                 <span class="absolute -top-1 w-8 h-8 cursor-pointer md:top-0" id="hidden"><img src="../../public/assets/icons/show.png" alt="hidden.png"></span>
@@ -71,12 +69,12 @@
           </div>
         </div>
 
-        <div class="mt-6">
+        <div class="mt-10">
           <input class="w-full bg-purple-900 text-white font-semibold text-sm py-3 rounded-xl cursor-pointer hover:opacity-75 md:text-lg" type="submit" name="signin-btn" value="Sign In">
         </div>
 
         <div class="mt-5">
-          <p class="text-center text-sm font-light md:text-md" >Don't have an account? <a class="text-purple-900 underline" href="register.view.php">Create one for teacher evaluation.</a></p>
+          <p class="text-center text-sm font-light md:text-md" >Don't have an account? <a class="text-purple-900 font-semibold underline" href="register.view.php">Create one for teacher evaluation.</a></p>
         </div>
       </form>
     </div>
