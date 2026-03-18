@@ -1,4 +1,4 @@
-<div id="notification" class="fixed right-5 top-5 bg-white flex items-center w-full max-w-sm p-4 text-body bg-neutral-primary-soft rounded-sm shadow-xs border" role="alert">
+<div id="notification" class="fixed right-0 top-0 md:right-5 md:top-5 bg-white flex items-center w-full max-w-sm p-4 text-body bg-neutral-primary-soft rounded-sm shadow-xs borde z-1000" role="alert">
     <div id="icon-bg" class="inline-flex items-center justify-center shrink-0 w-7 h-7 text-fg-success bg-success-soft rounded">
         <svg id="icon" class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"></svg>
         <span class="sr-only">Check icon</span>
