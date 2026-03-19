@@ -14,29 +14,27 @@ $studentID = $input['studentID'] ?? '';
 $IP = $_SERVER['REMOTE_ADDR'];
 
 $limit = 3;
-$minutes = 5;
+$blockHours = 5;
 
-//Rate Limit per Students
-$stmtCountRequest = $pdo->prepare("SELECT COUNT(*) as count 
-    FROM password_resets 
-    WHERE student_id = ? 
-    AND created_at > (NOW() - INTERVAL ? MINUTE)
-    ");
-$stmtCountRequest->execute([$studentID, $minutes]);
-$userAttempts = $stmtCountRequest->fetch()['count'];
+// 1. Cleanup expired password reset requests older than 1 day
+$pdo->exec("DELETE FROM password_resets WHERE created_at < NOW() - INTERVAL 1 DAY");
 
-//Rate Limit per IP address
-$stmtCountIP = $pdo->prepare("SELECT COUNT(*) as count 
-    FROM password_resets 
-    WHERE ip_address = ? 
-    AND created_at > (NOW() - INTERVAL ? MINUTE)
-    ");
-$stmtCountIP->execute([$IP, $minutes]);
-$ipAttempts = $stmtCountIP->fetch()['count'];
+$stmtCount = $pdo->prepare("
+    SELECT COUNT(*) as count
+    FROM password_resets
+    WHERE student_id = ? AND ip_address = ?
+    AND created_at > NOW() - INTERVAL ? MINUTES
+");
+$stmtCount->execute([$studentID, $IP, $blockHours]);
+$attempts = $stmtCount->fetch()['count'];
 
-if($userAttempts >= $limit || $ipAttempts >= $limit){
-  echo json_encode(['status' => 'error', 'message' => "Too many requests. Try again after {$minutes} minutes."]);
-  exit;
+// Block if limit reached
+if($attempts >= $limit){
+    echo json_encode([
+        'status' => 'error',
+        'message' => "Too many requests. Try again after 24 hours."
+    ]);
+    exit;
 }
 
 $stmt = $pdo->prepare("SELECT * FROM students WHERE student_id = ?");
