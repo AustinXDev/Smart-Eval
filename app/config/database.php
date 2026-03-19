@@ -1,7 +1,5 @@
 <?php
 // database.php
-header('Content-Type: application/json'); // ensures JSON for fetch
-
 $host = "localhost";
 $db   = "dbsmarteval";
 $user = "root"; 

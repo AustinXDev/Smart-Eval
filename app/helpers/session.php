@@ -8,23 +8,42 @@ function startSession() {
   }
 }
 
-// Check if user is logged in
-function checklogin() {
+// Check if student is logged in
+function isStudentLoggedIn() {
   startSession();
   return isset($_SESSION['student_id']);
 }
 
-// Get current logged in user
-function getUser(){
+// Get current logged in student
+function getStudent(){
   startSession();
   return $_SESSION['student_id'] ?? null;
 }
 
-// Logout user
-function logout() {
+
+// Check if admin is logged in
+function isAdminLoggedIn() {
   startSession();
-  session_unset();
-  session_destroy();
+  return isset($_SESSION['admin_id']) && $_SESSION['is_admin'] === true;
+}
+
+//Get current logged in admin
+function getAdmin(){
+  startSession();
+  return ($_SESSION['admin_id']) ?? null;
+}
+
+// Logout student
+function logoutStudent() {
+  startSession();
+  unset($_SESSION['student_id']);
+}
+
+// Logout admin
+function logoutAdmin() {
+   startSession();
+    unset($_SESSION['admin_id'], $_SESSION['is_admin'], $_SESSION['username'], $_SESSION['role']);
+    session_destroy();
 }
 
 ?>

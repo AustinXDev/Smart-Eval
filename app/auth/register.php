@@ -1,4 +1,5 @@
 <?php 
+header('Content-Type: application/json'); // ensures JSON for fetch
 require_once '../config/database.php';
 
 $input = json_decode(file_get_contents('php://input'), true);

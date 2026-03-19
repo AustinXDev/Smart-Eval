@@ -3,6 +3,7 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+header('Content-Type: application/json'); // ensures JSON for fetch
 // Load Composer's autoLoader
 require '../../vendor/autoload.php';
 

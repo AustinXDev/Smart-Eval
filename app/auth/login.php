@@ -1,5 +1,7 @@
 <?php 
+header('Content-Type: application/json'); // ensures JSON for fetch
 session_start();
+require_once '../config/config.php';
 require_once '../config/database.php'; // now always returns JSON if DB fails
 
 $input = json_decode(file_get_contents('php://input'), true);
@@ -45,15 +47,8 @@ if($user && !empty($user['password_hash'])){
     $stmtStoreAttempts = $pdo->prepare("INSERT INTO login_attempts (student_id, ip_address) VALUES (?, ?)");
     $stmtStoreAttempts->execute([$student_id, $IP]);
     
-    echo json_encode(['status' => 'error', 'message' => "❌ Incorrect password. {$remainingAttempts} attempt(s) remaining."]);
+    echo json_encode(['status' => 'error', 'message' => "❌ Incorrect username or password. {$remainingAttempts} attempt(s) remaining."]);
     exit;
   }
-} else {
-
-  $stmtStoreAttempts = $pdo->prepare("INSERT INTO login_attempts (student_id, ip_address) VALUES (?, ?)");
-  $stmtStoreAttempts->execute([$student_id, $IP]);
-
-  echo json_encode(['status' => 'error','message' => 'Invalid Student ID or password!']);
-  exit;
 }
 ?>
