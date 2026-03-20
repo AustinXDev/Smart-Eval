@@ -55,7 +55,7 @@ if($admin){
   $stmt = $pdo->prepare("INSERT INTO admin_password_resets (admin_id, ip_address, token, expires_at) VALUES (?, ?, ?, ?)");
   $stmt->execute([$admin['admin_id'], $IP, $token, $expires]);
 
-  $resetLink = "http://localhost/Smart-Eval/views/admin/reset_password.view.php?token=$token";
+  $resetLink = "http://localhost/Smart-Eval/views/admin/new_password.view.php?token=$token";
 
   $mail = new PHPMailer(true);
 
