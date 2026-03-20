@@ -24,11 +24,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 //login validation
-
 document.addEventListener('DOMContentLoaded', () => {
     const studentID = document.getElementById('inputStudentID');
     const password = document.getElementById('inputPassword');
     const form = document.getElementById('login-form');
+    const signinBTN = document.getElementById('signin-btn');
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -42,6 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
             password: passwordValue
         }
 
+        signinBTN.disabled = true;
+        signinBTN.value = "Sign In...";
+
+        let isSuccess = false;
+
         fetch('../../app/auth/login.php', {
             method: 'POST',
             headers: {
@@ -52,9 +57,16 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(result => {
             if(result.status === 'success'){
+                isSuccess = true;
+
                 notify('success', result.message);
-                window.location.href = '../../views/student/evaluation.view.php';
-                console.log(result);
+                signinBTN.textContent = "Redirecting...";
+
+                setTimeout(() => {
+                    signinBTN.value = "Sign In";
+                    window.location.href = '../../views/student/evaluation.view.php';
+                }, 1500)
+                //console.log(result);
                 form.reset();
             } else {
                 notify('error', result.message);
@@ -64,6 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => {
             console.log(error);
             notify('error', 'Something went wrong');
+        })
+        .finally (() => {
+
+            if(!isSuccess){
+                signinBTN.disabled = false;
+                signinBTN.value = "Sign In";
+
+            }
         })
     })
 });

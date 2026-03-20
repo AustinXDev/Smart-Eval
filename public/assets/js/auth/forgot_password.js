@@ -1,8 +1,9 @@
 import { notify } from "../../../../resources/components/notify.js";
 
 const resetBTN = document.getElementById('reset-button');
+const form = document.getElementById('forgot-password-form');
 
-document.getElementById('forgot-password-form').addEventListener('submit', async e => {
+form.addEventListener('submit', async e => {
     e.preventDefault();
     const studentID = document.getElementById('inputStudentID').value.trim();
     if (!studentID) return notify('error', 'Student ID is required');
@@ -26,6 +27,7 @@ document.getElementById('forgot-password-form').addEventListener('submit', async
 
     const data = await res.json();
     notify(data.status, data.message);
+    form.reset();
 
     } catch (error) {
         console.error('Error:', error);

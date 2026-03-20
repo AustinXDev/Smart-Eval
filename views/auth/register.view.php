@@ -75,7 +75,7 @@
         </div>
 
         <div class="mt-10">
-          <input class="w-full bg-purple-900 text-white font-semibold text-sm py-3 rounded-xl cursor-pointer hover:opacity-75 md:text-lg" type="submit" name="signup-btn" value="Sign Up">
+          <input class="w-full bg-purple-900 text-white font-semibold text-sm py-3 rounded-xl cursor-pointer hover:opacity-75 md:text-lg" type="submit" name="signup-btn" value="Sign Up" id="reset-btn">
         </div>
 
         <div class="mt-5">

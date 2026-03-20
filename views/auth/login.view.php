@@ -1,3 +1,9 @@
+<?php
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
+?>  
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -70,7 +76,7 @@
         </div>
 
         <div class="mt-10">
-          <input class="w-full bg-purple-900 text-white font-semibold text-sm py-3 rounded-xl cursor-pointer hover:opacity-75 md:text-lg" type="submit" name="signin-btn" value="Sign In">
+          <input class="w-full bg-purple-900 text-white font-semibold text-sm py-3 rounded-xl cursor-pointer hover:opacity-75 md:text-lg" type="submit" name="signin-btn" value="Sign In" id="signin-btn">
         </div>
 
         <div class="mt-5">
