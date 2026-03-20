@@ -23,10 +23,10 @@ $pdo->exec("DELETE FROM password_resets WHERE created_at < NOW() - INTERVAL 1 DA
 $stmtCount = $pdo->prepare("
     SELECT COUNT(*) as count
     FROM password_resets
-    WHERE student_id = ? AND ip_address = ?
-    AND created_at > NOW() - INTERVAL ? MINUTES
+    WHERE ip_address = ?
+    AND created_at > NOW() - INTERVAL {$blockHours} HOUR
 ");
-$stmtCount->execute([$studentID, $IP, $blockHours]);
+$stmtCount->execute([$IP]);
 $attempts = $stmtCount->fetch()['count'];
 
 // Block if limit reached

@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     signinBTN.disabled = true;
-    signinBTN.textContent = "Sign in...";
+    signinBTN.value = "Sign in...";
 
     let isSuccess = false;
 
@@ -55,24 +55,40 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(response => response.json())
     .then(result => {
+
       if(result.status === 'success'){
         isSuccess = true;
+
         notify(result.status, result.message);
-        signinBTN.textContent = 'Redirecting...';
-        setTimeout(() => {window.location.href="../../views/admin/dashboard.view.php"}, 1500)
+
+        signinBTN.value = "Redirecting...";
+
+        setTimeout(() => {
+          signinBTN.value = "Sign in to Admin Dashboard"; 
+          window.location.replace('/Smart-Eval/views/admin/verify.view.php');
+        }, 1500)
+
         form.reset();
+
       } else {
+
         notify(result.status, result.message);
+
       }
+      
     })
     .catch(error => {
+
       console.log(error);
-      notify(result.status, 'Something went wrong!')
+      notify('error', 'Something went wrong!');
+
     })
     .finally (() => {
+
       if(!isSuccess){
         signinBTN.disabled = false;
-        signinBTN.textContent = "Sign in to Admin Dashboard";
+        signinBTN.value = "Sign in to Admin Dashboard";
+
       }
     })
   })

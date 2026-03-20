@@ -1,0 +1,1 @@
+error_log("Session after 2FA: " . print_r($_SESSION, true));
