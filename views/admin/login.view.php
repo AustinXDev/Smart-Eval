@@ -78,6 +78,7 @@
                   type="submit" 
                   name="signin-btn" 
                   value="Sign in to Admin Dashboard"
+                  id="singin-button"
           >
         </div>
       </form>

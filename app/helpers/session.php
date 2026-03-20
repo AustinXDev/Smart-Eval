@@ -30,7 +30,11 @@ function isAdminLoggedIn() {
 //Get current logged in admin
 function getAdmin(){
   startSession();
-  return ($_SESSION['admin_id']) ?? null;
+  return [
+    'admin_id' => $_SESSION['admin_id'] ?? null,
+    'username' => $_SESSION['username'] ?? null,
+    'role' => $_SESSION['role'] ?? null,
+  ];
 }
 
 // Logout student

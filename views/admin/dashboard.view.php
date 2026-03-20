@@ -1,9 +1,7 @@
 <?php 
 require_once __DIR__ . '/../../app/middleware/require_admin_auth.php';
 
-echo "Admin ID: " . var_dump($_SESSION['admin_id'] ?? 'NOT SET') . "<br>";
-echo "Is Admin: " . var_dump($_SESSION['is_admin'] ?? 'NOT SET') . "<br>";
-exit;
+$admin = getAdmin();
 ?>
 
 <!DOCTYPE html>
@@ -14,6 +12,8 @@ exit;
   <title>Dashboard</title>
 </head>
 <body>
-  
+  <p><?php echo $admin['admin_id'];?></p>
+  <p><?php echo $admin['username'];?></p>
+  <p><?php echo $admin['role'];?></p>
 </body>
 </html>

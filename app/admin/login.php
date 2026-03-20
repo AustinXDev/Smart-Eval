@@ -17,10 +17,11 @@ $lockTime = 1;
 $stmtCountAttempts = $pdo->prepare("
     SELECT COUNT(*) AS attempt_count 
     FROM admin_login_attempts 
-    WHERE admin_username = ? AND ip_address = ? 
+    WHERE ip_address = ? 
     AND attempt_time > (NOW() - INTERVAL ? MINUTE)
+    AND success = 0
 ");
-$stmtCountAttempts->execute([$admin_username, $IP, $lockTime]);
+$stmtCountAttempts->execute([$IP, $lockTime]);
 $attemptCount = $stmtCountAttempts->fetch()['attempt_count'] ?? 0;
 
 if ($attemptCount >= $maxAttempts) {
@@ -42,6 +43,7 @@ if ($admin && !empty($admin['password_hash'])) {
         $_SESSION['admin_id'] = $admin['admin_id'];
         $_SESSION['is_admin'] = true;
         $_SESSION['role'] = $admin['role'];
+        $_SESSION['username'] = $admin['username'];
 
 
         //record success
@@ -52,8 +54,11 @@ if ($admin && !empty($admin['password_hash'])) {
         $stmtLog->execute([$admin_username, $IP, 1]);
 
         //Delete attempts after success
-        $stmtClearAttempts = $pdo->prepare("DELETE FROM admin_login_attempts WHERE admin_username = ? AND ip_address = ?");
-        $stmtClearAttempts->execute([$admin_username, $IP]);
+        $stmtClearAttempts = $pdo->prepare("
+            DELETE FROM admin_login_attempts 
+            WHERE ip_address = ?
+        ");
+        $stmtClearAttempts->execute([$IP]);
 
         echo json_encode([
             "status" => "success",
