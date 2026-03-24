@@ -38,7 +38,7 @@ $admin = getAdmin();
 <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
 
 <!-- Mobile Sidebar Drawer -->
-<div id="mobile-drawer" class="fixed top-0 left-0 h-full w-64 bg-gray-900 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden">
+<div id="mobile-drawer" class="fixed top-0 left-0 h-full w-75 bg-gray-900 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden">
   
   <!-- Drawer Header -->
   <div class="flex items-center gap-3 px-6 py-5 border-b border-gray-700">

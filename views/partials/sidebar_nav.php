@@ -20,7 +20,7 @@ foreach ($nav as $item):
                 ?>
                     <a href="<?= htmlspecialchars($sub['url']) ?>"
                        class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-colors duration-200
-                              <?= $subActive ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white' ?>">
+                              <?= $subActive ? 'border-l-3 border-[#E94560] bg-[#16213E] text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white' ?>">
                         <span><?= $sub['icon'] ?></span>
                         <span><?= htmlspecialchars($sub['label']) ?></span>
                     </a>

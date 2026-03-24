@@ -16,6 +16,8 @@ if (isAdminLoggedIn()) {
 
 $nav        = $navigation[$role] ?? [];
 $currentUrl = $_SERVER['REQUEST_URI'];
+
+$department = $_GET['dept'] ?? '';
 ?>
 
 <!DOCTYPE html>
@@ -35,7 +37,7 @@ $currentUrl = $_SERVER['REQUEST_URI'];
   <!-- Sidebar -->
   <?php require __DIR__ . '/../partials/sidebar.php'; ?>
 
-  <main>
+  <main class="pt-22 lg:ml-90 p-6 border-1 min-h-screen">
     <?php require __DIR__ . '/../pages/dashboard_content.php'?>
   </main>
 </body>
