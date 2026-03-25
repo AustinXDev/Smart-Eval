@@ -33,7 +33,6 @@ $department = $_GET['dept'] ?? '';
   <link rel="stylesheet" href="../../public/assets/css/custom.css">
 </head>
 <body>
-
   <!-- header -->
   <?php require __DIR__ . '/../partials/header.php'; ?>
   
@@ -41,7 +40,8 @@ $department = $_GET['dept'] ?? '';
   <?php require __DIR__ . '/../partials/sidebar.php'; ?>
 
   <main class="pt-22 lg:ml-90 p-6 border-1 min-h-screen">
-    
+    <?php require __DIR__ . '/../pages/teachers_content.php'?>
   </main>
+
 </body>
 </html>
