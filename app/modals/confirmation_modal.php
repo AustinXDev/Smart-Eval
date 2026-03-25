@@ -1,4 +1,4 @@
-<div id="confirmationModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden">
+<div id="confirmationModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-100">
   <div class="bg-white rounded-lg p-5 w-96">
     <h2 id="modalTitle" class="text-lg font-semibold">Confirm Action</h2>
     <p id="modalMessage" class="mt-2 text-gray-600">Are you sure you want to proceed?</p>

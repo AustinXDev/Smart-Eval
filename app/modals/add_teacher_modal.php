@@ -9,7 +9,7 @@
     </div>
 
     <!-- Form -->
-    <form id="addTeacherForm" class="flex flex-col gap-3 p-6">
+    <form id="addTeacherForm" class="flex flex-col gap-3 p-6" enctype="multipart/form-data">
 
       <div class="flex flex-col gap-4">
         <div class="flex items-center gap-2">
@@ -20,7 +20,7 @@
           <p>Choose a file.</p>
           <label class="bg-[#16213E] text-white px-4 py-2 rounded-md cursor-pointer hover:bg-[#1A1A2E]">
            <i class="fas fa-plus"></i> Upload File
-            <input type="file" class="hidden" id="fileInput">
+            <input type="file" class="hidden" id="fileInput" name="photo">
           </label>
           <span id="fileName" class="text-xs text-gray-400" style="font-family: roboto, 'sans-serif';">JPG or PNG - Max 5MB</span>
         </div>
@@ -28,24 +28,24 @@
 
       <div id="input-wrapper" class="w-full flex flex-col items-centers lg:flex-row gap-4">
         <div id="input-container" class="w-full">
-          <label for="teachersId" class="text-gray-600">Teacher ID <span class="text-red-500">*</span></label>
-          <input type="text" name="teacherID" id="teachersId" placeholder="Enter Teacher ID" class="w-full border border-gray-300 rounded px-3 py-2" required>
+          <label for="teachersId" class="text-gray-600">Employee ID <span class="text-red-500">*</span></label>
+          <input type="text" name="employee_id" id="teachersId" placeholder="Enter Teacher ID" class="w-full border border-gray-300 rounded px-3 py-2" required>
         </div>
         <div id="input-container" class="w-full">
           <label for="teachersName" class="text-gray-600">Full Name <span class="text-red-500">*</span></label>
-          <input type="text" name="teacherName" id="teachersName" placeholder="Enter Teacher Name" class="w-full border border-gray-300 rounded px-3 py-2" required>
+          <input type="text" name="full_name" id="teachersName" placeholder="Enter Teacher Name" class="w-full border border-gray-300 rounded px-3 py-2" required>
         </div>  
       </div>
 
       <div id="input-wrapper" class="w-full flex flex-col items-center lg:flex-row gap-4">
         <div id="input-container" class="w-full">
           <label for="teachersEmail" class="text-gray-600">Email Address <span class="text-red-500">*</span></label>
-          <input type="email" name="teacherEmail" id="teachersEmail" placeholder=" Enter Email Address" class="w-full border border-gray-300 rounded px-3 py-2" required>
+          <input type="email" name="email" id="teachersEmail" placeholder=" Enter Email Address" class="w-full border border-gray-300 rounded px-3 py-2" required>
         </div>
         <div id="input-container" class="w-full">
           <label for="teachersDept" class="text-gray-600">Department <span class="text-red-500">*</span></label>
-          <Select name="teacherDept" id="teachersDept" placeholder="Teacher Name" class="w-full border border-gray-300 rounded px-3 py-2" required>
-            <option value="colle">College</option>
+          <Select name="department" id="teachersDept" placeholder="Teacher Name" class="w-full border border-gray-300 rounded px-3 py-2" required>
+            <option value="<?php echo $department; ?>"><?php echo strtoupper($department); ?></option>
           </Select>
         </div>  
       </div>
