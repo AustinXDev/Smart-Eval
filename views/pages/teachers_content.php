@@ -34,7 +34,135 @@
         <p class="text-white lg:text-lg font-semibold">200</p>
       </div>
     </div>
-    
+
+  </div>
+
+</div>
+
+<!-- Teacher List Table--->
+
+<div class="p-5 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] rounded-md mt-7 ">
+
+  <div class="overflow-x-auto w-full">
+    <table id="teachersTable" class="min-w-full text-left text-sm sm:text-base">
+
+      <div class="flex flex-col w-full sm:flex-row sm:justify-between items-center mb-4 gap-2">
+        <div class="flex items-center gap-2">
+          <label class="text-gray-700 text-sm font-medium">Filter Status:</label>
+          <select id="statusFilter" class="border rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer">
+            <option value="">All</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <thead class="bg-gray-200">
+        <tr>
+          <th class="px-4 py-2 font-normal" style="font-family: roboto, 'sans-serif';">Photo</th>
+          <th class="px-4 py-2 font-normal" style="font-family: roboto, 'sans-serif';">Teacher ID</th>
+          <th class="px-4 py-2 font-normal" style="font-family: roboto, 'sans-serif';">Teacher Name</th>
+          <th class="px-4 py-2 font-normal" style="font-family: roboto, 'sans-serif';">Department</th>
+          <th class="px-4 py-2 font-normal" style="font-family: roboto, 'sans-serif';">Status</th>
+          <th class="px-4 py-2 font-normal" style="font-family: roboto, 'sans-serif';">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr class="border-b border-gray-200">
+          <td class="px-4 py-2">photo1</td>
+          <td class="px-4 py-2">1</td>
+          <td class="px-4 py-2">John Doe</td>
+          <td class="px-4 py-2">College</td>
+          <td class="px-4 py-2">Active</td>
+          <td class="px-4 py-2 flex gap-2">
+            <button class="bg-blue-500 text-white px-2 py-1 rounded">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="bg-green-500 text-white px-2 py-1 rounded">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="bg-red-500 text-white px-2 py-1 rounded">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr class="border-b border-gray-200">
+          <td class="px-4 py-2">photo2</td>
+          <td class="px-4 py-2">2</td>
+          <td class="px-4 py-2">Jane Smith</td>
+          <td class="px-4 py-2">College</td>
+          <td class="px-4 py-2">Inactive</td>
+          <td class="px-4 py-2 flex gap-2">
+            <button class="bg-blue-500 text-white px-2 py-1 rounded">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="bg-green-500 text-white px-2 py-1 rounded">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="bg-red-500 text-white px-2 py-1 rounded">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr class="border-b border-gray-200">
+          <td class="px-4 py-2">photo3</td>
+          <td class="px-4 py-2">3</td>
+          <td class="px-4 py-2">Michael Brown</td>
+          <td class="px-4 py-2">College</td>
+          <td class="px-4 py-2">Active</td>
+          <td class="px-4 py-2 flex gap-2">
+            <button class="bg-blue-500 text-white px-2 py-1 rounded">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="bg-green-500 text-white px-2 py-1 rounded">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="bg-red-500 text-white px-2 py-1 rounded">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr class="border-b border-gray-200">
+          <td class="px-4 py-2">photo4</td>
+          <td class="px-4 py-2">4</td>
+          <td class="px-4 py-2">Emily Davis</td>
+          <td class="px-4 py-2">College</td>
+          <td class="px-4 py-2">Active</td>
+          <td class="px-4 py-2 flex gap-2">
+            <button class="bg-blue-500 text-white px-2 py-1 rounded">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="bg-green-500 text-white px-2 py-1 rounded">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="bg-red-500 text-white px-2 py-1 rounded">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr class="border-b border-gray-200">
+          <td class="px-4 py-2">photo5</td>
+          <td class="px-4 py-2">5</td>
+          <td class="px-4 py-2">William Johnson</td>
+          <td class="px-4 py-2">College</td>
+          <td class="px-4 py-2">Inactive</td>
+          <td class="px-4 py-2 flex gap-2">
+            <button class="bg-blue-500 text-white px-2 py-1 rounded">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="bg-green-500 text-white px-2 py-1 rounded">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="bg-red-500 text-white px-2 py-1 rounded">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
   </div>
 
 </div>

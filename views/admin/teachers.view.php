@@ -31,6 +31,17 @@ $department = $_GET['dept'] ?? '';
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="../../public/assets/css/custom.css">
+
+  <!-- Icons cdn --->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+   
+  <!-- jQuery (required for DataTables) -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwind.min.css">
 </head>
 <body>
   <!-- header -->
@@ -39,9 +50,105 @@ $department = $_GET['dept'] ?? '';
   <!-- Sidebar -->
   <?php require __DIR__ . '/../partials/sidebar.php'; ?>
 
-  <main class="pt-22 lg:ml-90 p-6 border-1 min-h-screen">
+  <main class="pt-22 lg:ml-90 p-6  min-h-screen">
     <?php require __DIR__ . '/../pages/teachers_content.php'?>
   </main>
 
+<script>
+$(document).ready(function() {
+var table = $('#teachersTable').DataTable({
+    dom:
+       "<'flex flex-col sm:flex-row sm:justify-between items-center  mb-4 gap-4'<'flex items-center gap-2'f><'flex items-center gap-2'l>>" +
+      "rt" +
+      "<'flex flex-col sm:flex-row sm:justify-between items-center mt-4 gap-2 info-pagination min-w-full'<'text-gray-600 'i><'pagination'p>>",
+    paging: true,
+    searching: true,
+    info: true,
+    lengthChange: false,
+    pageLength: 5,
+    ordering: false,
+    columnDefs: [
+        { orderable: false, targets: 5 }
+    ],
+    language: {
+        lengthMenu: "_MENU_"
+    },
+    initComplete: function() {
+        styleControls();
+    }
+});
+
+table.on('draw.dt', function() {
+    stylePagination();
+});
+
+$('#statusFilter').on('change', function() {
+    var status = $(this).val();
+    if (status) {
+        table.column(4).search('^' + status + '$', true, false).draw();
+    } else {
+        table.column(4).search('').draw();
+    }
+});
+
+$('#searchBox').on('keyup', function() {
+    table.search(this.value).draw();
+});
+
+function stylePagination() {
+  $('.pagination .paginate_button').css({
+        'padding': '0.25rem 0.75rem',
+        'border': '1px solid #d1d5db',
+        'border-radius': '5px',
+        'font-size': '0.875rem',
+        'color': '#374151',
+        'margin': '0.25rem',
+        'cursor': 'pointer',
+        'display': 'inline-block',
+        'background': 'white'
+  });
+
+  $('.pagination .paginate_button.current').css({
+      'background': '#16213E',
+      'color': '#ffffff',
+      'border-color': '#16213E'
+  });
+
+  $('.pagination .paginate_button.disabled').css({
+      'color': '#9ca3af',
+      'cursor': 'not-allowed',
+      'border-color': '#e5e7eb'
+  });
+
+  $('.pagination .paginate_button')
+    .not('.current')
+    .not('.disabled')
+    .off('mouseenter mouseleave')
+    .on('mouseenter', function() {
+        $(this).css('background', '#f3f4f6');
+    })
+    .on('mouseleave', function() {
+        $(this).css('background', 'white');
+    });
+}
+
+function styleControls() {
+  stylePagination(); 
+
+  var $searchInput = $('.dataTables_filter input');
+  $searchInput
+    .attr('placeholder', 'Search teachers...')
+    .addClass('border ml-2 rounded-md px-3 py-1 w-full sm:w-64 focus:ring-1 focus:ring-blue-300 focus:outline-none text-sm');
+
+  var $lengthSelect = $('.dataTables_length select');
+  $lengthSelect
+    .addClass('border w-40 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer');
+
+  $('.dataTables_filter label').addClass('mb-0');
+
+  $('.dataTables_filter label').css('display', 'flex');
+}
+});
+</script>
 </body>
 </html>
