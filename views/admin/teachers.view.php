@@ -42,6 +42,9 @@ $department = $_GET['dept'] ?? '';
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwind.min.css">
+
+  <!-- Modal JS -->
+  <script src="../../public/assets/js/modal/modal.js"></script>
 </head>
 <body>
   <!-- header -->
@@ -49,6 +52,10 @@ $department = $_GET['dept'] ?? '';
   
   <!-- Sidebar -->
   <?php require __DIR__ . '/../partials/sidebar.php'; ?>
+
+  <!-- Modal Content -->
+  <?php require_once __DIR__ . '/../../app/modals/add_teacher_modal.php'; ?>
+  <?php require_once __DIR__ . '/../../app/modals/confirmation_modal.php'; ?>
 
   <main class="pt-22 lg:ml-90 p-6  min-h-screen">
     <?php require __DIR__ . '/../pages/teachers_content.php'?>
