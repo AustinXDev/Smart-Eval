@@ -28,6 +28,9 @@ $department = $_GET['dept'] ?? '';
   <title>Dashboard</title>
 
   <?php include_once __DIR__ . '../../../public/assets/includes/head.php'?>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../public/assets/css/custom.css">
 </head>
 <body>
 

@@ -63,3 +63,114 @@
     </div>
   </div>
 </div>
+
+<!-- Ranking + Overall Score Distribution --->
+<div class="p-0 lg:p-5 min-h-screen mt-5">
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <div class="lg:col-span-1 bg-white rounded-lg [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] p-5 hover:-translate-y-2 transition-all duration-300 hover:bg-gray-100">
+      <!-- Ranking Table -->
+
+      <div class="mb-4"> <!-- Header -->
+        <h1 class="text-md lg:text-lg">Teacher Performance Ranking</h1>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[400px] text-sm text-left border-1 rounded">
+          
+          <colgroup>
+            <col style="width: 10%;">
+            <col style="width: 50%">
+            <col style="width: 15%">
+            <col style="width: 25%">
+          </colgroup>
+
+          <thead class="bg-[#16213E] text-white text-sm lg:text-md ">
+            <tr>
+              <th class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Rank</th>
+              <th class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Name</th>
+              <th class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Department</th>
+              <th class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Score</th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y">
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 " style="font-family: roboto, 'sans-serif';">1</td>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Juan Dela Cruz</td>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">College</td>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">4.9</td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">2</td>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Maria Gonzales</td>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">College</td>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">4.5</td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">3</td>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Juan Tamad</td>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">SHS</td>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">4.2</td>
+            </tr class="hover:bg-gray-50">
+            <tr>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">4</td>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Anna Santos</td>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">College</td>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">4.1</td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">5</td>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Joana San Miguel</td>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">SHS</td>
+              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">3.9</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="flex flex-col sm:flex-row mt-3 shadow-lg p-2 px-5 border rounded-md items-start sm:items-center gap-2">
+            <div id="name" class="flex-1">
+              <p class="font-semibold">Juan Dela Cruz</p>
+              <p class="text-sm text-gray-500">(Highest rating)</p>
+            </div>
+
+            <div id="average" class="flex-1 flex justify-start sm:justify-end items-center gap-2">
+              <p>Avg. Score:</p>
+              <span id="score" class="text-green-900 font-semibold">4.9</span>
+            </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="bg-white rounded-lg p-5 pb-12 
+            [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] 
+            h-60 sm:h-64 md:h-80 hover:-translate-y-2 transition-all duration-300">
+
+        <div class="mb-5">
+          <h1 class="text-md lg:text-lg">Overall Score Distribution</h1>
+        </div>
+        <canvas id="scoreChart" class="w-full h-full"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<?php
+// Example: fetch data from database
+$labels = ['5', '4', '3', '2','1'];
+$values = ['90', '5', '2', '3', '0'];
+?>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../../public/assets/js/charts/chart-config.js"></script>
+
+<script>
+  const ctx = document.getElementById('scoreChart').getContext('2d');
+
+  const labels = <?= json_encode($labels) ?>;
+  const values = <?= json_encode($values) ?>;
+
+  createScoreDoughnutChart(ctx, labels, values);
+</script>
