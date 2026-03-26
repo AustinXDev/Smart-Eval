@@ -1,5 +1,4 @@
-
- let department;
+let department;
  let table;
 
   $(document).ready(function() {
@@ -95,7 +94,8 @@
       .then(res => res.json())
       .then(data => {
         table.clear();
-        data.forEach(teacher => {
+
+        data.teachers.forEach(teacher => {
           let rowNode = table.row.add([
             `<img class="rounded-full max-w-[35px] h-auto object-cover" src="/Smart-Eval/public/uploads/teachers/${teacher.image_path}">`,
               teacher.employee_id,
@@ -104,8 +104,8 @@
               teacher.is_active ? 'Active' : 'Inactive',
               `<div class="flex gap-2">
                   <button class="viewBtn bg-blue-500 text-white px-2 py-1 rounded hover:opacity-50 transition-all duration-200" data-teacher-id="${teacher.teacher_id}"><i class="fas fa-eye"></i></button>
-                  <button class="bg-green-500 text-white px-2 py-1 rounded hover:opacity-50 transition-all duration-200" data-teacher-id="${teacher.teacher_id}"><i class="fas fa-edit"></i></button>
-                  <button class="bg-red-500 text-white px-2 py-1 rounded hover:opacity-50 transition-all duration-200" data-teacher-id="${teacher.teacher_id}"><i class="fas fa-trash"></i></button>
+                  <button class="editBtn bg-green-500 text-white px-2 py-1 rounded hover:opacity-50 transition-all duration-200" data-teacher-id="${teacher.teacher_id}"><i class="fas fa-edit"></i></button>
+                  <button class="deleteBtn bg-red-500 text-white px-2 py-1 rounded hover:opacity-50 transition-all duration-200" data-teacher-id="${teacher.teacher_id}"><i class="fas fa-trash"></i></button>
               </div>`
           ]).draw(false).node();
 
@@ -118,7 +118,7 @@
   }
 
   //load teacher handles
-  export function loadTeacherHandles(teacherId) {
+export function loadTeacherHandles(teacherId) {
     const tbody = document.querySelector('#handleTable tbody');
     tbody.innerHTML = ''; // clear previous rows
 
@@ -157,3 +157,26 @@
       })
       .catch(err => console.error(err));
   }
+
+export function loadCard() {
+  const container = document.getElementById('card-container');
+  const card_department = container.dataset.department ?? '';
+
+  console.log(department);
+  fetch(`/Smart-Eval/app/handlers/get_teachers.php?department=${card_department}`)
+  .then(res => res.json())
+  .then(data => {
+
+    if (!data.counts) return;
+
+    const counts = data.counts;
+    
+    document.getElementById('total-teachers').textContent = Number(counts.total) || 0;
+    document.getElementById('total-active').textContent = Number(counts.active) || 0;
+    document.getElementById('total-inactive').textContent = Number(counts.inactive) || 0;
+
+    console.log('Teachers count:', counts); // debugging
+
+  })
+  .catch(err => console.log(err));
+}

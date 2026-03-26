@@ -63,6 +63,7 @@ $department = $_GET['dept'] ?? '';
   <?php require_once __DIR__ . '/../../app/modals/add_teacher_modal.php'; ?>
   <?php require_once __DIR__ . '/../../app/modals/confirmation_modal.php'; ?>
   <?php require_once __DIR__ . '/../../app/modals/view_teacher_modal.php'; ?>
+  <?php require_once __DIR__ . '/../../app/modals/edit_teacher_modal.php'; ?>
 
 
 <script src="../../public/assets/js/admin/data_table.js" type="module"></script>

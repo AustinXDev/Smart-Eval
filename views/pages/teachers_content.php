@@ -6,7 +6,7 @@
 </div>
 
 <!-- Card info container -->
-<div class="mt-2 p-5 overflow-x-auto">
+<div class="mt-2 p-5 overflow-x-auto" data-department="<?php echo $department; ?>" id="card-container">
 
   <div class="flex gap-4 min-w-max">
 
@@ -16,7 +16,7 @@
       </div>
       <div>
         <p class="text-white">Total Teachers</p>
-        <p class="text-white lg:text-lg font-semibold">500</p>
+        <p class="text-white lg:text-lg font-semibold" id="total-teachers"></p>
       </div>
     </div>
 
@@ -26,7 +26,7 @@
       </div>
       <div>
         <p class="text-white">Active Teachers</p>
-        <p class="text-white lg:text-lg font-semibold">300</p>
+        <p class="text-white lg:text-lg font-semibold" id="total-active"></p>
       </div>
     </div>
 
@@ -36,7 +36,7 @@
       </div>
       <div>
         <p class="text-white">Inactive Teachers</p>
-        <p class="text-white lg:text-lg font-semibold">200</p>
+        <p class="text-white lg:text-lg font-semibold" id="total-inactive"></p>
       </div>
     </div>
 

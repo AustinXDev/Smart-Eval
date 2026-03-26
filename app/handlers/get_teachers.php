@@ -33,7 +33,21 @@ function get_HandlesByTeacher($teacher_id){
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Get department from query string
+function get_TeacherCountByDepartment($department){
+  global $pdo;
+
+  $stmt = $pdo->prepare("
+        SELECT 
+            COUNT(*) AS total,
+            COALESCE(SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END),0) AS active,
+            COALESCE(SUM(CASE WHEN is_active = 0 THEN 1 ELSE 0 END),0) AS inactive
+        FROM teachers
+        WHERE department = ?
+    ");
+    $stmt->execute([$department]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
 $department = $_GET['department'] ?? '';
 
 $id = $_GET['id'] ?? '';
@@ -48,11 +62,14 @@ if($id){
 
     echo json_encode($teacher ?: []);
 } else if($department) {
-    // Fetch all teachers in the department
+    // Fetch all teachers
     $teachers = get_Allteacher($department);
-    echo json_encode($teachers);
+    $counts = get_TeacherCountByDepartment($department);
+    echo json_encode([
+      'counts' => $counts,
+      'teachers' => $teachers
+    ]);
 } else {
-    // Return empty array if no ID or department
     echo json_encode([]);
 }
 ?>

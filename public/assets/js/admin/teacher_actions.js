@@ -1,5 +1,5 @@
 import { openModal, closeModal, showConfirmation } from '../modal/modal.js';
-import { loadTeachers, loadTeacherHandles } from './data_table.js';
+import { loadTeachers, loadTeacherHandles, loadCard } from './data_table.js';
 
 let teacherId; //global teacher id 
 
@@ -7,19 +7,21 @@ let teacherId; //global teacher id
 document.addEventListener('click', (e) => {
   const addBtn = e.target.closest('.add-btn');
   const viewBtn = e.target.closest('.viewBtn');
+  const editBtn = e.target.closest('.editBtn');
+  const deleteBtn = e.target.closest('.deleteBtn')
 
   if (addBtn) {
     openModal('addTeacherModal');
 
   }
+
   if (viewBtn){
     teacherId = viewBtn.dataset.teacherId;
     
     fetch(`/Smart-Eval/app/handlers/get_teachers.php?id=${teacherId}`)
       .then(res => res.json())
       .then(data => {
-        const teacher = data[0]; // teacher info
-        //const handles = data.handles; // handles array
+        const teacher = data[0];
 
         if(teacher && teacher.teacher_id){
           document.getElementById('name').textContent = teacher.full_name;
@@ -42,6 +44,54 @@ document.addEventListener('click', (e) => {
 
   }
 
+  if(editBtn){
+    teacherId = editBtn.dataset.teacherId;
+    
+    console.log(teacherId);
+    fetch(`/Smart-Eval/app/handlers/get_teachers.php?id=${teacherId}`)
+    .then(res => res.json())
+    .then(data => {
+      const teacher = data[0];
+
+      if(teacher && teacher.teacher_id){
+        document.getElementById('header-name').textContent = teacher.full_name;
+        document.getElementById('teacherId').value = teacher.teacher_id;
+        document.getElementById('employee_Id').value = teacher.employee_id;
+        document.getElementById('teacherName').value = teacher.full_name;
+        document.getElementById('teacherEmail').value = teacher.email;
+      }
+    })
+
+    openModal('editTeacherModal');
+  }
+
+  if(deleteBtn){
+    const teacher_Id = deleteBtn.dataset.teacherId;
+
+    if(!teacher_Id) return;
+
+    showConfirmation({
+      title: "Delete Teacher",
+      message: "Are you sure you want ot delete this teacher?",
+      onConfirm: () => {
+        fetch('/Smart-Eval/app/handlers/delete_teacher.php', {
+          method: 'POST',
+          body: new URLSearchParams({ teacher_id: teacher_Id })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success') {
+            alert(data.message);
+            loadTeachers();
+            loadCard()
+          } else {
+            alert(data.message);
+          }
+        })
+        .catch(err => console.error(err));
+      }
+    })
+  }
   return;
 });
 
@@ -49,6 +99,7 @@ document.addEventListener('click', (e) => {
   const closeBtn = e.target.closest('[data-close-modal]');
   if (closeBtn) closeModal(closeBtn.dataset.closeModal);
 });
+
 
 // Add Teacher form submission
 const form = document.getElementById('addTeacherForm');
@@ -71,6 +122,7 @@ form.addEventListener('submit', (e) => {
           closeModal('addTeacherModal');
           form.reset();
           loadTeachers();
+          loadCard();
         } else {
           alert(data.errors ? data.errors.join("\n") : data.message);
         }
@@ -79,7 +131,6 @@ form.addEventListener('submit', (e) => {
     }
   });
 });
-
 
 //Add handles 
 const Handleform = document.getElementById('addHandleForm');
@@ -90,7 +141,7 @@ Handleform.addEventListener('submit' , (e) => {
 
   showConfirmation({
     title: "Add Course and Year Handle",
-    message: "Are you sure want to add this teacher",
+    message: "Are you sure want to add this teacher?",
     onConfirm: () => {
       fetch('/Smart-Eval/app/handlers/add_handle.php', {
         method: 'POST',
@@ -103,6 +154,7 @@ Handleform.addEventListener('submit' , (e) => {
           //closeModal('viewDetails');
           Handleform.reset();
           loadTeacherHandles(teacherId);
+          loadCard();
         } else {
           alert(data.errors ? data.errors.join("\n") : data.message);
         }
@@ -110,7 +162,8 @@ Handleform.addEventListener('submit' , (e) => {
       .catch(err => console.log(err));
     }
   })
-})
+});
+
 
 //delete handles
 document.addEventListener('click', (e) => {
@@ -164,6 +217,7 @@ document.addEventListener('click', (e) => {
                   if(res.status === 'success'){
                       alert(res.message);
                       loadTeacherHandles(teacherId);
+                      loadCard();
                   }
               });
             }
@@ -174,4 +228,39 @@ document.addEventListener('click', (e) => {
     } 
   });
 
-})
+});
+
+//Edit Teacher
+const editForm = document.getElementById('editTeacherForm');
+editForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const formData = new FormData(editForm);
+
+  showConfirmation({
+    title: "Edit Teacher",
+    message: "Are you sure do you want to edit this teacher?",
+    onConfirm: () => {
+      fetch('/Smart-Eval/app/handlers/edit_teacher.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+        if (data.status === "success") {
+          alert(data.message);
+          closeModal('editTeacherModal');
+          editForm.reset();
+          loadTeachers();
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch(err => console.error(err));
+    }
+  })
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+    loadCard();
+});
