@@ -97,20 +97,20 @@
         table.clear();
         data.forEach(teacher => {
           let rowNode = table.row.add([
-            `<img class="w-10 h-10" src="/Smart-Eval/public/uploads/teachers/${teacher.image_path}" width="50" class="rounded-full">`,
+            `<img class="rounded-full max-w-[35px] h-auto object-cover" src="/Smart-Eval/public/uploads/teachers/${teacher.image_path}">`,
               teacher.employee_id,
               teacher.full_name,
               teacher.department,
               teacher.is_active ? 'Active' : 'Inactive',
               `<div class="flex gap-2">
-                  <button class="viewBtn bg-blue-500 text-white px-2 py-1 rounded" data-teacher-id="${teacher.teacher_id}"><i class="fas fa-eye"></i></button>
-                  <button class="bg-green-500 text-white px-2 py-1 rounded" data-teacher-id="${teacher.teacher_id}"><i class="fas fa-edit"></i></button>
-                  <button class="bg-red-500 text-white px-2 py-1 rounded" data-teacher-id="${teacher.teacher_id}"><i class="fas fa-trash"></i></button>
+                  <button class="viewBtn bg-blue-500 text-white px-2 py-1 rounded hover:opacity-50 transition-all duration-200" data-teacher-id="${teacher.teacher_id}"><i class="fas fa-eye"></i></button>
+                  <button class="bg-green-500 text-white px-2 py-1 rounded hover:opacity-50 transition-all duration-200" data-teacher-id="${teacher.teacher_id}"><i class="fas fa-edit"></i></button>
+                  <button class="bg-red-500 text-white px-2 py-1 rounded hover:opacity-50 transition-all duration-200" data-teacher-id="${teacher.teacher_id}"><i class="fas fa-trash"></i></button>
               </div>`
           ]).draw(false).node();
 
           rowNode.classList.add( 'hover:bg-gray-100', 'p-6', 'cursor-pointer');
-          rowNode.querySelectorAll('td').forEach(td => td.classList.add('px-6', 'py-2', 'border-b-1', 'border-gray-200'));
+          rowNode.querySelectorAll('td').forEach(td => td.classList.add('px-6', 'py-2', 'border-b-1', 'border-gray-200', 'text-sm'));
           rowNode.querySelectorAll('button').forEach(btn => btn.classList.add('cursor-pointer'));
         });
       })
