@@ -9,7 +9,7 @@
     </div>
 
     <!-- Form -->
-    <form id="addTeacherForm" class="flex flex-col gap-3 p-6" enctype="multipart/form-data">
+    <form id="addTeacherForm" class="flex flex-col gap-3 p-6" enctype="multipart/form-data" method="POST">
 
       <div class="flex flex-col gap-4">
         <div class="flex items-center gap-2">
@@ -51,8 +51,7 @@
       </div>
       
       <div class="flex justify-end gap-3 mt-4">
-        <button type="button" class="px-4 py-2 bg-gray-300 rounded cursor-pointer" 
-        onclick="closeModal('addTeacherModal')">
+        <button type="button" data-close-modal="addTeacherModal" class="px-4 py-2 bg-gray-300 rounded cursor-pointer" ">
           Cancel
         </button>
         <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer">Add Teacher</button>

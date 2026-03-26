@@ -1,6 +1,6 @@
 <div class="flex justify-between items-center">
   <h1 class="text-xl font-semibold"><span><?php echo strtoupper($department); ?></span> Teachers</h1>
-  <button id="addTeacherModal" value="" class="cursor-pointer bg-[#16213E] py-2 px-3 rounded-md text-white text-sm lg:text-md" onclick="openModal('addTeacherModal')">
+  <button value="" class="add-btn cursor-pointer bg-[#16213E] py-2 px-3 rounded-md text-white text-sm lg:text-md">
     <span><i class="fas fa-plus"></i> Add Teacher</span>
   </button>
 </div>
@@ -48,14 +48,14 @@
 
 <div class="p-5 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] rounded-md mt-7 ">
 
-  <div class="overflow-x-auto w-full">
-    <table id="teachersTable" class="min-w-full text-left text-sm sm:text-base">
+  <div id="tableWrapper" class="overflow-x-auto w-full" data-department="<?php echo htmlspecialchars($department); ?>">
+    <table id="teachersTable" class="min-w-full text-left text-sm sm:text-base" >
 
       <div class="flex flex-col w-full sm:flex-row sm:justify-between items-center mb-4 gap-2">
         <div class="flex items-center gap-2">
           <label class="text-gray-700 text-sm font-medium">Filter Status:</label>
           <select id="statusFilter" class="border rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer">
-            <option value="">All</option>
+            <option value="All">All</option>
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
           </select>

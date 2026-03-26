@@ -1,9 +1,9 @@
-function openModal(modalId) {
+export function openModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) modal.classList.remove("hidden");
 }
 
-function closeModal(modalId) {
+export function closeModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) modal.classList.add("hidden");
 
@@ -11,7 +11,7 @@ function closeModal(modalId) {
   if (form) form.reset();
 }
 
-function showConfirmation({ title, message, onConfirm }) {
+export function showConfirmation({ title, message, onConfirm }) {
   const modal = document.getElementById("confirmationModal");
   const confirmBtn = document.getElementById("confirmBtn");
   const cancelBtn = document.getElementById("cancelBtn");
