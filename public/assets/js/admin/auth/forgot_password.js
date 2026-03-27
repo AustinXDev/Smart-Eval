@@ -1,4 +1,4 @@
-import { notify } from "../../../../resources/components/notify.js";
+import { notify } from "../../../../../resources/components/notify.js";
 
 const resetBTN = document.getElementById("reset-button");
 const form = document.getElementById("forgot-password-form");
@@ -14,7 +14,7 @@ form.addEventListener('submit', async e => {
   resetBTN.textContent = 'Sending Reset Link...';
 
   try{
-    const res = await fetch('../../app/admin/send_reset.php', {
+    const res = await fetch('/Smart-Eval/app/admin/send_reset.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ admin_username : adminUsername })

@@ -60,6 +60,6 @@
     </div>
   </div>
 
-  <script src="../../public/assets/js/admin/forgot_password.js" type="module"></script> <!-- Link to forgot password.js -->
+  <script src="../../public/assets/js/admin/auth/forgot_password.js" type="module"></script> <!-- Link to forgot password.js -->
 </body>
 </html>

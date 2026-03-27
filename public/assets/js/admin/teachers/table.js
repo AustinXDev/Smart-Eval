@@ -1,27 +1,15 @@
+import { createDataTable } from "../shared/datatable_config.js";
+
 let department;
- let table;
+let table;
 
   $(document).ready(function() {
     const wrapper = document.getElementById('tableWrapper');
     department = wrapper ? wrapper.dataset.department : '';
 
-    table = $('#teachersTable').DataTable({
-      dom:
-        "<'flex sm:flex-row sm:justify-between items-center sm:w-70  mb-4 gap-4'<'flex items-center gap-2'f><'flex items-center gap-2'l>>" +
-        "rt" +
-        "<'flex flex-col sm:flex-row sm:justify-between items-center mt-4 gap-2 info-pagination min-w-full'<'text-gray-600 'i><'pagination'p>>",
-      paging: true,
-      searching: true,
-      info: true,
-      lengthChange: false,
-      pageLength: 5,
-      ordering: false,
-      columnDefs: [{ orderable: false, targets: 5 }],
-      language: { lengthMenu: "_MENU_" },
-      initComplete: function() { styleControls(); }
-    });
-
-    table.on('draw.dt', function() { stylePagination(); });
+    table = createDataTable('#teachersTable', {
+      columnDefs: [{ orderable: false, targets: 5 }]
+    }, 'Search teachers');
 
     // Status filter
     $('#statusFilter').on('change', function() {
@@ -40,54 +28,9 @@ let department;
     loadTeachers();
   });
 
-  function stylePagination() {
-    $('.pagination .paginate_button').css({
-      'padding': '0.25rem 0.75rem',
-      'border': '1px solid #d1d5db',
-      'border-radius': '5px',
-      'font-size': '0.875rem',
-      'color': '#374151',
-      'margin': '0.25rem',
-      'cursor': 'pointer',
-      'display': 'inline-block',
-      'background': 'white'
-    });
-
-    $('.pagination .paginate_button.current').css({
-      'background': '#16213E',
-      'color': '#ffffff',
-      'border-color': '#16213E'
-    });
-
-    $('.pagination .paginate_button.disabled').css({
-      'color': '#9ca3af',
-      'cursor': 'not-allowed',
-      'border-color': '#e5e7eb'
-    });
-
-    $('.pagination .paginate_button')
-      .not('.current')
-      .not('.disabled')
-      .off('mouseenter mouseleave')
-      .on('mouseenter', function() { $(this).css('background', '#f3f4f6'); })
-      .on('mouseleave', function() { $(this).css('background', 'white'); });
-  }
-
-  function styleControls() {
-    stylePagination();
-
-    $('.dataTables_filter input')
-      .attr('placeholder', 'Search teachers...')
-      .addClass('border border-gray-200 ml-2 rounded-md px-3 py-1 w-full sm:w-75 focus:ring-1 focus:ring-blue-300 focus:outline-none text-sm');
-
-    $('.dataTables_length select')
-      .addClass('border w-40 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer');
-
-    $('.dataTables_filter label').addClass('mb-0').css('display', 'flex');
-  }
 
   export function loadTeachers() {
-    const url = '/Smart-Eval/app/handlers/get_teachers.php' + (department ? `?department=${department}` : '');
+    const url = '/Smart-Eval/app/handlers/teachers/get_teachers.php' + (department ? `?department=${department}` : '');
 
     fetch(url)
       .then(res => res.json())
@@ -125,7 +68,7 @@ export function loadTeacherHandles(teacherId) {
     const tbody = document.querySelector('#handleTable tbody');
     tbody.innerHTML = ''; // clear previous rows
 
-    fetch(`/Smart-Eval/app/handlers/get_teachers.php?id=${teacherId}`)
+    fetch(`/Smart-Eval/app/handlers/teachers/get_teachers.php?id=${teacherId}`)
       .then(res => res.json())
       .then(data => {
         const handles = data.handles || [];
@@ -165,7 +108,7 @@ export function loadCard() {
   const container = document.getElementById('card-container');
   const card_department = container.dataset.department ?? '';
 
-  fetch(`/Smart-Eval/app/handlers/get_teachers.php?department=${card_department}`)
+  fetch(`/Smart-Eval/app/handlers/teachers/get_teachers.php?department=${card_department}`)
   .then(res => res.json())
   .then(data => {
 

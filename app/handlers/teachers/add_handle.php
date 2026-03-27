@@ -1,6 +1,6 @@
 <?php 
 header('Content-Type: application/json');
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../../config/database.php';
 
 $input = $_POST;
 
@@ -21,7 +21,7 @@ $stmt = $pdo->prepare("SELECT is_active FROM teachers WHERE teacher_id = ?");
 $stmt->execute([$teacher_id]);
 $active_teacher = $stmt->fetch(PDO::FETCH_ASSOC);
 if(!$active_teacher || $active_teacher['is_active'] == 0){
-  echo json_encode(['status'=>'error','message'=> 'Select Teacher, Program, Year Level']);
+  echo json_encode(['status'=>'error','message'=> 'Warning: this teacher already inactive.']);
   exit;
 }
 

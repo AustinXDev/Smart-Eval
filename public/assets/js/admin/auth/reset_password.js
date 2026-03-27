@@ -1,4 +1,4 @@
-import { notify } from "../../../../resources/components/notify.js";
+import { notify } from "../../../../../resources/components/notify.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const showConfirmToggle = document.getElementById('showConfirm');
@@ -74,7 +74,7 @@ form.addEventListener('submit', async e => {
 
   try{
 
-    const res = await fetch('../../app/admin/password_reset.php', {
+    const res = await fetch('/Smart-Eval/app/admin/password_reset.php', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ token: token, password: newPassword})

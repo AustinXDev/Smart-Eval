@@ -3,7 +3,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 header('Content-Type: application/json');
 session_start();
 
-require_once '../config/database.php';
+require_once __DIR__ . '/../../config/database.php';
 
 $input = $_POST;
 

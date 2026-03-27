@@ -86,6 +86,6 @@
 
     <?php include '../../public/assets/includes/footer.php'; ?>
 
-    <script src="../../public/assets/js/admin/admin_login.js" type="module"></script>
+    <script src="../../public/assets/js/admin/auth/admin_login.js" type="module"></script>
 </body>
 </html>

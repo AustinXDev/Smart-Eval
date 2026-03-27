@@ -1,5 +1,5 @@
-import { openModal, closeModal, showConfirmation } from '../modal/modal.js';
-import { loadTeachers, loadTeacherHandles, loadCard } from './data_table.js';
+import { openModal, closeModal, showConfirmation } from '../../modal/modal.js';
+import { loadTeachers, loadTeacherHandles, loadCard } from '../teachers/table.js';
 
 let teacherId; //global teacher id 
 
@@ -18,7 +18,7 @@ document.addEventListener('click', (e) => {
   if (viewBtn){
     teacherId = viewBtn.dataset.teacherId;
     
-    fetch(`/Smart-Eval/app/handlers/get_teachers.php?id=${teacherId}`)
+    fetch(`/Smart-Eval/app/handlers/teachers/get_teachers.php?id=${teacherId}`)
       .then(res => res.json())
       .then(data => {
         const teacher = data[0];
@@ -48,7 +48,7 @@ document.addEventListener('click', (e) => {
     teacherId = editBtn.dataset.teacherId;
     
     console.log(teacherId);
-    fetch(`/Smart-Eval/app/handlers/get_teachers.php?id=${teacherId}`)
+    fetch(`/Smart-Eval/app/handlers/teachers/get_teachers.php?id=${teacherId}`)
     .then(res => res.json())
     .then(data => {
       const teacher = data[0];
@@ -74,7 +74,7 @@ document.addEventListener('click', (e) => {
       title: "Delete Teacher",
       message: "Are you sure you want ot delete this teacher?",
       onConfirm: () => {
-        fetch('/Smart-Eval/app/handlers/delete_teacher.php', {
+        fetch('/Smart-Eval/app/handlers/teachers/delete_teacher.php', {
           method: 'POST',
           body: new URLSearchParams({ teacher_id: teacher_Id })
         })
@@ -111,7 +111,7 @@ form.addEventListener('submit', (e) => {
     title: "Add Teacher",
     message: "Are you sure you want to add this teacher?",
     onConfirm: () => {
-      fetch('/Smart-Eval/app/handlers/add_teacher.php', {
+      fetch('/Smart-Eval/app/handlers/teachers/add_teacher.php', {
         method: 'POST',
         body: formData
       })
@@ -143,7 +143,7 @@ Handleform.addEventListener('submit' , (e) => {
     title: "Add Course and Year Handle",
     message: "Are you sure want to add this teacher?",
     onConfirm: () => {
-      fetch('/Smart-Eval/app/handlers/add_handle.php', {
+      fetch('/Smart-Eval/app/handlers/teachers/add_handle.php', {
         method: 'POST',
         body: formData
       })
@@ -180,7 +180,7 @@ document.addEventListener('click', (e) => {
     title: 'Delete Handle',
     message: `Are you sure you want to remove ${program} - ${year} year from this teacher?`,
     onConfirm: () => {
-      fetch('/Smart-Eval/app/handlers/delete_handle.php', {
+      fetch('/Smart-Eval/app/handlers/teachers/delete_handle.php', {
         method: 'POST',
         body: JSON.stringify({
           teacher_id: teacherId,
@@ -199,7 +199,7 @@ document.addEventListener('click', (e) => {
           loadTeacherHandles(teacherId);
         } else if (data.status === 'warning') {
           if (confirm(data.message)) {
-              fetch(`/Smart-Eval/app/handlers/delete_handle.php`, {
+              fetch(`/Smart-Eval/app/handlers/teachers/delete_handle.php`, {
                   method: 'POST',
                   body: JSON.stringify({
                       teacher_id: teacherId,
@@ -240,7 +240,7 @@ editForm.addEventListener('submit', (e) => {
     title: "Edit Teacher",
     message: "Are you sure do you want to edit this teacher?",
     onConfirm: () => {
-      fetch('/Smart-Eval/app/handlers/edit_teacher.php', {
+      fetch('/Smart-Eval/app/handlers/teachers/edit_teacher.php', {
         method: 'POST',
         body: formData
       })

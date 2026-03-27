@@ -1,4 +1,4 @@
-import { notify } from "../../../../resources/components/notify.js";
+import { notify } from "../../../../../resources/components/notify.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const showToggle = document.getElementById('show');
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let isSuccess = false;
 
-    fetch('../../app/admin/login.php', {
+    fetch('/Smart-Eval/app/admin/login.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -78,6 +78,6 @@ $email = $result['email'] ?? '';
 
     <?php include '../../public/assets/includes/footer.php'; ?>
 
-    <script src="../../public/assets/js/admin/admin_verify.js" type="module"></script>
+    <script src="../../public/assets/js/admin/auth/admin_verify.js" type="module"></script>
 </body>
 </html>

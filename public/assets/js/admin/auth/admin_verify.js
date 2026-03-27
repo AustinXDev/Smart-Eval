@@ -1,4 +1,4 @@
-import { notify } from "../../../../resources/components/notify.js";
+import { notify } from "../../../../../resources/components/notify.js";
 
 const otpInputs = document.querySelectorAll('.otp-input');
 
@@ -68,7 +68,7 @@ function submitOTP() {
         return;
     }
     
-    fetch('../../app/admin/verify_2FA.php', {
+    fetch('/Smart-Eval/app/admin/verify_2FA.php', {
       method: 'POST',
       headers: {
         'Content-Type' : 'application/json',

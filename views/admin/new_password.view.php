@@ -90,7 +90,7 @@
 
   </div> 
 
-  <script src="../../public/assets/js/admin/reset_password.js" type="module"></script>
+  <script src="../../public/assets/js/admin/auth/reset_password.js" type="module"></script>
 
 </body>
 </html>

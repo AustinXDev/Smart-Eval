@@ -56,17 +56,17 @@ $department = $_GET['dept'] ?? '';
   <?php require __DIR__ . '/../partials/sidebar.php'; ?>
 
   <main class="pt-22 lg:ml-90 p-6  min-h-screen">
-    <?php require __DIR__ . '/../pages/teachers_content.php'?>
+    <?php require __DIR__ . '/../pages/students_content.php'?>
   </main>
 
   <!-- Modal Content -->
-  <?php require_once __DIR__ . '/../../app/modals/teachers_modal/add_teacher_modal.php'; ?>
-  <?php require_once __DIR__ . '/../../app/modals/teachers_modal/confirmation_modal.php'; ?>
-  <?php require_once __DIR__ . '/../../app/modals/teachers_modal/view_teacher_modal.php'; ?>
-  <?php require_once __DIR__ . '/../../app/modals/teachers_modal/edit_teacher_modal.php'; ?>
+  <?php //require_once __DIR__ . '/../../app/modals/add_teacher_modal.php'; ?>
+  <?php //require_once __DIR__ . '/../../app/modals/confirmation_modal.php'; ?>
+  <?php //require_once __DIR__ . '/../../app/modals/view_teacher_modal.php'; ?>
+  <?php //require_once __DIR__ . '/../../app/modals/edit_teacher_modal.php'; ?>
 
 
-<script src="../../public/assets/js/admin/teachers/table.js" type="module"></script>
-<script src="../../public/assets/js/admin/teachers/actions.js" type="module"></script>
+<script src="../../public/assets/js/admin/students/table.js" type="module"></script>
+<!-- <script src="../../public/assets/js/admin/teacher_actions.js" type="module"></script> -->
 </body>
 </html>
