@@ -49,12 +49,12 @@
 <div class="p-5 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] rounded-md mt-7 ">
 
   <div id="tableWrapper" class="overflow-x-auto w-full" data-department="<?php echo htmlspecialchars($department); ?>">
-    <table id="teachersTable" class="min-w-full text-left text-sm sm:text-base" >
+    <table id="teachersTable" class="w-full text-left text-sm sm:text-base" >
 
-      <div class="flex flex-col w-full sm:flex-row sm:justify-between items-center mb-4 gap-2">
+      <div class="flex w-full sm:flex-row sm:justify-between items-center mb-4 gap-2 mt-2">
         <div class="flex items-center gap-2">
-          <label class="text-gray-700 text-sm font-medium">Filter Status:</label>
-          <select id="statusFilter" class="border rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer">
+          <label class="text-gray-900 text-sm">Filter Status:</label>
+          <select id="statusFilter" class="border border-gray-200 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer min-w-30">
             <option value="All">All</option>
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
@@ -62,18 +62,18 @@
         </div>
       </div>
 
-      <thead class="bg-gray-200">
+      <thead class="bg-gray-50 border-b-2 border-gray-200">
         <tr>
-          <th class="px-4 py-2 font-normal" style="font-family: roboto, 'sans-serif';">Photo</th>
-          <th class="px-4 py-2 font-normal" style="font-family: roboto, 'sans-serif';">Teacher ID</th>
-          <th class="px-4 py-2 font-normal" style="font-family: roboto, 'sans-serif';">Teacher Name</th>
-          <th class="px-4 py-2 font-normal" style="font-family: roboto, 'sans-serif';">Department</th>
-          <th class="px-4 py-2 font-normal" style="font-family: roboto, 'sans-serif';">Status</th>
-          <th class="px-4 py-2 font-normal" style="font-family: roboto, 'sans-serif';">Actions</th>
+          <th class="px-4 py-2 font-normal w-20 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Photo</th>
+          <th class="px-4 py-2 font-normal w-40 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Teacher ID</th>
+          <th class="px-4 py-2 font-normal whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Teacher Name</th>
+          <th class="px-4 py-2 font-normal w-10 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Department</th>
+          <th class="px-4 py-2 font-normal w-15 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Status</th>
+          <th class="px-4 py-2 font-normal w-15 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Actions</th>
         </tr>
       </thead>
 
-      <tbody>
+      <tbody class="divide-y divide-gray-100">
         <!-- LoadData Fucntion fills this section -->
       </tbody>
 

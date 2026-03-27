@@ -7,7 +7,7 @@ let department;
 
     table = $('#teachersTable').DataTable({
       dom:
-        "<'flex flex-col sm:flex-row sm:justify-between items-center  mb-4 gap-4'<'flex items-center gap-2'f><'flex items-center gap-2'l>>" +
+        "<'flex sm:flex-row sm:justify-between items-center sm:w-70  mb-4 gap-4'<'flex items-center gap-2'f><'flex items-center gap-2'l>>" +
         "rt" +
         "<'flex flex-col sm:flex-row sm:justify-between items-center mt-4 gap-2 info-pagination min-w-full'<'text-gray-600 'i><'pagination'p>>",
       paging: true,
@@ -32,7 +32,6 @@ let department;
       else  {
          table.column(4).search('^' + status + '$', true, false).draw();
       }
-      //else table.column(5).search('').draw();
     });
 
     // Search box
@@ -79,7 +78,7 @@ let department;
 
     $('.dataTables_filter input')
       .attr('placeholder', 'Search teachers...')
-      .addClass('border ml-2 rounded-md px-3 py-1 w-full sm:w-64 focus:ring-1 focus:ring-blue-300 focus:outline-none text-sm');
+      .addClass('border border-gray-200 ml-2 rounded-md px-3 py-1 w-full sm:w-75 focus:ring-1 focus:ring-blue-300 focus:outline-none text-sm');
 
     $('.dataTables_length select')
       .addClass('border w-40 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer');
@@ -96,12 +95,16 @@ let department;
         table.clear();
 
         data.teachers.forEach(teacher => {
+          let statusBadge = teacher.is_active
+          ? `<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold">Active</span>`
+          : `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-semibold">Inactive</span>`;
+
           let rowNode = table.row.add([
             `<img class="rounded-full max-w-[35px] h-auto object-cover" src="/Smart-Eval/public/uploads/teachers/${teacher.image_path}">`,
               teacher.employee_id,
               teacher.full_name,
-              teacher.department,
-              teacher.is_active ? 'Active' : 'Inactive',
+              teacher.department.toUpperCase(),
+              statusBadge,
               `<div class="flex gap-2">
                   <button class="viewBtn bg-blue-500 text-white px-2 py-1 rounded hover:opacity-50 transition-all duration-200" data-teacher-id="${teacher.teacher_id}"><i class="fas fa-eye"></i></button>
                   <button class="editBtn bg-green-500 text-white px-2 py-1 rounded hover:opacity-50 transition-all duration-200" data-teacher-id="${teacher.teacher_id}"><i class="fas fa-edit"></i></button>
@@ -110,7 +113,7 @@ let department;
           ]).draw(false).node();
 
           rowNode.classList.add( 'hover:bg-gray-100', 'p-6', 'cursor-pointer');
-          rowNode.querySelectorAll('td').forEach(td => td.classList.add('px-6', 'py-2', 'border-b-1', 'border-gray-200', 'text-sm'));
+          rowNode.querySelectorAll('td').forEach(td => td.classList.add('px-6', 'py-2','md:text-sm', 'text-xs', 'whitespace-nowrap'));
           rowNode.querySelectorAll('button').forEach(btn => btn.classList.add('cursor-pointer'));
         });
       })
@@ -162,7 +165,6 @@ export function loadCard() {
   const container = document.getElementById('card-container');
   const card_department = container.dataset.department ?? '';
 
-  console.log(department);
   fetch(`/Smart-Eval/app/handlers/get_teachers.php?department=${card_department}`)
   .then(res => res.json())
   .then(data => {
