@@ -2,8 +2,8 @@
 
 <!-- Card Container -->
 <div id="card-container" class="px-2 mt-5 md:grid md:grid-cols-2 md:gap-5 overflow-y-hidden overflow-x-auto flex gap-4 lg:px-5 py-2">
-  <div class="flex items-center gap-3 px-6 py-5 rounded-sm flex-shrink-0 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] hover:-translate-y-2 hover:bg-[#16213E] hover:text-white transition-all duration-300">
-    <div id='icon' class="bg-[#16213E] p-2 rounded-md">
+  <div class="group flex items-center gap-3 px-6 py-5 rounded-sm flex-shrink-0 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] hover:-translate-y-2 hover:bg-[#16213E] hover:text-white transition-all duration-300">
+    <div id='icon' class="bg-[#16213E] group-hover:bg-gradient-to-br group-hover:from-blue-500 group-hover:to-indigo-500 p-2 rounded-md transition-colors duration-300">
       <div>
         <svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffff" class="size-6">
           <path fill-rule="evenodd" d="M8.25 6.75a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0ZM15.75 9.75a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM2.25 9.75a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM6.31 15.117A6.745 6.745 0 0 1 12 12a6.745 6.745 0 0 1 6.709 7.498.75.75 0 0 1-.372.568A12.696 12.696 0 0 1 12 21.75c-2.305 0-4.47-.612-6.337-1.684a.75.75 0 0 1-.372-.568 6.787 6.787 0 0 1 1.019-4.38Z" clip-rule="evenodd" />
@@ -20,8 +20,8 @@
     </div>
   </div>
 
-  <div class="flex items-center gap-3 px-6 py-5 rounded-sm flex-shrink-0 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] hover:-translate-y-2 hover:bg-[#B76A18] hover:text-white transition-all duration-300">
-    <div id='icon' class="bg-[#B76A18] p-2 rounded-md ">
+  <div class="group flex items-center gap-3 px-6 py-5 rounded-sm flex-shrink-0 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] hover:-translate-y-2 hover:bg-[#B76A18] hover:text-white transition-all duration-300">
+    <div id='icon' class="bg-[#B76A18] group-hover:bg-gradient-to-br group-hover:from-orange-500 group-hover:to-red-600 p-2 rounded-md transition-colors duration-300">
       <svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" stroke="" fill="#ffff"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M192 448C245 448 288 491 288 544C288 561.7 273.7 576 256 576L32 576C14.3 576 0 561.7 0 544C0 491 43 448 96 448L192 448zM544 96C579.3 96 608 124.7 608 160L608 448C608 481.1 582.8 508.4 550.5 511.7L544 512L332.9 512C327.8 487.8 316.6 465.9 300.8 448L352 448L352 416C352 398.3 366.3 384 384 384L480 384C497.7 384 512 398.3 512 416L512 448L544 448L544 160L192 160L192 217.3C177.2 211.3 161 208 144 208C138.6 208 133.2 208.3 128 209L128 160C128 124.7 156.7 96 192 96L544 96zM144 416C99.8 416 64 380.2 64 336C64 291.8 99.8 256 144 256C188.2 256 224 291.8 224 336C224 380.2 188.2 416 144 416z"/></svg>
     </div>
     <div id='card-name' class="flex-2 text-xl font-semibold">
@@ -32,8 +32,8 @@
     </div>
   </div>
 
-  <div class="flex items-center gap-3 px-6 py-5 rounded-sm flex-shrink-0 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] hover:-translate-y-2 hover:bg-[#16213E] hover:text-white transition-all duration-300 group">
-    <div id='icon' class="bg-[#16213E] p-2 rounded-md self-start">
+  <div class="group flex items-center gap-3 px-6 py-5 rounded-sm flex-shrink-0 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] hover:-translate-y-2 hover:bg-[#16213E] hover:text-white transition-all duration-300 group">
+    <div id='icon' class="bg-[#16213E] group-hover:bg-gradient-to-br group-hover:from-blue-500 group-hover:to-indigo-500 p-2 rounded-md transition-colors duration-300">
       <div>
         <svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="#ffff"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M224 64C206.3 64 192 78.3 192 96L192 128L160 128C124.7 128 96 156.7 96 192L96 240L544 240L544 192C544 156.7 515.3 128 480 128L448 128L448 96C448 78.3 433.7 64 416 64C398.3 64 384 78.3 384 96L384 128L256 128L256 96C256 78.3 241.7 64 224 64zM96 288L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 288L96 288z"/></svg>
       </div>
@@ -48,16 +48,23 @@
     </div>
   </div>
 
-  <div class="flex gap-3 px-6 py-5 rounded-sm flex-shrink-0 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] hover:-translate-y-2 hover:bg-green-700 hover:text-white transition-all duration-300 group">
-    <div id="icon" class="bg-green-700 p-2 rounded-md self-start">
-      <svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffff" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <div class="group flex gap-3 px-6 py-5 rounded-sm flex-shrink-0 
+            [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] 
+            hover:-translate-y-2 hover:bg-green-700 hover:text-white transition-all duration-300">
+
+    <!-- Icon -->
+    <div id="icon" class="bg-green-700 group-hover:bg-gradient-to-br group-hover:from-green-500 group-hover:to-green-800 
+                          p-2 rounded-md transition-all duration-300 self-start flex items-center justify-center">
+      <svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffff" viewBox="0 0 24 24" stroke-width="1.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
       </svg>
     </div>
+
+    <!-- Card content -->
     <div class="flex-1">
       <h1 class="mb-2 lg:text-xl font-semibold">Evaluation Completion Rate</h1>
       <div id="progress-bar" class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-        <div class="bg-[#076A04] h-2 rounded-full w-0 transition-all duration-1000" style="width: 75%;"></div>
+        <div id="progress-fill" class="bg-[#076A04] h-2 rounded-full w-0 transition-all duration-1000"></div>
       </div>
       <div id="percentage" class="text-right mt-2">80% Completed</div>
     </div>
@@ -158,7 +165,9 @@
 </div>
 
 <!-- Student Participation Card Container-->
-<div class="p-5 grid grid-cols-3 gap-5 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] rounded-sm mt-7">
+<div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 
+            [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] 
+            rounded-sm mt-7">
   <div class="flex flex-col gap-5 border-r-1 border-gray-200">
     <div class="flex items-center gap-3 border-b-1 border-gray-200 pb-3">
       <div class="bg-[#1A1A2E] p-3 rounded-sm">
@@ -239,6 +248,11 @@ $values = ['90', '5', '2', '3', '0'];
 
 <script>
   const ctx = document.getElementById('scoreChart').getContext('2d');
+  const fill = document.getElementById('progress-fill');
+
+  setTimeout(() => {
+    fill.style.width = '75%';
+  }, 200);
 
   const labels = <?= json_encode($labels) ?>;
   const values = <?= json_encode($values) ?>;
