@@ -5,8 +5,6 @@ require_once __DIR__ . '/../../config/database.php';
 function get_AllStudents($department){
   global $pdo;
 
-  $department_param = ucfirst($department);
-
   //get the student by department, join in program table
   $stmt = $pdo->prepare("
     SELECT s.*, p.department, p.program_name
@@ -16,7 +14,7 @@ function get_AllStudents($department){
     ORDER BY s.full_name ASC
   ");
 
-  $stmt->execute([$department_param]);
+  $stmt->execute([$department]);
 
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

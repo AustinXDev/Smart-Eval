@@ -8,7 +8,7 @@ export function createDataTable(selector, options = {}, searchParam){
     dom:
       "<'flex flex-row justify-between items-center mb-4 gap-4'<'flex items-center gap-2'f><'flex items-center gap-2'l>>" +
       "rt" +
-      "<'flex flex-row justify-between items-center mt-4 gap-2 info-pagination min-w-full'<'text-gray-600'i><'pagination'p>>",
+      "<'flex flex-col sm:flex-row justify-between items-center mt-4 gap-2 info-pagination min-w-full'<'text-gray-600'i><'pagination'p>>",
     paging: true,
     searching: true,
     info: true,

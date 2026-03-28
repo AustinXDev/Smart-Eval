@@ -1,15 +1,25 @@
 import { createDataTable } from "../shared/datatable_config.js";
+import { fetchAllPrograms } from "./student_api.js";
 
 let department;
 let table;
 
-  $(document).ready(function() {
+  $(document).ready(async function() {
     const wrapper = document.getElementById('tableWrapper');
     department = wrapper ? wrapper.dataset.department : '';
 
     table = createDataTable('#studentsTable', {
       columnDefs: [{ orderable: false, targets: 5 }]
     }, 'Search students');
+
+    const select = document.getElementById('courseFilter');
+    const programs = await fetchAllPrograms(department); 
+    programs.forEach(program => {
+      const option = document.createElement('option');
+      option.value = program.program_name;
+      option.textContent = program.program_name;
+      select.appendChild(option);
+    })
 
     // Status filter
     $('#statusFilter').on('change', function() {
@@ -19,6 +29,16 @@ let table;
       }
       else  {
          table.column(4).search('^' + status + '$', true, false).draw();
+      }
+    });
+
+    // Course Filter
+    $('#courseFilter').on('change', function() {
+      const program = $(this).val();
+      if(program === 'All'){
+        table.column(3).search('').draw();
+      } else {
+        table.column(3).search('^' + program + '$', true, false).draw();
       }
     });
 
@@ -36,7 +56,6 @@ let table;
       .then(res => res.json())
       .then(data => {
         table.clear();
-        console.log(data);
 
         data.students.forEach(student => {
           let statusBadge = student.is_active

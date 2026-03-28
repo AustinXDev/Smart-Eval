@@ -1,12 +1,20 @@
 <div class="flex justify-between items-center">
-  <h1 class="text-xl font-semibold"><span><?php echo strtoupper($department); ?></span> Teachers</h1>
-  <button value="" class="add-btn cursor-pointer bg-[#16213E] py-2 px-3 rounded-md text-white text-sm lg:text-md hover:opacity-50 transition-all duration-200">
-    <span><i class="fas fa-plus"></i> Add Teacher</span>
-  </button>
+  <h1 class="text-xl font-semibold"><span><?php echo strtoupper($department); ?></span> Students</h1>
+
+  <div class="flex gap-2">
+    <button value="" class="add-btn flex items-center cursor-pointer bg-[#16213E] py-2 px-3 rounded-md text-white text-sm lg:text-md hover:opacity-50 transition-all duration-200">
+      <i class="fas fa-plus lg:mr-2"></i><span class="hidden md:block">Add Student</span>
+    </button>
+
+    <button value="" class="csv-btn flex items-center cursor-pointer bg-green-600 py-2 px-3 rounded-md text-white text-sm lg:text-md hover:opacity-50 transition-all duration-200">
+      <i class="fas fa-file-csv lg:mr-2"></i><span class="hidden md:block">Import CSV</span>
+    </button>
+  </div>
+
 </div>
 
 <!-- Card info container -->
-<div class="mt-2 p-5 overflow-x-auto" data-department="<?php echo $department; ?>" id="card-container">
+<div class="mt-7 lg:mt-2 lg:p-5 overflow-x-auto" data-department="<?php echo $department; ?>" id="card-container">
 
   <div class="flex gap-4 min-w-max">
 
@@ -51,9 +59,9 @@
   <div id="tableWrapper" class="overflow-x-auto w-full" data-department="<?php echo htmlspecialchars($department); ?>">
     <table id="studentsTable" class="w-full text-left text-sm sm:text-base" >
 
-      <div class="flex w-full sm:flex-row gap-8 items-center mb-4 gap-2 mt-2">
+      <div class="flex w-full flex-col gap-4 md:flex-row md:gap-8  mb-4  mt-2">
         <div class="flex items-center gap-2">
-          <label class="text-gray-900 text-sm">Filter Status:</label>
+          <label class="text-gray-900 text-sm whitespace-nowrap">Filter Status:</label>
           <select id="statusFilter" class="border border-gray-200 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer min-w-30">
             <option value="All">All</option>
             <option value="Active">Active</option>
@@ -61,11 +69,9 @@
           </select>
         </div>
         <div class="flex items-center gap-2">
-          <label class="text-gray-900 text-sm">Filter Course:</label>
-          <select id="statusFilter" class="border border-gray-200 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer min-w-30">
-            <option value="All">All</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
+          <label class="text-gray-900 text-sm whitespace-nowrap"><?php echo ($department === 'college') ? 'Filter Course:': 'Filter Program:';?></label>
+          <select id="courseFilter" class="border border-gray-200 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer min-w-30">
+            <option value="All">All </option>
           </select>
         </div>
       </div>

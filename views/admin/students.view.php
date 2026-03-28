@@ -60,13 +60,14 @@ $department = $_GET['dept'] ?? '';
   </main>
 
   <!-- Modal Content -->
-  <?php //require_once __DIR__ . '/../../app/modals/add_teacher_modal.php'; ?>
-  <?php //require_once __DIR__ . '/../../app/modals/confirmation_modal.php'; ?>
-  <?php //require_once __DIR__ . '/../../app/modals/view_teacher_modal.php'; ?>
-  <?php //require_once __DIR__ . '/../../app/modals/edit_teacher_modal.php'; ?>
+  <?php require_once __DIR__ . '/../../app/modals/students_modal/add_student_modal.php'; ?>
+  <?php require_once __DIR__ . '/../../app/modals/students_modal/confirmation_modal.php'; ?>
+  <?php require_once __DIR__ . '/../../app/modals/students_modal/import_csv_modal.php'; ?>
+  <?php require_once __DIR__ . '/../../app/modals/students_modal/summary_report_modal.php'; ?>
+  <?php require_once __DIR__ . '/../../app/modals/students_modal/loader_modal.php'; ?>
 
 
 <script src="../../public/assets/js/admin/students/table.js" type="module"></script>
-<!-- <script src="../../public/assets/js/admin/teacher_actions.js" type="module"></script> -->
+<script src="../../public/assets/js/admin/students/actions.js" type="module"></script> 
 </body>
 </html>
