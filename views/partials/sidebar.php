@@ -8,7 +8,7 @@
         <a href="<?= $logout ?>"
            class="flex items-center gap-3 px-4 py-2 rounded-lg text-red-400
                   hover:bg-red-600 hover:text-white transition-colors duration-200">
-            🚪 Logout
+            <i class="fas fa-sign-out-alt"></i> Logout
         </a>
     </div>
 

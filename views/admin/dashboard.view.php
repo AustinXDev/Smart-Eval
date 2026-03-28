@@ -31,6 +31,9 @@ $department = $_GET['dept'] ?? '';
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="../../public/assets/css/custom.css">
+
+  <!-- Icons cdn --->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 

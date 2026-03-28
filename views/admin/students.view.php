@@ -33,7 +33,7 @@ $department = $_GET['dept'] ?? '';
   <link rel="stylesheet" href="../../public/assets/css/custom.css">
 
   <!-- Icons cdn --->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
    
   <!-- jQuery (required for DataTables) -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
