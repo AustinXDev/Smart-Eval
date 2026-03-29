@@ -1,4 +1,4 @@
-<div id="csvSummaryModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+<div id="csvSummaryModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden">
   <div class="bg-white rounded-lg p-6 w-full max-w-lg">
     <h2 class="text-lg font-semibold mb-4">CSV Upload Summary</h2>
     <div id="csvSummaryContent" class="text-left text-sm text-gray-800">

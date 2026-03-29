@@ -80,21 +80,43 @@ export function loadTeacherHandles(teacherId) {
 
         handles.forEach(h => {
           const tr = document.createElement('tr');
-          tr.classList.add('border-b', 'border-gray-400');
+          tr.classList.add(
+            'border-b',
+            'border-gray-200',
+            'hover:bg-purple-50',
+            'transition',
+            'duration-200'
+          );
+
           tr.innerHTML = `
+            <!-- LEVEL -->
             <td class="py-3 px-5">
-              <p class="bg-[#5B21B6] text-white px-2 py-1 rounded inline-block w-max">
+              <span class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1 rounded-full text-xs font-medium shadow-sm">
                 ${h.year_level} ${h.year_level <= 4 ? 'Year' : 'Grade'}
-              </p>
+              </span>
             </td>
+
+            <!-- PROGRAM -->
             <td>
-              <p class="bg-[#A78BFA]/50 inline-block px-2 py-1 rounded w-max">${h.program_name}</p>
+              <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-medium">
+                ${h.program_name}
+              </span>
             </td>
+
+            <!-- ACTION -->
             <td class="pr-5">
               <div class="flex justify-end items-center">
-                <button class="deleteHandleBtn" data-year="${h.year_level}" data-program="${h.program_name}" data-department="${department}">
-                  <i class="fas fa-trash text-red-900 cursor-pointer transform transition-transform duration-200 hover:scale-110"></i>
+
+                <button 
+                  class="deleteHandleBtn group flex items-center gap-2 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-md transition duration-200"
+                  data-year="${h.year_level}" 
+                  data-program="${h.program_name}" 
+                  data-department="${department}"
+                >
+                  <i class="fas fa-trash text-sm transform transition-transform duration-200 group-hover:scale-110"></i>
+                  <span class="text-xs font-medium hidden sm:inline">Remove</span>
                 </button>
+
               </div>
             </td>
           `;

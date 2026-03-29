@@ -66,14 +66,6 @@
 
       <div class="flex w-full flex-col gap-4 md:flex-row md:gap-8  mb-4  mt-2">
         <div class="flex items-center gap-2">
-          <label class="text-gray-900 text-sm whitespace-nowrap">Filter Status:</label>
-          <select id="statusFilter" class="border border-gray-200 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer min-w-30">
-            <option value="All">All</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
-        </div>
-        <div class="flex items-center gap-2">
           <label class="text-gray-900 text-sm whitespace-nowrap"><?php echo ($department === 'college') ? 'Filter Course:': 'Filter Program:';?></label>
           <select id="courseFilter" class="border border-gray-200 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer min-w-30">
             <option value="All">All </option>

@@ -65,6 +65,8 @@ $department = $_GET['dept'] ?? '';
   <?php require_once __DIR__ . '/../../app/modals/students_modal/import_csv_modal.php'; ?>
   <?php require_once __DIR__ . '/../../app/modals/students_modal/summary_report_modal.php'; ?>
   <?php require_once __DIR__ . '/../../app/modals/students_modal/loader_modal.php'; ?>
+  <?php require_once __DIR__ . '/../../app/modals/students_modal/view_student_modal.php'; ?>
+  <?php require_once __DIR__ . '/../../app/modals/students_modal/edit_student_modal.php'; ?>
 
 
 <script src="../../public/assets/js/admin/students/table.js" type="module"></script>

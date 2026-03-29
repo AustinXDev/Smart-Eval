@@ -18,6 +18,7 @@ export function createDataTable(selector, options = {}, searchParam){
     language: { lengthMenu: "_MENU_" },
     initComplete: function () {
       styleControls(searchParam);
+      $('.dataTables_info').addClass('text-gray-600 text-sm sm:text-base mt-2');
     }
   };
 
@@ -71,7 +72,7 @@ export function createDataTable(selector, options = {}, searchParam){
 
     $('.dataTables_filter input')
       .attr('placeholder', `${params}...`)
-      .addClass('border border-gray-200 ml-2 rounded-md px-3 py-1 w-full sm:w-75 focus:ring-1 focus:ring-blue-300 focus:outline-none text-sm');
+      .addClass('border border-gray-200 ml-2 rounded-md px-3 py-1 w-full sm:w-80 focus:ring-1 focus:ring-blue-300 focus:outline-none text-sm');
 
     $('.dataTables_length select')
       .addClass('border w-40 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer');

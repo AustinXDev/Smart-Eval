@@ -1,6 +1,7 @@
 import { openModal, closeModal, showConfirmation } from "../../modal/modal.js";
 import { loadStudents } from "./table.js";
 import { fetchAllPrograms } from "./student_api.js";
+import { nameToInitials, formatStatus } from "../shared/utils.js";
 
 const wrapper = document.getElementById('tableWrapper');
 const department = wrapper ? wrapper.dataset.department : '';
@@ -18,29 +19,125 @@ async function populateProgramSelect(department){
 
   const programs = await fetchAllPrograms(department);
 
-  console.log(programs);
+  //console.log(programs);
 
   programs.forEach(program => {
     const option = document.createElement('option');
     option.value = program.program_id;
     option.textContent = program.program_name;
+    
     select.appendChild(option);
+  });
+}
+
+//create populate program select for edit form
+async function populateProgramSelectFormEdit(student){
+  const programSelect = document.getElementById('editProgramSelect');
+  if(!programSelect) return;
+
+  programSelect.innerHTML = '<option value="" disabled>Select Program</option>';
+
+  const programs = await fetchAllPrograms(student.department);
+
+  programs.forEach(program => {
+    const option = document.createElement('option');
+    option.value = program.program_id;
+    option.textContent = program.program_name;
+
+    // select the current program
+    if(program.program_id == student.program_id){
+      option.selected = true;
+    }
+
+    programSelect.appendChild(option);
   });
 }
 
 document.addEventListener('click', (e) => {
   const addBtn = e.target.closest('.add-btn');
   const csvBtn = e.target.closest('.csv-btn');
+  const viewBtn = e.target.closest('.viewBtn');
+  const editBtn = e.target.closest('.editBtn');
+  const deleteBtn = e.target.closest('.deleteBtn');
 
+  //Open Add Student Modal
   if(addBtn){
     populateProgramSelect(department);
     openModal('addStudentModal');
     return;
   }
 
+  // Open CSV Modal
   if(csvBtn){
     openModal('uploadCSVModal');
     return;
+  }
+
+  // View Student Details
+  if(viewBtn){
+    const student_id = viewBtn.dataset.studentId;
+    fetch(`/Smart-Eval/app/handlers/students/get_students.php?id=${student_id}`)
+    .then(res => res.json())
+    .then(data => {
+      //console.log(data);
+      const student = data.student;
+
+      if(student && student.student_id){
+        document.getElementById('studentAvatar').textContent = nameToInitials(student.full_name);
+        document.getElementById('studentName').textContent = student.full_name;
+        document.getElementById('studentId').textContent = student.student_id;
+        document.getElementById('studentStatus').textContent = formatStatus(student.is_active).text;
+        document.getElementById('studentStatus').className = `inline-block mt-2 px-3 py-1 text-sm ${formatStatus(student.is_active).color} text-white rounded-md`;
+        document.getElementById('studentIdDetail').textContent = student.student_id;
+        document.getElementById('studentDepartment').textContent = student.department;
+        document.getElementById('studentYearLevel').textContent = student.year_level;
+        document.getElementById('studentProgram').textContent = student.program_name;
+        document.getElementById('studentEmail').textContent = student.email;
+        document.getElementById('studentStatusDetail').textContent = formatStatus(student.is_active).text;
+        document.getElementById('studentStatusDetail').className = `inline-block mt-2 px-3 py-1 text-sm ${formatStatus(student.is_active).color} text-white rounded-md`;
+        document.getElementById('resetPasswordBtn').dataset.studentId = student.student_id;
+      }
+    })
+    openModal('viewStudentModal');
+    return;
+  }
+
+  // Edit student Modal
+  if(editBtn){
+    const student_id = editBtn.dataset.studentId;
+    
+    fetch(`/Smart-Eval/app/handlers/students/get_students.php?id=${student_id}`)
+    .then(res => res.json())
+    .then(async data => {
+      const student = data.student;
+
+      if(student && student.student_id){
+        document.getElementById('editStudentAvatar').textContent = nameToInitials(student.full_name);
+        document.getElementById('editStudentName').textContent = student.full_name;
+        document.getElementById('oldStudentIdInput').value = student.student_id;
+        document.getElementById('editStudentId').textContent = `Student ID: ${student.student_id}`;
+        document.getElementById('editStudentStatus').textContent = formatStatus(student.is_active).text;
+        document.getElementById('editStudentStatus').className = `inline-flex items-center gap-1 mt-2 px-3 py-1 text-xs ${formatStatus(student.is_active).color} text-white rounded-full shadow`;
+        document.getElementById('editStudentIDInput').value = student.student_id;
+        document.getElementById('editStudentNameInput').value = student.full_name;
+        document.getElementById('editStudentEmailInput').value = student.email; 
+        document.getElementById('editStudentYearLevel').value = student.year_level;
+        
+        await populateProgramSelectFormEdit(student);
+      }
+    })
+    
+
+    openModal('editStudentModal');
+    return;
+  }
+
+  ///Delete Student
+  if(deleteBtn){
+    const student_id = deleteBtn.dataset.studentId;
+    if(!student_id) return;
+
+    deleteStudent(student_id);
   }
 
 })
@@ -106,6 +203,39 @@ addForm.addEventListener('submit', (e) => {
   })
 });
 
+//drag and drop file in csv
+const input = document.getElementById('csvInput');
+const fileName = document.getElementById('fileName');
+const dropZone = document.getElementById('dropZone');
+
+// Show file name
+input.addEventListener('change', () => {
+  if (input.files.length > 0) {
+    fileName.textContent = "Selected: " + input.files[0].name;
+    fileName.classList.remove('hidden');
+  }
+});
+
+// Drag & Drop
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.classList.add('border-purple-500');
+});
+
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('border-purple-500');
+});
+
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  input.files = e.dataTransfer.files;
+
+  if (input.files.length > 0) {
+    fileName.textContent = "Selected: " + input.files[0].name;
+    fileName.classList.remove('hidden');
+  }
+});
+
 //csv upload
 csvForm.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -158,3 +288,118 @@ csvForm.addEventListener('submit', (e) => {
     }
   });
 });
+
+//Reset Student Password
+const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+resetPasswordBtn.addEventListener('click', (e) => {
+  const student_id = e.target.dataset.studentId;
+
+  showConfirmation({
+    title: "Reset Password",
+    message: "Are you sure you want to reset the password of this student? The new password will be the same as their student ID.",
+    onConfirm: () => {
+      fetch('/Smart-Eval/app/handlers/students/reset_password.php', {
+        method: 'POST',
+        body: JSON.stringify({student_id: student_id})
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.status === 'success'){
+          alert(data.message);
+          closeModal('viewStudentModal');         
+        } else {
+          alert(`Error: ${data.message}`);
+        }
+      });
+    }
+  });
+});
+
+//Edit Student Form
+const editForm = document.getElementById('editStudentForm');
+editForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(editForm);
+  const student_name = formData.get('full_name');
+
+  console.log([...formData.entries()]);
+
+  showConfirmation({
+    title: "Edit Student",
+    message: "Are you sure you want to save changes " + student_name + "?",
+    onConfirm: () => {
+      fetch('/Smart-Eval/app/handlers/students/edit_student.php',{
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.text())
+      .then(text => {
+        console.log(text);
+        return JSON.parse(text);
+      })
+      .then(data => {
+        if(data.status ===  'success'){
+          alert(data.message);
+          closeModal('editStudentModal');
+          loadStudents();
+        } else {
+          alert(`Error: ${data.message}`);
+        }
+      })
+      .catch(err => console.error(err));
+    }
+  })
+});
+
+//Delete Request
+function deleteStudent(id){
+  sendDeleteRequest(id, false);
+}
+
+function sendDeleteRequest(id, force = false) {
+  showConfirmation({
+    title: 'Delete Student',
+    message: 'Are you sure you want to delete this student?',
+    onConfirm: () => {
+
+      fetch('/Smart-Eval/app/handlers/students/delete_student.php', {
+        method: 'POST',
+        body: new URLSearchParams({
+          student_id: id,
+          force: force ? 1 : 0
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+
+        // ✅ SUCCESS
+        if (data.status === 'success') {
+          alert(data.message);
+          loadStudents();
+        }
+
+        // ⚠️ WARNING (second confirmation)
+        else if (data.status === 'warning') {
+          showConfirmation({
+            title: 'Warning',
+            message: data.message + ' Do you want to proceed?',
+            onConfirm: () => {
+              sendDeleteRequest(id, true);
+            }
+          });
+        }
+
+        else {
+          alert(`Error: ${data.message}`);
+        }
+
+      })
+      .catch(err => console.error(err));
+
+    }
+  });
+}
+
+
+

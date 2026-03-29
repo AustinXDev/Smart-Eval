@@ -1,5 +1,5 @@
 <!-- Add Teacher Modal -->
-<div id="addTeacherModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+<div id="addTeacherModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden">
   <div class="bg-white rounded-lg shadow-lg overflow-hidden w-full max-w-2xl mx-2 sm:mx-0">
     
     <!-- Header -->

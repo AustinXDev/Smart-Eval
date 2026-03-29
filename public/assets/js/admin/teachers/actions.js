@@ -15,6 +15,7 @@ document.addEventListener('click', (e) => {
 
   }
 
+  // View Teacher Details
   if (viewBtn){
     teacherId = viewBtn.dataset.teacherId;
     
@@ -44,6 +45,7 @@ document.addEventListener('click', (e) => {
 
   }
 
+  // Edit Teacher Details
   if(editBtn){
     teacherId = editBtn.dataset.teacherId;
     
@@ -65,6 +67,7 @@ document.addEventListener('click', (e) => {
     openModal('editTeacherModal');
   }
 
+  //Delete Teacher
   if(deleteBtn){
     const teacher_Id = deleteBtn.dataset.teacherId;
 
