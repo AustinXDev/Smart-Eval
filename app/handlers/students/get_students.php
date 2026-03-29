@@ -35,15 +35,33 @@ function get_AllStudents($department){
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function getStudentCountByDepartment($department){
+    global $pdo;
+
+    $stmt = $pdo->prepare("
+        SELECT
+            COUNT(*) AS total,
+            COALESCE(SUM(CASE WHEN s.is_active = 1 THEN 1 ELSE 0 END),0) AS active,
+            COALESCE(SUM(CASE WHEN s.is_active = 0 THEN 1 ELSE 0 END),0) AS inactive
+        FROM students s
+        INNER JOIN programs p ON s.program_id = p.program_id
+        WHERE p.department = ?
+    ");
+    $stmt->execute([$department]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
 $department = $_GET['department'] ?? '';
 $student_id = $_GET['id'] ?? '';
 
-if ($department) {
-    $students = get_AllStudents($department);
-    echo json_encode(['students' => $students]);
-} else if ($student_id) {
+if ($student_id) {
     $student = get_Student($student_id);
     echo json_encode(['student' => $student]);
+} else if ($department) {
+    $students = get_AllStudents($department);
+    $counts = getStudentCountByDepartment($department);
+    echo json_encode(['students' => $students, 'counts' => $counts]);
 } else {
     echo json_encode([]);
 }

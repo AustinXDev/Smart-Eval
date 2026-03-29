@@ -10,6 +10,8 @@
 <body>
   <h1>Hello <?php echo getStudent(); ?> </h1>
 
+  
+
   <script>
     window.addEventListener('pageshow', (e) => {
       if (e.persisted || performance.getEntriesByType('navigation')[0]?.type === 'back_forward') {

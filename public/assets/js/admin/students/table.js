@@ -46,6 +46,7 @@ let table;
     $('#searchBox').on('keyup', function() { table.search(this.value).draw(); });
 
     loadStudents();
+    loadStudentCard();
   });
 
 
@@ -81,4 +82,24 @@ let table;
         });
       })
       .catch(err => console.error('Error loading teachers:', err));
+  }
+
+  export function loadStudentCard(){
+    const url = '/Smart-Eval/app/handlers/students/get_students.php' + (department ? `?department=${department}` : '');
+
+    fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      console.log(data);
+        if(!data.counts) return;
+
+        const counts = data.counts || { total: 0, active: 0, inactive: 0 };
+
+        document.getElementById('total-students').textContent = Number(counts.active || 0);
+        document.getElementById('total-active').textContent = Number(counts.active || 0);
+        document.getElementById('total-inactive').textContent = Number(counts.inactive || 0);
+
+        console.log('Teachers count:', counts);
+    })
+    .catch(err => console.error('Error loading student counts:', err));
   }

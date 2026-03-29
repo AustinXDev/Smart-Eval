@@ -1,5 +1,5 @@
 import { openModal, closeModal, showConfirmation } from "../../modal/modal.js";
-import { loadStudents } from "./table.js";
+import { loadStudents, loadStudentCard } from "./table.js";
 import { fetchAllPrograms } from "./student_api.js";
 import { nameToInitials, formatStatus } from "../shared/utils.js";
 
@@ -138,6 +138,7 @@ document.addEventListener('click', (e) => {
     if(!student_id) return;
 
     deleteStudent(student_id);
+    return;
   }
 
 })
@@ -169,6 +170,7 @@ addForm.addEventListener('submit', (e) => {
           closeModal('addStudentModal');
           addForm.reset();
           loadStudents();
+          loadStudentCard();
         } else if (data.status === 'inactive') {
           showConfirmation({
             title: 'Reactive Student',
@@ -185,6 +187,7 @@ addForm.addEventListener('submit', (e) => {
                   close('addStudentModal');
                   addForm.reset();
                   loadStudents();
+                  loadStudentCard();
                 } else {
                   alert(`Error: ${resp.message}`);
                 }
@@ -282,7 +285,10 @@ csvForm.addEventListener('submit', (e) => {
           openModal('csvSummaryModal');
         }, delay);
 
-        if (data.success > 0) loadStudents(); // refresh table if any imported
+        if (data.success > 0) {
+          loadStudents();
+          loadStudentCard();
+        }
       })
       .catch(err => console.log(err));
     }
@@ -377,6 +383,7 @@ function sendDeleteRequest(id, force = false) {
         if (data.status === 'success') {
           alert(data.message);
           loadStudents();
+          loadStudentCard();
         }
 
         // ⚠️ WARNING (second confirmation)
