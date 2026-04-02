@@ -48,8 +48,10 @@ $department = $_GET['dept'] ?? '';
   </main>
 
   <!-- Modals -->
-  <?php require __DIR__ . ''?>
+  <?php require __DIR__ . '/../../app/modals/manage_questionnaires_modal/add_set_modal.php'; ?>
+  <?php require __DIR__ . '/../../app/modals/manage_questionnaires_modal/confirmation_modal.php'; ?>
 
-  <script src="" type="module"></script>
+  <script src="../../public/assets/js/admin/manage_questionnaires/action.js" type="module"></script>
+  <script src="../../public/assets/js/admin/manage_questionnaires/question_set_list.js" type="module"></script>
 </body>
 </html>

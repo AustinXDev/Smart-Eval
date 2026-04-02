@@ -3,7 +3,7 @@ header('Content-type: application/json');
 require_once __DIR__ . '/../../config/database.php';
 
 function getQuestionSet($pdo) {
-    $stmt = $pdo->prepare("SELECT * FROM question_sets");
+    $stmt = $pdo->prepare("SELECT * FROM question_sets WHERE is_active = 1");
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
