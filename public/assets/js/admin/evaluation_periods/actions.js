@@ -1,6 +1,6 @@
 import { openModal, closeModal, showConfirmation } from "../../modal/modal.js";
 import { fetchAllQuestionSets } from "../evaluation_periods/question_set_api.js";
-import { loadEvaluationPeriods } from "./table.js";
+import { loadEvaluationPeriods, loadPeriodCard } from "./table.js";
 
 
 // Populate question set option in the create evaluation periods modal
@@ -20,15 +20,103 @@ async function populateQuestionsSet() {
     });
 }
 
-// Event trigger to open modal
+// Event trigger
 document.addEventListener('click', (e) => {
   const createBtn = e.target.closest('.createPeriodBtn');
+  const activeBtn = e.target.closest('.ActiveBtn');
+  const deleteBtn = e.target.closest('.deleteBtn');
+  const closeBtn = e.target.closest('.closeBtn');
+  const viewBtn = e.target.closest('.viewBtn');
 
   if(createBtn) {
     openModal('createPeriodModal');
     populateQuestionsSet();
     return;
   }
+
+  if(activeBtn) {
+    const period_id = activeBtn.dataset.id;
+
+    showConfirmation({
+      title: 'Force Active Evaluation',
+      message: 'Are you sure you want to active this evaluation?',
+      onConfirm: () => {
+        fetch('/Smart-Eval/app/handlers/periods/force_active_period.php', {
+          method: 'POST',
+          body: new URLSearchParams({period_id})
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.status === 'success'){
+            alert(data.message);
+            loadEvaluationPeriods();
+            loadPeriodCard();
+          } else {
+            alert(data.message);
+          }
+        })
+        .catch(err => console.log(err));
+      }
+    });
+
+    return;
+  }
+
+  if(deleteBtn){
+    const period_id = deleteBtn.dataset.id;
+
+    showConfirmation({
+      title: 'Delete Period',
+      message: 'Are you sure you want to delete this period?',
+      onConfirm: () => {
+        fetch('/Smart-Eval/app/handlers/periods/delete_period.php', {
+          method: 'POST',
+          body: new URLSearchParams({period_id})
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.status === 'success'){
+            alert(data.message);
+            loadEvaluationPeriods();
+          } else {
+            alert(data.message);
+          }
+        })
+        .catch(err => console.log(err));
+      }
+    });
+
+    return;
+  }
+
+  if(closeBtn){
+    const period_id = closeBtn.dataset.id;
+
+    showConfirmation({
+      title: 'Force Close Period',
+      message: 'Are you sure you want to close this period?',
+      onConfirm: () => {
+        fetch('/Smart-Eval/app/handlers/periods/force_close_period.php', {
+          method: 'POST',
+          body: new URLSearchParams({period_id})
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.status === 'success'){
+            alert(data.message);
+          } else {
+            alert(data.message);
+          }
+        })
+        .catch(err => console.log(err));
+      }
+    });
+  }
+
+  if(viewBtn){
+    
+  }
+
 });
 
 document.addEventListener('click', (e) => {
@@ -38,7 +126,6 @@ document.addEventListener('click', (e) => {
 
 
 // Additional event listeners for form submission and other interactions
-
 const createPeriodForm = document.getElementById('createPeriodForm');
 createPeriodForm.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -59,6 +146,8 @@ createPeriodForm.addEventListener('submit', (e) => {
           console.log(data);
           if(data.status === 'success') {
             alert(data.message);
+            loadEvaluationPeriods();
+            closeModal('createPeriodModal');
             createPeriodForm.reset();
           } else {
             alert(data.message);
@@ -79,9 +168,10 @@ function updatePeriodAndReload(){
   .then(res => res.text())
   .then(() => {
     loadEvaluationPeriods();
+    loadPeriodCard();
   })
   .catch(err => console.log('Error updating periods:', err));
-}
+};
 
 //load page
 $(document).ready(() => {
@@ -90,4 +180,4 @@ $(document).ready(() => {
   setTimeout(() => {
     updatePeriodAndReload();
   }, 3600000);
-})
+});

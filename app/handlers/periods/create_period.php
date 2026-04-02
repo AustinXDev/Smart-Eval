@@ -49,6 +49,7 @@ $countSemester = $checkSemester->fetchColumn();
 
 if($countSemester > 0){
   echo json_encode(['status' => 'error', 'message' => 'An evaluation period for this academic year, semester, and department already exists.']);
+  exit;
 }
 
 

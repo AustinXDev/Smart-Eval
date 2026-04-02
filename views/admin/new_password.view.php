@@ -21,13 +21,13 @@
 
     <div class="animate-fade-slide h-full w-full bg-white  shadow-lg/20 overflow-hidden px-6 pb-12 pt-2 md:h-auto md:w-auto  md:rounded-lg md:px-12 md:pb-15 md:w-lg"> <!-- Create Password Wrapper -->
       <form id="forgot-password-form" method="post">
-        <div class="shadow-[0_1px_5px_rgba(0,0,0,0.1)] flex justify-center items-center gap-3 border-b-2 pt-2 -mx-6 -my-2 border-gray-200 -mx-2 md:shadow-[0] md:-mx-10 pb-2 md:flex-row"> <!-- Create Password Header Container -->
+        <div class="flex-col shadow-[0_1px_5px_rgba(0,0,0,0.1)] flex justify-center items-center md:gap-3 border-b-2 pt-2 -mx-6 -my-2 border-gray-200 -mx-2 md:shadow-[0] md:-mx-10 pb-2 md:flex-row"> <!-- Create Password Header Container -->
           <div> <!-- Logo wrapper -->
             <img class="h-12 w-12 md:h-20 md:w-20 drop-shadow-xl" src="../../public/assets/images/aite-logo.png" alt="aite-logo.png">
           </div>
           <div class="select-none leading-tight">
-            <h1 class="font-roboto m-0 text-2xl font-bold text-purple-900 uppercase md:text-4xl md:text-left md:font-extrabold">
-              Smart<span class="text-green-600">Eval</span>
+            <h1 class="font-roboto text-xl font-bold text-purple-900 uppercase text-center  md:text-4xl md:text-left md:font-extrabold text-shadow-md text-shadow-gray-300">
+              Smart-<span class="text-green-600">Eval</span>
             </h1>
             <span class="font-roboto text-gray-400 text-xs md:text-sm block">
               Your feedback helps improve teaching quality
@@ -36,7 +36,7 @@
         </div>
 
         <div class="mt-10 my-8 my-5 md:my-6 md:my-8"> <!-- Greetings Wrapper -->
-          <h1 class="font-roboto text-xl text-purple-900 font-bold md:text-3xl">Create New Admin Password</h1>
+          <h1 class="font-roboto text-lg text-purple-900 font-bold md:text-xl">Create New Admin Password</h1>
           <p class="font-roboto text-gray-500 text-xs md:text-md">Please enter a new password for your admin account. Make sure it is secure and not used before.</p>
         </div>
 

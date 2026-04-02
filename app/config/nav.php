@@ -73,7 +73,7 @@ $navigation = [
         [
             'label' => 'Evaluation Dashboard',
             'icon'  => 'fa-solid fa-clipboard-check',
-            'url'   => '/Smart-Eval/views/student/evaluation_dashboard.view.php',
+            'url'   => '/Smart-Eval/views/student/evaluation.view.php',
         ],
     ],
 ];

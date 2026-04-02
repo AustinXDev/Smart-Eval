@@ -28,18 +28,18 @@ header('Expires: 0');
   <div class="overflow-hidden h-screen flex justify-center items-center relative">  <!-- Wrapper -->
     <div class="animate-fade-slide h-full w-full bg-white  shadow-lg/20 overflow-hidden px-6 pb-12 pt-2 md:h-auto md:w-auto  md:rounded-lg md:px-12 md:pb-15 md:w-lg"> <!-- Login Wrapper -->
       <form id="login-form" method="POST"> 
-        <div class="shadow-[0_1px_5px_rgba(0,0,0,0.1)] flex justify-center items-center gap-3 border-b-2 pt-2 -mx-6 -my-2 border-gray-200 -mx-2 md:shadow-[0] md:-mx-10 pb-2 md:flex-row"> <!-- Login Header Container -->
+        <div class="flex-col shadow-[0_1px_5px_rgba(0,0,0,0.1)] flex justify-center items-center md:gap-3 border-b-2 pt-2 -mx-6 -my-2 border-gray-200 -mx-2 md:shadow-[0] md:-mx-10 pb-2 md:flex-row"> <!-- Login Header Container -->
           <div> <!-- Logo wrapper -->
-            <img class="h-12 w-12 md:h-20 md:w-20 drop-shadow-xl" src="../../public/assets/images/aite-logo.png" alt="aite-logo.png">
+            <img class="h-12 w-12 md:h-18 md:w-18 drop-shadow-xl" src="../../public/assets/images/aite-logo.png" alt="aite-logo.png">
           </div>
           <div class="select-none"> <!-- System name wrapper -->
-            <h1 class="font-roboto text-2xl font-bold text-purple-900 uppercase  md:text-4xl md:text-left md:font-extrabold text-shadow-md text-shadow-gray-300">Smart<span class="text-green-600">Eval</span></h1>
+            <h1 class="font-roboto text-xl font-bold text-purple-900 uppercase text-center  md:text-4xl md:text-left md:font-extrabold text-shadow-md text-shadow-gray-300">Smart-<span class="text-green-600">Eval</span></h1>
             <span class="font-roboto text-gray-400 text-center text-xs font-regular w-5  md:text-sm md:w-full">Your feedback helps improve teaching quality</span>
           </div>
         </div>
 
         <div class="mt-10 my-8 my-5 md:my-6 md:my-8"> <!-- Greetings Wrapper -->
-          <h1 class="font-roboto text-2xl text-purple-900 font-bold md:text-3xl">Hi, AITEans!</h1>
+          <h1 class="font-roboto text-lg text-purple-900 font-bold md:text-xl">Hi, AITEans!</h1>
           <p class="font-roboto text-gray-500 text-sm md:text-md">Sign in to get started with your evaluation.</p>
         </div>
 
@@ -51,8 +51,8 @@ header('Expires: 0');
             <input class="bg-gray-100 w-full font-roboto py-4 pl-15 text-sm shadow-md rounded-sm focus:border-purple-900 focus:outline-2 focus:outline-purple-900 md:py-4 md:text-lg" type="text" name="student_id" id="inputStudentID" placeholder="Student ID Number (ex. 00-0000)" required>
           </div>
           <div class="relative">
-            <span class="absolute left-5 top-3.5 md:left-4 md:top-3.5">
-              <img class="w-6 h-6 md:w-8 md:h-8" src="../../public/assets/icons/key.png" alt="password-icon.png">
+            <span class="absolute left-5 top-3.5 md:left-4 md:top-4">
+              <img class="w-6 h-6 md:w-7 md:h-7" src="../../public/assets/icons/key.png" alt="password-icon.png">
             </span>
             <div></div>
             <input class="bg-gray-100 w-full font-roboto py-4 pl-15 text-sm shadow-md rounded-sm focus:border-purple-900 focus:outline-2 focus:outline-purple-900 md:py-4 md:text-lg" type="password" name="password" id="inputPassword" placeholder="Password" required>

@@ -22,6 +22,7 @@ $(document).ready(async function() {
       $('#searchBox').on('keyup', function() { table.search(this.value).draw(); });
 
       loadEvaluationPeriods();
+      loadPeriodCard();
 });
 
 export function loadEvaluationPeriods() {
@@ -32,44 +33,15 @@ export function loadEvaluationPeriods() {
 
     data.periods.forEach(period => {
       const today = new Date();
+      const start = new Date(period.start_date);
+      const end = new Date(period.end_date);
 
       let statusBadge, buttons;
 
       const baseBtn = "flex items-center gap-1 px-3 py-1.5 text-xs rounded-md transition-all duration-200 shadow-sm hover:scale-105 ";
 
-      if (new Date(period.start_date) > today) {
-
-        statusBadge = `
-          <span class="px-3 py-1 text-xs font-medium rounded-full 
-            bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 
-            ring-1 ring-purple-300 shadow-sm">
-            ⏳ Upcoming
-          </span>
-        `;
-
-        buttons = `
-          <div class="flex flex-nowrap overflow-hidden gap-2 ">
-
-            <button class="editBtn ${baseBtn} bg-purple-500 hover:bg-purple-600 text-white"
-              data-id="${period.period_id}">
-              <i class="fa-solid fa-pen"></i> Edit
-            </button>
-
-            <button class="ActiveBtn ${baseBtn} bg-indigo-500 hover:bg-indigo-600 text-white"
-              data-id="${period.period_id}">
-              <i class="fa-solid fa-bolt"></i> Activate
-            </button>
-
-            <button class="deleteBtn ${baseBtn} bg-red-500 hover:bg-red-600 text-white"
-              data-id="${period.period_id}">
-              <i class="fa-solid fa-trash"></i> Delete
-            </button>
-
-          </div>
-        `;
-
-      } else if (period.is_active) {
-
+      if (period.is_active) {
+        // Active badge
         statusBadge = `
           <span class="px-3 py-1 text-xs font-medium rounded-full 
             bg-gradient-to-r from-green-100 to-emerald-200 text-green-800 
@@ -77,20 +49,17 @@ export function loadEvaluationPeriods() {
             🟢 Active
           </span>
         `;
-
         buttons = `
           <div class="flex gap-2">
-
             <button class="closeBtn ${baseBtn} bg-purple-700 hover:bg-purple-800 text-white"
               data-id="${period.period_id}">
               <i class="fa-solid fa-stop"></i> Close Period
             </button>
-
           </div>
         `;
+      } else if (period.is_closed == 1) {
 
-      } else {
-
+        // 📁 ARCHIVED (FORCED CLOSE)
         statusBadge = `
           <span class="px-3 py-1 text-xs font-medium rounded-full 
             bg-gray-200 text-gray-700 ring-1 ring-gray-300 shadow-sm">
@@ -100,7 +69,6 @@ export function loadEvaluationPeriods() {
 
         buttons = `
           <div class="flex flex-nowrap overflow-x-auto gap-2">
-
             <button class="viewBtn ${baseBtn} bg-purple-500 hover:bg-purple-600 text-white"
               data-id="${period.period_id}">
               <i class="fa-solid fa-eye"></i> View
@@ -110,7 +78,52 @@ export function loadEvaluationPeriods() {
               data-id="${period.period_id}">
               <i class="fa-solid fa-download"></i> Report
             </button>
+          </div>
+        `;
 
+      } else if (today < start) {
+        // Upcoming badge
+        statusBadge = `
+          <span class="px-3 py-1 text-xs font-medium rounded-full 
+            bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 
+            ring-1 ring-purple-300 shadow-sm">
+            ⏳ Upcoming
+          </span>
+        `;
+        buttons = `
+          <div class="flex flex-nowrap overflow-hidden gap-2 ">
+            <button class="editBtn ${baseBtn} bg-purple-500 hover:bg-purple-600 text-white"
+              data-id="${period.period_id}">
+              <i class="fa-solid fa-pen"></i> Edit
+            </button>
+            <button class="ActiveBtn ${baseBtn} bg-indigo-500 hover:bg-indigo-600 text-white"
+              data-id="${period.period_id}">
+              <i class="fa-solid fa-bolt"></i> Activate
+            </button>
+            <button class="deleteBtn ${baseBtn} bg-red-500 hover:bg-red-600 text-white"
+              data-id="${period.period_id}">
+              <i class="fa-solid fa-trash"></i> Delete
+            </button>
+          </div>
+        `;
+      } else {
+        // Archived badge
+        statusBadge = `
+          <span class="px-3 py-1 text-xs font-medium rounded-full 
+            bg-gray-200 text-gray-700 ring-1 ring-gray-300 shadow-sm">
+            📁 Archived
+          </span>
+        `;
+        buttons = `
+          <div class="flex flex-nowrap overflow-x-auto gap-2">
+            <button class="viewBtn ${baseBtn} bg-purple-500 hover:bg-purple-600 text-white"
+              data-id="${period.period_id}">
+              <i class="fa-solid fa-eye"></i> View
+            </button>
+            <button class="downloadBtn ${baseBtn} bg-purple-700 hover:bg-purple-800 text-white"
+              data-id="${period.period_id}">
+              <i class="fa-solid fa-download"></i> Report
+            </button>
           </div>
         `;
       }
@@ -129,4 +142,54 @@ export function loadEvaluationPeriods() {
     });
   })
   .catch(err => console.error('Error loading teachers:', err));
+}
+
+
+export function loadPeriodCard() {
+  fetch('/Smart-Eval/app/handlers/periods/get_active_periods.php')
+    .then(res => res.json())
+    .then(data => {
+
+      // Default values
+      let college = { year:'--', sem:'--', total:0, submitted:0, status:'No Active', participation:0 };
+      let shs = { year:'--', sem:'--', total:0, submitted:0, status:'No Active', participation:0 };
+
+      data.forEach(p => {
+        const participation = p.total_students > 0 ? Math.round((p.submitted / p.total_students) * 100) : 0;
+
+        if (p.target_dept.toLowerCase() === 'college') {
+          college.year = p.academic_year;
+          college.sem = p.semester;
+          college.total = p.total_students;
+          college.submitted = p.submitted;
+          college.status = 'Active';
+          college.participation = participation;
+        } else if (p.target_dept.toLowerCase() === 'shs') {
+          shs.year = p.academic_year;
+          shs.sem = p.semester;
+          shs.total = p.total_students;
+          shs.submitted = p.submitted;
+          shs.status = 'Active';
+          shs.participation = participation;
+        }
+      });
+
+      // Update College Card
+      document.getElementById('collegeYear').textContent = college.year;
+      document.getElementById('collegeSem').textContent = college.sem;
+      document.getElementById('collegeStatus').textContent = college.status;
+      document.getElementById('collegeProgressText').textContent = college.participation + '% Completed';
+      document.getElementById('collegeProgressBar').style.width = college.participation + '%';
+      document.getElementById('collegeProgressCount').textContent = `${college.submitted} / ${college.total} Students`;
+
+      // Update SHS Card
+      document.getElementById('shsYear').textContent = shs.year;
+      document.getElementById('shsSem').textContent = shs.sem;
+      document.getElementById('shsStatus').textContent = shs.status;
+      document.getElementById('shsProgressText').textContent = shs.participation + '% Completed';
+      document.getElementById('shsProgressBar').style.width = shs.participation + '%';
+      document.getElementById('shsProgressCount').textContent = `${shs.submitted} / ${shs.total} Students`;
+
+    })
+    .catch(err => console.log(err));
 }

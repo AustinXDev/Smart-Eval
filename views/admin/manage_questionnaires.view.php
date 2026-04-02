@@ -25,7 +25,7 @@ $department = $_GET['dept'] ?? '';
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard <?php echo strtoupper($department); ?></title>
+  <title>Manage Questionnaires</title>
 
   <?php include_once __DIR__ . '../../../public/assets/includes/head.php'?>
 
@@ -44,7 +44,12 @@ $department = $_GET['dept'] ?? '';
   <?php require __DIR__ . '/../partials/sidebar.php'; ?>
 
   <main class="pt-22 lg:ml-90 p-6 border-1 min-h-screen">
-    <?php require __DIR__ . '/../pages/dashboard_content.php'?>
+    <?php require __DIR__ . '/../pages/questionnaire_content.php'?>
   </main>
+
+  <!-- Modals -->
+  <?php require __DIR__ . ''?>
+
+  <script src="" type="module"></script>
 </body>
 </html>

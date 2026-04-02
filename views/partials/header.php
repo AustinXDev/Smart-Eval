@@ -26,7 +26,7 @@ $admin = getAdmin();
   <!-- Role & Avatar -->
   <div class="flex items-center gap-3">
     <div class="hidden lg:flex flex-col items-end">
-      <p class="text-white text-sm font-medium"><?= htmlspecialchars($admin['username']) ?></p>
+      <p class="text-white text-sm font-medium"><?= htmlspecialchars($admin['username'] ?? $studentID ?? 'Unknown') ?></p>
       <p class="text-blue-400 text-xs"><?= htmlspecialchars(ucwords(str_replace('_', ' ', $admin['role']))) ?></p>
     </div>
     <img src="../../public/assets/icons/profile.png" alt="Profile" width="35" class="rounded-full">
