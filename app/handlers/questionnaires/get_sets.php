@@ -3,7 +3,6 @@ header('Content-type: application/json');
 require_once __DIR__ . '/../../config/database.php';
 
 try{
-  $pdo->beginTransaction();
   $stmt = $pdo->prepare("
      SELECT 
         qs.set_id,
@@ -20,6 +19,7 @@ try{
     FROM question_sets qs
     LEFT JOIN questions q
         ON q.set_id = qs.set_id
+        AND q.is_active = 1
     LEFT JOIN evaluation_periods ep
         ON ep.set_id = qs.set_id
         AND ep.is_active = 1
@@ -34,7 +34,6 @@ try{
   echo json_encode(['status' => 'success', 'data' => $questionSets]);
   
 } catch (Exception $e){
-  $pdo->rollBack();
   echo json_encode(['status'=>'error', 'message'=>'Database error: '. $e->getMessage()]);
 }
 

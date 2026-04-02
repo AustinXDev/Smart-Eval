@@ -50,8 +50,10 @@ $department = $_GET['dept'] ?? '';
   <!-- Modals -->
   <?php require __DIR__ . '/../../app/modals/manage_questionnaires_modal/add_set_modal.php'; ?>
   <?php require __DIR__ . '/../../app/modals/manage_questionnaires_modal/confirmation_modal.php'; ?>
+  <?php require __DIR__ . '/../../app/modals/manage_questionnaires_modal/manage_questions_modal.php'; ?>
+  <?php require __DIR__ . '/../../app/modals/manage_questionnaires_modal/edit_questions_modal.php'; ?>
 
   <script src="../../public/assets/js/admin/manage_questionnaires/action.js" type="module"></script>
-  <script src="../../public/assets/js/admin/manage_questionnaires/question_set_list.js" type="module"></script>
+  <script src="../../public/assets/js/admin/manage_questionnaires/list.js" type="module"></script>
 </body>
 </html>
