@@ -2,63 +2,90 @@
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../config/database.php';
 
-$input = $_POST;
-$teacher_id = $input['teacher_id'];
+$teacher_id = $_POST['teacher_id'] ?? '';
 
-//check if id not empty
-if(!$teacher_id){
+if (!$teacher_id) {
   echo json_encode(['status' => 'error', 'message' => 'Teacher ID is missing.']);
   exit;
 }
 
-$stmt = $pdo->prepare("SELECT image_path, is_active FROM teachers WHERE teacher_id = ?");
-$stmt->execute([$teacher_id]);
-$teacher = $stmt->fetch(PDO::FETCH_ASSOC);
+try {
+  $pdo->beginTransaction();
 
-//check if teacher found
-if(!$teacher){
-  echo json_encode(['status' => 'error', 'message' => 'Teacher not found.']);
-  exit;
-}
+  // Check if teacher exists
+  $stmt = $pdo->prepare("SELECT teacher_id, is_active FROM teachers WHERE teacher_id = ?");
+  $stmt->execute([$teacher_id]);
+  $teacher = $stmt->fetch(PDO::FETCH_ASSOC);
 
-//check if teacher is inactive
-if($teacher['is_active'] == 0){
-  echo json_encode(['status' => 'error', 'message' => 'This teacher is already deactive.']);
-  exit;
-}
+  if (!$teacher) {
+    throw new Exception("Teacher not found.");
+  }
 
-//check if these teacher is already present in evaluation
-$stmt = $pdo->prepare("
+  //Prevent action if already inactive
+  if ($teacher['is_active'] == 0) {
+    throw new Exception("This teacher is already deactivated.");
+  }
+
+  //Check if teacher is in ACTIVE evaluation
+  $stmt = $pdo->prepare("
     SELECT 1
     FROM teacher_load tl
     JOIN evaluation_periods ep 
       ON ep.is_active = 1
-     AND ep.target_dept = (SELECT department FROM teachers WHERE teacher_id = tl.teacher_id)
+     AND ep.target_dept = (
+        SELECT department FROM teachers WHERE teacher_id = tl.teacher_id
+     )
     WHERE tl.teacher_id = ?
     LIMIT 1
-");
-$stmt->execute([$teacher_id]);
-$is_evaluation_exist = $stmt->fetch(PDO::FETCH_ASSOC);
+  ");
+  $stmt->execute([$teacher_id]);
 
-if($is_evaluation_exist){
-  echo json_encode(['status' => 'error', 'message' => 'Cannot Delete: This teacher is currently being evaluated in an active period for their department.']);
-  exit;
+  if ($stmt->fetch()) {
+    throw new Exception("Cannot delete: Teacher is currently part of an active evaluation.");
+  }
+
+  //Check if teacher has ANY feedback/history
+  $stmt = $pdo->prepare("
+    SELECT COUNT(*) 
+    FROM evaluation_status es
+    JOIN teacher_load tl ON es.load_id = tl.load_id
+    WHERE tl.teacher_id = ?
+  ");
+  $stmt->execute([$teacher_id]);
+  $feedback_count = $stmt->fetchColumn();
+
+  //If has feedback → SOFT DELETE
+  if ($feedback_count > 0) {
+
+    $stmt = $pdo->prepare("UPDATE teachers SET is_active = 0 WHERE teacher_id = ?");
+    $stmt->execute([$teacher_id]);
+
+    $pdo->commit();
+
+    echo json_encode([
+      'status' => 'warning',
+      'message' => "Teacher has $feedback_count evaluation records. Deactivated instead of deleted."
+    ]);
+    exit;
+  }
+
+  //If NO feedback → HARD DELETE
+  $stmt = $pdo->prepare("DELETE FROM teachers WHERE teacher_id = ?");
+  $stmt->execute([$teacher_id]);
+
+  $pdo->commit();
+
+  echo json_encode([
+    'status' => 'success',
+    'message' => 'Teacher deleted successfully.'
+  ]);
+
+} catch (Exception $e) {
+  if ($pdo->inTransaction()) $pdo->rollBack();
+
+  echo json_encode([
+    'status' => 'error',
+    'message' => $e->getMessage()
+  ]);
 }
-
-//check historical evaluation records
-$stmt = $pdo->prepare("SELECT COUNT(*) as total FROM evaluation_status es JOIN teacher_load tl ON es.load_id = tl.load_id WHERE tl.teacher_id = ?");
-$stmt->execute([$teacher_id]);
-$count = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
-
-if($count > 0 ){
-  echo  json_encode(['status' => 'warning', 'message' => "Restricted: This teacher has $count past evaluation records. Use 'Deactivate' instead of deleting."]);
-  exit;
-}
-
-$stmt = $pdo->prepare("DELETE FROM teachers WHERE teacher_id = ?");
-$stmt->execute([$teacher_id]);
- 
-echo json_encode(['status' => 'success', 'message' => 'Teacher Successfully delete.']);
-exit;
-
 ?>

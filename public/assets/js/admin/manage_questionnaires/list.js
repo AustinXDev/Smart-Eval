@@ -1,34 +1,35 @@
 import { fetchAllSets, fetchAllQuestions } from "./questions_api.js";
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   loadQuestionSetList();
-})
+});
 
 //load all question set
-export async function loadQuestionSetList(){
-  
+export async function loadQuestionSetList() {
   const res = await fetchAllSets();
 
-  if (res.status !== 'success') {
-    console.error('Failed to load question sets');
+  if (res.status !== "success") {
+    console.error("Failed to load question sets");
     return;
   }
 
   const sets = res.data;
-  const questionsContainer = document.querySelector('.cards-container');
+  const questionsContainer = document.querySelector(".cards-container");
 
-  questionsContainer.innerHTML = '';
+  questionsContainer.innerHTML = "";
 
   sets.forEach((s) => {
-    let  badge = ``;
-    
-    if(s.active_evaluation_using_set){
+    let badge = ``;
+
+    if (s.active_evaluation_using_set) {
       badge = `In Used`;
     } else {
-      badge = `Used ${s.total_periods_using_set} time${s.total_periods_using_set !== 1 ? 's' : ''}`;
+      badge = `Used ${s.total_periods_using_set} time${s.total_periods_using_set !== 1 ? "s" : ""}`;
     }
- 
-     questionsContainer.insertAdjacentHTML('beforeend', `
+
+    questionsContainer.insertAdjacentHTML(
+      "beforeend",
+      `
       <div class="bg-white border rounded-lg shadow-sm hover:shadow-md transition p-4 space-y-3">
         
         <div class="flex items-center gap-3">
@@ -44,7 +45,7 @@ export async function loadQuestionSetList(){
         <hr>
 
         <div class="flex justify-between items-center text-sm">
-          <p class="text-gray-500">Date Created: ${new Date(s.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <p class="text-gray-500">Date Created: ${new Date(s.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
           <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs whitespace-nowrap">
             ${badge}
           </span>
@@ -54,38 +55,38 @@ export async function loadQuestionSetList(){
           <button data-set-id="${s.set_id}" class="manageQuestion bg-purple-700 text-white px-3 py-1 rounded text-sm hover:bg-purple-800">
             Manage
           </button>
-          <button data-set-id="${s.set_id}" class="editSet border px-3 py-1 rounded text-sm hover:bg-gray-100">
+          <button data-set-id="${s.set_id}" data-set-name="${s.set_name}" class="editSet border px-3 py-1 rounded text-sm hover:bg-gray-100">
             Edit
           </button>
-          <button data-set-id="${s.set_id}" class="deleteSet border text-red-600 px-3 py-1 rounded text-sm hover:bg-red-50">
+          <button data-set-id="${s.set_id}" data-set-name="${s.set_name}" class="deleteSet border text-red-600 px-3 py-1 rounded text-sm hover:bg-red-50">
             Delete
           </button>
         </div>
 
       </div>
-    `);
+    `,
+    );
   });
 }
 
-
 //load question list per set
 export async function loadQuestions(id) {
-
   const res = await fetchAllQuestions(id);
 
-  if(res.status !== 'success'){
-    console.error('Failed to load question sets', res);
+  if (res.status !== "success") {
+    console.error("Failed to load question sets", res);
     return;
   }
 
   const questions = res.data;
-  
-  const listBody = document.getElementById('questionList');
 
-  listBody.innerHTML = '';
+  const listBody = document.getElementById("questionList");
 
-  questions.forEach(q => {
-    listBody.insertAdjacentHTML('beforeend', 
+  listBody.innerHTML = "";
+
+  questions.forEach((q) => {
+    listBody.insertAdjacentHTML(
+      "beforeend",
       `<tr class="hover:bg-gray-50 transition whitespace-nowrap">
           <td class="px-4 py-3 font-medium text-gray-700">
             ${q.question_text}
@@ -110,7 +111,7 @@ export async function loadQuestions(id) {
             </button>
 
           </td>
-        </tr>`
+        </tr>`,
     );
   });
 }

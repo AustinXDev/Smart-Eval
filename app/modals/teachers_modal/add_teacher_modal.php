@@ -29,18 +29,18 @@
       <div id="input-wrapper" class="w-full flex flex-col items-centers lg:flex-row gap-4">
         <div id="input-container" class="w-full">
           <label for="teachersId" class="text-gray-600">Employee ID <span class="text-red-500">*</span></label>
-          <input type="text" name="employee_id" id="teachersId" placeholder="Enter Teacher ID" class="w-full border border-gray-300 rounded px-3 py-2" required>
+          <input type="text" name="employee_id" id="teachersId" placeholder="eg., 00-0000" class="w-full border border-gray-300 rounded px-3 py-2" required>
         </div>
         <div id="input-container" class="w-full">
           <label for="teachersName" class="text-gray-600">Full Name <span class="text-red-500">*</span></label>
-          <input type="text" name="full_name" id="teachersName" placeholder="Enter Teacher Name" class="w-full border border-gray-300 rounded px-3 py-2" required>
+          <input type="text" name="full_name" id="teachersName" placeholder="eg., first name, last name, middle I." class="w-full border border-gray-300 rounded px-3 py-2" required>
         </div>  
       </div>
 
       <div id="input-wrapper" class="w-full flex flex-col items-center lg:flex-row gap-4">
         <div id="input-container" class="w-full">
           <label for="teachersEmail" class="text-gray-600">Email Address <span class="text-red-500">*</span></label>
-          <input type="email" name="email" id="teachersEmail" placeholder=" Enter Email Address" class="w-full border border-gray-300 rounded px-3 py-2" required>
+          <input type="email" name="email" id="teachersEmail" placeholder="eg., example@gmail.com" class="w-full border border-gray-300 rounded px-3 py-2" required>
         </div>
         <div id="input-container" class="w-full">
           <label for="teachersDept" class="text-gray-600">Department <span class="text-red-500">*</span></label>
