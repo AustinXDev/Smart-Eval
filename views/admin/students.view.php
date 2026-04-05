@@ -7,7 +7,7 @@ if (isAdminLoggedIn()) {
     $admin     = getAdmin();
     $role      = strtolower(str_replace(' ', '_', $admin['role']));
     $name      = $admin['username'];
-    $logout    = '/Smart-Eval/app/auth/logout.admin.php';
+    $logout    = '/Smart-Eval/app/admin/logout.admin.php';
 } else {
     $role      = 'student';
     $studentID = getStudent();

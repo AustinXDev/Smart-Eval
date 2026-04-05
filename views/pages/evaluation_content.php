@@ -1,7 +1,7 @@
 <!-- PAGE WRAPPER (IMPORTANT) -->
-<div class="h-screen flex flex-col">
+<div class="h-screen max-h-[700px] flex flex-col">
 
-  <div class="flex-1 p-4">
+  <div class="flex-1">
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
 
@@ -25,7 +25,7 @@
           <!-- Teacher Info -->
           <div class="flex items-center gap-4 border-b pb-4 flex-shrink-0">
             <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
-            <h2 class="text-lg font-semibold text-gray-800">Teacher's Name</h2>
+            <h2 data-teacher-name class="text-lg font-semibold text-gray-800">Teacher's Name</h2>
           </div>
 
           <!-- QUESTIONS (SCROLLABLE) -->
@@ -70,7 +70,7 @@
                 maxlength="500"
                 class="w-full mt-2 border rounded-lg p-3 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none resize-none"
                 rows="3"
-                placeholder="Type your feedback..."></textarea>
+                placeholder="Type your feedback..." required></textarea>
 
               <p class="text-xs text-gray-400 text-right mt-1">
                 <span id="charCount">0</span> / 500 characters
@@ -79,7 +79,7 @@
 
             <!-- Buttons -->
             <div class="flex justify-between items-center mt-4">
-              <button class="flex items-center gap-2 text-gray-600 hover:text-black transition">
+              <button id="previousBtn" class="flex items-center gap-2 text-gray-600 hover:text-black transition">
                 ← Previous
               </button>
 
@@ -97,7 +97,7 @@
       <!-- RIGHT SIDE -->
       <div class="space-y-4">
 
-        <div class="bg-yellow-100 p-4 rounded-xl shadow-sm">
+        <div class="bg-yellow-100 p-4 rounded-xl shadow-sm hidden md:block">
           <div class="flex items-center gap-2 mb-2">
             ⚠️ <h3 class="font-semibold text-yellow-800">Evaluation Procedure</h3>
           </div>
@@ -109,7 +109,7 @@
           </ol>
         </div>
 
-        <div class="bg-red-200 p-4 rounded-xl text-center text-red-800 shadow-sm">
+        <div class="bg-red-200 p-4 rounded-xl text-center text-red-800 shadow-sm hidden md:block">
           ❗ You must evaluate all teachers to complete.
         </div>
 

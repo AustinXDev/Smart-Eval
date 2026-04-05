@@ -67,14 +67,14 @@
         </div>
       </div>
 
-      <thead class="bg-gray-50 border-b-2 border-gray-200">
+      <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
         <tr>
-          <th class="px-4 py-2 font-normal w-20 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Photo</th>
-          <th class="px-4 py-2 font-normal w-40 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Teacher ID</th>
-          <th class="px-4 py-2 font-normal whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Teacher Name</th>
-          <th class="px-4 py-2 font-normal w-10 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Department</th>
-          <th class="px-4 py-2 font-normal w-15 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Status</th>
-          <th class="px-4 py-2 font-normal w-15 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Actions</th>
+          <th class="px-4 py-2 font-bold w-20 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Photo</th>
+          <th class="px-4 py-2 font-bold w-40 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Teacher ID</th>
+          <th class="px-4 py-2 font-bold whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Teacher Name</th>
+          <th class="px-4 py-2 font-bold w-10 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Department</th>
+          <th class="px-4 py-2 font-bold w-15 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Status</th>
+          <th class="px-4 py-2 font-bold w-15 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Actions</th>
         </tr>
       </thead>
 

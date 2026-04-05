@@ -69,23 +69,23 @@
   <div id="tableWrapper" class="overflow-x-auto w-full" data-department="<?php echo htmlspecialchars($department); ?>">
     <table id="studentsTable" class="w-full text-left text-sm sm:text-base" >
 
-      <div class="flex w-full flex-col gap-4 md:flex-row md:gap-8  mb-4  mt-2">
+      <div class="flex flex-col gap-4 md:flex-row md:gap-8  mb-4 mt-2">
         <div class="flex items-center gap-2">
           <label class="text-gray-900 text-sm whitespace-nowrap"><?php echo ($department === 'college') ? 'Filter Course:': 'Filter Program:';?></label>
-          <select id="courseFilter" class="border border-gray-200 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer min-w-30">
+          <select id="courseFilter" class="border border-gray-200 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer w-[200px]">
             <option value="All">All </option>
           </select>
         </div>
       </div>
 
-      <thead class="bg-gray-50 border-b-2 border-gray-200">
+      <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
         <tr>
-          <th class="px-4 py-2 font-normal w-20 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Student ID</th>
-          <th class="px-4 py-2 font-normal w-80 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Student Name</th>
-          <th class="px-4 py-2 font-normal w-30 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Department</th>
-          <th class="px-4 py-2 font-normal w-30 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Course</th>
-          <th class="px-4 py-2 font-normal w-25 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Status</th>
-          <th class="px-4 py-2 font-normal w-40 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Actions</th>
+          <th class="px-4 py-2 font-bold w-20 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Student ID</th>
+          <th class="px-4 py-2 font-bold w-80 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Student Name</th>
+          <th class="px-4 py-2 font-bold w-30 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Department</th>
+          <th class="px-4 py-2 font-bold w-30 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Course</th>
+          <th class="px-4 py-2 font-bold w-25 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Status</th>
+          <th class="px-4 py-2 font-bold w-40 whitespace-nowrap" style="font-family: roboto, 'sans-serif';">Actions</th>
         </tr>
       </thead>
 

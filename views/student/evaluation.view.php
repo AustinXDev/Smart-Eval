@@ -9,7 +9,7 @@ if (isAdminLoggedIn()) {
     $logout    = '/Smart-Eval/app/auth/logout.admin.php';
 } else {
     $role      = 'student';
-    $studentID = getStudent();
+    $student = getStudent();
     $logout    = '/Smart-Eval/app/auth/logout.student.php';
 }
 
@@ -22,7 +22,7 @@ $currentUrl = $_SERVER['REQUEST_URI'];
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
+  <title>Evaluation</title>
 
   <?php include_once __DIR__ . '../../../public/assets/includes/head.php'?>
 
@@ -51,5 +51,6 @@ $currentUrl = $_SERVER['REQUEST_URI'];
       }
     });
   </script>
+  <script src="../../public/assets/js/evaluation/evaluation.js" type="module"></script>
 </body>
 </html>

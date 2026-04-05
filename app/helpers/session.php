@@ -11,13 +11,13 @@ function startSession() {
 // Check if student is logged in
 function isStudentLoggedIn() {
   startSession();
-  return isset($_SESSION['student_id']);
+  return isset($_SESSION['student']);
 }
 
 // Get current logged in student
 function getStudent(){
   startSession();
-  return $_SESSION['student_id'] ?? null;
+  return $_SESSION['student'] ?? null;
 }
 
 

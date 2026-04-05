@@ -20,13 +20,13 @@ $admin = getAdmin();
 
     <!-- Logo & Title -->
     <img src="../../public/assets/images/aite-logo.png" alt="AITE Logo" width="38">
-    <h1 class="text-white text-sm md:text-base font-semibold tracking-wide">Smart-Eval System</h1>
+    <h1 class="text-white text-sm md:text-base font-semibold tracking-wide">Smart-Eval</h1>
   </div>
 
   <!-- Role & Avatar -->
   <div class="flex items-center gap-3">
     <div class="hidden lg:flex flex-col items-end">
-      <p class="text-white text-sm font-medium"><?= htmlspecialchars($admin['username'] ?? $studentID ?? 'Unknown') ?></p>
+      <p class="text-white text-sm font-medium"><?= htmlspecialchars($admin['username'] ?? $student['full_name'] ?? 'Unknown') ?></p>
       <p class="text-blue-400 text-xs"><?= htmlspecialchars(ucwords(str_replace('_', ' ', $admin['role']))) ?></p>
     </div>
     <img src="../../public/assets/icons/profile.png" alt="Profile" width="35" class="rounded-full">
