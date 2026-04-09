@@ -95,7 +95,7 @@ try {
     if (!$period_id) {
         $redirect = '/Smart-Eval/views/student/no_evaluation.php';
     } elseif ($isFinishedAll === 1) {
-        $redirect = '/Smart-Eval/views/student/evaluation_done.view.php';
+        $redirect = '/Smart-Eval/views/student/evaluation_done.php';
     } elseif (!empty($user['enrollment_type'])) {
         // Check if student already selected teachers for irregular
         if ($user['enrollment_type'] === 'Irregular') {

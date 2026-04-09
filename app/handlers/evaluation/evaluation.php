@@ -443,7 +443,7 @@ function completeAllEvaluation($studentID, $periodId, $teachers, $pdo) {
     echo json_encode([
       'success'  => true,
       'message'  => 'All evaluations completed',
-      'redirect' => '/Smart-Eval/views/student/evaluation_complete.view.php'
+      'redirect' => '/Smart-Eval/views/student/evaluation_done.php'
     ]);
 
   } catch (Exception $e) {

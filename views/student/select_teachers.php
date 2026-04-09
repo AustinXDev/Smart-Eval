@@ -1,5 +1,5 @@
 <?php require '../../app/middleware/require_auth.php'; ?>
-<?php require_once __DIR__ . '/../../app/middleware/student_enrollment_guard.php'; ?>
+<?php require __DIR__ . '/../../app/middleware/student_enrollment_guard.php'; ?>
 
 <?php 
 $student = $_SESSION['student'];

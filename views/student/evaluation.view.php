@@ -1,4 +1,5 @@
 <?php require '../../app/middleware/require_auth.php'; ?>
+<?php require __DIR__ . '/../../app/middleware/evaluation_finished_guard.php'; ?>
 <?php require_once __DIR__ . '/../../app/config/nav.php';  ?>
 
 <?php 

@@ -1,9 +1,3 @@
-/**
- * evaluation.js
- * Handles the full student evaluation flow.
- * Single source of truth: evaluation.php handles all actions.
- */
-
 const studentEvaluation = {
   currentIndex: 0,
   totalTeachers: 0,
@@ -13,11 +7,9 @@ const studentEvaluation = {
   periodId: null,
   isSubmitted: false,
 
-  // ── Review modal state ─────────────────────────────────────────────────────
   _reviewIndex: 0,
   _reviewData: [],
 
-  // ── Fetch current teacher + previous answers ───────────────────────────────
   async fetchTeacher() {
     try {
       const res = await fetch(
@@ -38,9 +30,16 @@ const studentEvaluation = {
       this.isSubmitted = data.is_submitted === 1;
 
       const loadId = data.teacher.load_id;
+
+      // Restore previous answers (scores only — comment is now per-teacher)
       this.answers[loadId] = {
-        ...(this.answers[loadId] ?? {}),
-        ...data.previous_answers,
+        scores: {
+          ...(this.answers[loadId]?.scores ?? {}),
+          ...this._extractScores(data.previous_answers),
+        },
+        comment:
+          this.answers[loadId]?.comment ??
+          this._extractTeacherComment(data.previous_answers),
       };
 
       this.renderTeacher();
@@ -59,7 +58,21 @@ const studentEvaluation = {
     }
   },
 
-  // ── Fetch questions (called once on init) ─────────────────────────────────
+  // Extract scores only from previous_answers
+  _extractScores(previousAnswers = {}) {
+    const scores = {};
+    Object.entries(previousAnswers).forEach(([qid, ans]) => {
+      scores[qid] = ans.score;
+    });
+    return scores;
+  },
+
+  // Extract the single shared comment (all answers share the same comment per teacher)
+  _extractTeacherComment(previousAnswers = {}) {
+    const first = Object.values(previousAnswers)[0];
+    return first?.comment ?? "";
+  },
+
   async fetchQuestions() {
     try {
       const res = await fetch(
@@ -80,7 +93,6 @@ const studentEvaluation = {
     }
   },
 
-  // ── Render teacher card ────────────────────────────────────────────────────
   renderTeacher() {
     const t = this.currentTeacher;
 
@@ -110,7 +122,6 @@ const studentEvaluation = {
     }
   },
 
-  // ── Progress bar ──────────────────────────────────────────────────────────
   _updateProgressBar() {
     const bar = document.getElementById("progressBar");
     if (!bar) return;
@@ -128,7 +139,7 @@ const studentEvaluation = {
     }
   },
 
-  // ── Render questions grouped by category ──────────────────────────────────
+  // Render questions — no per-question comment box anymore
   renderQuestions(previousAnswers = {}) {
     const container = document.getElementById("questionsContainer");
     if (!container) {
@@ -166,7 +177,6 @@ const studentEvaluation = {
       questions.forEach((q) => {
         globalIndex++;
         const prevScore = previousAnswers[q.question_id]?.score ?? null;
-        const prevComment = previousAnswers[q.question_id]?.comment ?? "";
 
         const optionsHTML = LABELS.map(
           (label) => `
@@ -199,30 +209,43 @@ const studentEvaluation = {
           <p class="font-medium text-gray-700 mb-3">
             ${globalIndex}. ${this._escapeHtml(q.question_text)}
           </p>
-          <div class="flex flex-wrap gap-3 text-sm mb-4">${optionsHTML}</div>
-          <div>
-            <label class="text-xs text-gray-600">Additional Comment (Optional)</label>
-            <textarea
-              class="comment-box w-full mt-1 border rounded-lg p-2 text-sm
-                     focus:ring-2 focus:ring-purple-500 focus:outline-none resize-none"
-              data-question-id="${q.question_id}"
-              maxlength="300"
-              rows="2"
-              placeholder="Share your thoughts..."
-            >${this._escapeHtml(prevComment)}</textarea>
-            <p class="text-xs text-gray-400 text-right mt-1">
-              <span class="char-count">${prevComment.length}</span> / 300 characters
-            </p>
-          </div>`;
+          <div class="flex flex-wrap gap-3 text-sm mb-4">${optionsHTML}</div>`;
 
         container.appendChild(div);
       });
     });
 
+    // ── Single teacher comment box at the bottom ──────────────────────────
+    const loadId = this.currentTeacher.load_id;
+    const prevComment = this.answers[loadId]?.comment ?? "";
+
+    const commentSection = document.createElement("div");
+    commentSection.className = "mt-8 border-t border-gray-200 pt-6";
+    commentSection.innerHTML = `
+      <label class="block text-sm font-semibold text-gray-700 mb-1">
+        Overall Comment for <span class="text-purple-700">${this._escapeHtml(this.currentTeacher.full_name)}</span>
+        <span class="text-red-500 ml-1">*</span>
+      </label>
+      <p class="text-xs text-gray-400 mb-2">This field is required before you can proceed.</p>
+      <textarea
+        id="teacherComment"
+        class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none resize-none"
+        rows="4"
+        maxlength="500"
+        placeholder="Write your overall comment about this teacher..."
+      >${this._escapeHtml(prevComment)}</textarea>
+      <p class="text-xs text-gray-400 text-right mt-1">
+        <span id="teacherCommentCount">${prevComment.length}</span> / 500 characters
+      </p>
+      <p id="commentError" class="text-xs text-red-500 mt-1 hidden">
+        Please provide an overall comment before proceeding.
+      </p>`;
+
+    container.appendChild(commentSection);
+
     this._attachFormListeners();
   },
 
-  // ── Submitted notice (upsert keeps form editable) ─────────────────────────
   _showSubmittedNotice() {
     const container = document.getElementById("questionsContainer");
     if (!container || container.querySelector(".submitted-notice")) return;
@@ -236,7 +259,6 @@ const studentEvaluation = {
     container.prepend(badge);
   },
 
-  // ── Form listeners ─────────────────────────────────────────────────────────
   _attachFormListeners() {
     document.querySelectorAll("input[type='radio']").forEach((radio) => {
       radio.addEventListener("change", () => {
@@ -245,61 +267,91 @@ const studentEvaluation = {
       });
     });
 
-    document.querySelectorAll(".comment-box").forEach((textarea) => {
-      textarea.addEventListener("input", (e) => {
-        const counter = e.target.closest("div").querySelector(".char-count");
-        if (counter) counter.textContent = e.target.value.length;
+    // Single teacher comment box listener
+    const commentBox = document.getElementById("teacherComment");
+    if (commentBox) {
+      commentBox.addEventListener("input", (e) => {
+        const count = document.getElementById("teacherCommentCount");
+        if (count) count.textContent = e.target.value.length;
         this.collectAnswers();
+        this.validateAllAnswered();
       });
-    });
+    }
   },
 
-  // ── Collect answers ────────────────────────────────────────────────────────
+  // Collect scores + single teacher comment
   collectAnswers() {
-    const answers = {};
+    const scores = {};
+    const loadId = this.currentTeacher.load_id;
+    const comment =
+      document.getElementById("teacherComment")?.value.trim() ?? "";
 
     document.querySelectorAll(".question").forEach((el) => {
       const qid = el.dataset.qid;
       const radio = el.querySelector("input[type='radio']:checked");
-      const textarea = el.querySelector(".comment-box");
-
-      answers[qid] = {
+      scores[qid] = {
         score: radio ? parseInt(radio.value, 10) : null,
-        comment: textarea ? textarea.value.trim() : "",
+        comment: comment, // same comment applied to all answers for this teacher
       };
     });
 
-    this.answers[this.currentTeacher.load_id] = answers;
-    return answers;
+    this.answers[loadId] = { scores, comment };
+    return { scores, comment };
   },
 
-  // ── Validate scores (comment is optional) ────────────────────────────────
+  // Validate: all questions scored + comment not empty
   validateAllAnswered() {
-    const localAnswers = this.answers[this.currentTeacher.load_id] ?? {};
+    const loadId = this.currentTeacher.load_id;
+    const localAnswers = this.answers[loadId]?.scores ?? {};
+    const comment = this.answers[loadId]?.comment ?? "";
 
-    const allAnswered = this.questions.every((q) => {
+    const allScored = this.questions.every((q) => {
       const score = localAnswers[q.question_id]?.score;
       return Number.isInteger(score) && score >= 1 && score <= 5;
     });
 
-    const nextBtn = document.getElementById("nextBtn");
-    if (nextBtn) {
-      nextBtn.disabled = !allAnswered;
-      nextBtn.classList.toggle("opacity-50", !allAnswered);
-      nextBtn.classList.toggle("cursor-not-allowed", !allAnswered);
+    const hasComment = comment.trim().length > 0;
+    const allValid = allScored && hasComment;
+
+    // Show/hide comment error
+    const commentError = document.getElementById("commentError");
+    if (commentError) {
+      commentError.classList.toggle("hidden", hasComment || comment === "");
     }
 
-    return allAnswered;
+    const nextBtn = document.getElementById("nextBtn");
+    if (nextBtn) {
+      nextBtn.disabled = !allValid;
+      nextBtn.classList.toggle("opacity-50", !allValid);
+      nextBtn.classList.toggle("cursor-not-allowed", !allValid);
+    }
+
+    return allValid;
   },
 
-  // ── Submit evaluation ──────────────────────────────────────────────────────
   async submitEvaluation() {
+    const { scores, comment } = this.collectAnswers();
+
     if (!this.validateAllAnswered()) {
-      alert("Please select a rating for every question before proceeding.");
+      if (!comment.trim()) {
+        const commentError = document.getElementById("commentError");
+        if (commentError) commentError.classList.remove("hidden");
+        document.getElementById("teacherComment")?.focus();
+        alert("Please provide an overall comment before proceeding.");
+      } else {
+        alert("Please select a rating for every question before proceeding.");
+      }
       return;
     }
 
-    const answers = this.collectAnswers();
+    // Build answers payload — each question carries the shared comment
+    const answersPayload = {};
+    Object.entries(scores).forEach(([qid, ans]) => {
+      answersPayload[qid] = {
+        score: ans.score,
+        comment: comment,
+      };
+    });
 
     try {
       const res = await fetch(
@@ -309,7 +361,7 @@ const studentEvaluation = {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             load_id: this.currentTeacher.load_id,
-            answers,
+            answers: answersPayload,
           }),
         },
       );
@@ -323,10 +375,7 @@ const studentEvaluation = {
       }
 
       this.isSubmitted = true;
-
-      // Check completion immediately — enables the button when last teacher is done
       await this.checkCompletion();
-
       await this.nextTeacher();
     } catch (err) {
       console.error("submitEvaluation:", err);
@@ -334,7 +383,6 @@ const studentEvaluation = {
     }
   },
 
-  // ── Next teacher ──────────────────────────────────────────────────────────
   async nextTeacher() {
     try {
       const res = await fetch(
@@ -350,7 +398,9 @@ const studentEvaluation = {
       }
 
       if (data.is_last) {
-        // Already checked completion in submitEvaluation — no need to alert here
+        alert(
+          "You have successfully evaluated all assigned teachers. Please click 'Complete Evaluation' to finalize.",
+        );
         return;
       }
 
@@ -361,7 +411,6 @@ const studentEvaluation = {
     }
   },
 
-  // ── Previous teacher ──────────────────────────────────────────────────────
   async previousTeacher() {
     this.collectAnswers();
 
@@ -385,7 +434,6 @@ const studentEvaluation = {
     }
   },
 
-  // ── Check completion ───────────────────────────────────────────────────────
   async checkCompletion() {
     try {
       const res = await fetch(
@@ -412,9 +460,7 @@ const studentEvaluation = {
     }
   },
 
-  // ── Finalize all evaluations ───────────────────────────────────────────────
   async completeEvaluation() {
-    // Guard — backend also verifies this
     const completion = await this.checkCompletion();
     if (!completion?.all_completed) {
       const done = completion?.completed_count ?? 0;
@@ -447,7 +493,6 @@ const studentEvaluation = {
     }
   },
 
-  // ── Navigation button states ───────────────────────────────────────────────
   updateNavigationButtons() {
     const prevBtn = document.getElementById("previousBtn");
     const nextBtn = document.getElementById("nextBtn");
@@ -465,7 +510,6 @@ const studentEvaluation = {
     }
   },
 
-  // ── Enable complete button ─────────────────────────────────────────────────
   _enableCompleteButton() {
     const btn = document.getElementById("completeBtn");
     if (!btn) return;
@@ -474,7 +518,6 @@ const studentEvaluation = {
     btn.classList.add("bg-purple-700", "hover:bg-purple-800", "cursor-pointer");
   },
 
-  // ── Fatal error display ────────────────────────────────────────────────────
   _handleFatalError(message) {
     console.error("Fatal:", message);
     const container = document.getElementById("questionsContainer");
@@ -488,20 +531,16 @@ const studentEvaluation = {
     alert(message);
   },
 
-  // ── XSS guard ─────────────────────────────────────────────────────────────
   _escapeHtml(text) {
     const div = document.createElement("div");
     div.textContent = String(text ?? "");
     return div.innerHTML;
   },
 
-  // ── Review modal — open ────────────────────────────────────────────────────
   async openReviewModal() {
     const modal = document.getElementById("reviewModal");
     if (!modal) {
-      console.error(
-        "reviewModal element not found. Did you include review_modal.php?",
-      );
+      console.error("reviewModal element not found.");
       return;
     }
 
@@ -529,15 +568,18 @@ const studentEvaluation = {
     }
   },
 
-  // ── Review modal — close ───────────────────────────────────────────────────
   closeReviewModal() {
     const modal = document.getElementById("reviewModal");
     if (modal) modal.classList.add("hidden");
     document.body.style.overflow = "";
-    console.log("clicked");
+
+    const btn = document.getElementById("completeBtn");
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add("opacity-50", "cursor-not-allowed", "bg-gray-300");
+    }
   },
 
-  // ── Review modal — render current teacher ─────────────────────────────────
   _renderReviewTeacher() {
     const SCORE_LABELS = {
       1: "Strongly Disagree",
@@ -547,7 +589,6 @@ const studentEvaluation = {
       5: "Strongly Agree",
     };
 
-    // Tailwind-safe classes for score badges
     const SCORE_CLASS = {
       1: "bg-red-100 text-red-700",
       2: "bg-orange-100 text-orange-700",
@@ -574,7 +615,6 @@ const studentEvaluation = {
     document.getElementById("reviewTeacherCounter").textContent =
       `Teacher ${this._reviewIndex + 1} of ${this._reviewData.length}`;
 
-    // Average score
     const scores = Object.values(answers)
       .map((a) => a.score)
       .filter(Boolean);
@@ -582,14 +622,26 @@ const studentEvaluation = {
       ? (scores.reduce((s, n) => s + n, 0) / scores.length).toFixed(1)
       : "—";
 
-    // Answer rows
+    // Show the shared teacher comment once at the top of the review
+    const sharedComment = Object.values(answers)[0]?.comment ?? "";
+    let reviewCommentEl = document.getElementById("reviewTeacherComment");
+    if (!reviewCommentEl) {
+      reviewCommentEl = document.createElement("p");
+      reviewCommentEl.id = "reviewTeacherComment";
+      reviewCommentEl.className = "text-sm text-gray-500 italic mt-1 mb-3";
+      document
+        .getElementById("reviewTeacherName")
+        ?.closest("div")
+        ?.appendChild(reviewCommentEl);
+    }
+    reviewCommentEl.textContent = sharedComment ? `"${sharedComment}"` : "";
+
     const list = document.getElementById("reviewAnswerList");
     list.innerHTML = "";
 
     this.questions.forEach((q, i) => {
       const ans = answers[q.question_id] ?? {};
       const score = ans.score ?? null;
-      const comment = ans.comment ?? "";
       const badgeCls = score ? SCORE_CLASS[score] : "bg-red-100 text-red-600";
       const label = score ? SCORE_LABELS[score] : "Not answered";
 
@@ -603,25 +655,16 @@ const studentEvaluation = {
           <span class="flex-shrink-0 text-xs font-medium px-2.5 py-1 rounded-full ${badgeCls}">
             ${label}
           </span>
-        </div>
-        ${
-          comment
-            ? `<p class="text-xs text-gray-400 italic mt-1.5 m-0">"${this._escapeHtml(comment)}"</p>`
-            : ""
-        }
-      `;
+        </div>`;
       list.appendChild(row);
     });
 
-    // Dots
     const dots = document.getElementById("reviewDots");
     dots.innerHTML = "";
     this._reviewData.forEach((_, i) => {
       const d = document.createElement("button");
       d.type = "button";
-      d.className = `w-2 h-2 rounded-full transition-colors ${
-        i === this._reviewIndex ? "bg-gray-700" : "bg-gray-300"
-      }`;
+      d.className = `w-2 h-2 rounded-full transition-colors ${i === this._reviewIndex ? "bg-gray-700" : "bg-gray-300"}`;
       d.onclick = () => {
         this._reviewIndex = i;
         this._renderReviewTeacher();
@@ -629,12 +672,10 @@ const studentEvaluation = {
       dots.appendChild(d);
     });
 
-    // Prev / Next
     const isLast = this._reviewIndex === this._reviewData.length - 1;
     document.getElementById("reviewPrevBtn").disabled = this._reviewIndex === 0;
     document.getElementById("reviewNextBtn").disabled = isLast;
 
-    // Confirm button — highlight green only on last teacher page
     const confirmBtn = document.getElementById("reviewConfirmBtn");
     if (isLast) {
       confirmBtn.className =
@@ -647,7 +688,6 @@ const studentEvaluation = {
     }
   },
 
-  // ── Review modal — navigate between teachers ───────────────────────────────
   reviewNavigate(dir) {
     const next = this._reviewIndex + dir;
     if (next < 0 || next >= this._reviewData.length) return;
@@ -656,7 +696,7 @@ const studentEvaluation = {
   },
 };
 
-// ── Bootstrap ────────────────────────────────────────────────────────────────
+// Bootstrap
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     await studentEvaluation.fetchQuestions();
@@ -675,7 +715,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       studentEvaluation.previousTeacher();
     });
 
-    // Opens review modal — completeEvaluation() fires from inside the modal
     document.getElementById("completeBtn")?.addEventListener("click", (e) => {
       e.preventDefault();
       studentEvaluation.openReviewModal();

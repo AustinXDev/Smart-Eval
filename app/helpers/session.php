@@ -61,8 +61,9 @@ function clear2FASession() {
 
 // Logout student
 function logoutStudent() {
-  startSession();
-  unset($_SESSION['student_id']);
+    startSession();
+    unset($_SESSION['student']);
+    session_destroy();
 }
 
 // Logout admin
