@@ -40,9 +40,12 @@ $currentUrl = $_SERVER['REQUEST_URI'];
   <!-- Sidebar -->
   <?php require __DIR__ . '/../partials/sidebar.php'; ?>
 
-  <main class="pt-22 lg:ml-90 p-6 flex-1 border-1 min-h-screen">
+  <main class="pt-22 lg:ml-90 p-4 min-h-screen">
     <?php require __DIR__ . '/../pages/evaluation_content.php'; ?>
   </main>
+
+  <!-- Modals -->
+  <?php require __DIR__ . '/../../app/modals/evaluation_modal/review_modal.php'; ?>
 
   <script>
     window.addEventListener('pageshow', (e) => {

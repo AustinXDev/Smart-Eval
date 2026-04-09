@@ -1,50 +1,50 @@
 <?php
-  session_start();
-  require_once __DIR__ . '/../../config/database.php';
+session_start();
+require_once __DIR__ . '/../../config/database.php';
 
-  $student = $_SESSION['student'] ?? null;
+$student = $_SESSION['student'] ?? null;
+if (!$student) {
+    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+    exit;
+}
 
-  if (!$student) {
-      echo json_encode([
-          'status' => 'error',
-          'message' => 'Unauthorized'
-      ]);
-      exit;
-  }
+if ($student['enrollment_type'] !== 'Irregular') {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Only irregular students can select teachers']);
+    exit;
+}
 
-  //Get student's department (College / SHS)
-  $stmt = $pdo->prepare("
-      SELECT department 
-      FROM programs 
-      WHERE program_id = ?
-  ");
-  $stmt->execute([$student['program_id']]);
-  $program = $stmt->fetch(PDO::FETCH_ASSOC);
+// Get student's program
+$stmt = $pdo->prepare("
+    SELECT s.program_id
+    FROM students s
+    WHERE s.student_id = ?
+");
+$stmt->execute([$student['student_id']]);
+$info = $stmt->fetch(PDO::FETCH_ASSOC);
 
-  if (!$program) {
-      echo json_encode([
-          'status' => 'error',
-          'message' => 'Program not found'
-      ]);
-      exit;
-  }
+if (!$info) {
+    echo json_encode(['success' => false, 'error' => 'Student program not found']);
+    exit;
+}
 
-  $department = $program['department']; // College or SHS
+// Get ALL teachers in the program (deduplicated - one per teacher)
+$stmt = $pdo->prepare("
+    SELECT DISTINCT
+        t.teacher_id,
+        t.full_name,
+        t.department
+    FROM teacher_load tl
+    INNER JOIN teachers t ON tl.teacher_id = t.teacher_id
+    WHERE tl.program_id = ?
+      AND t.is_active = 1
+    ORDER BY t.full_name ASC
+");
+$stmt->execute([$info['program_id']]);
+$teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-  //Filter teachers based on student department
-  $stmt = $pdo->prepare("
-      SELECT teacher_id, full_name, department
-      FROM teachers
-      WHERE is_active = 1
-      AND department = ?
-      ORDER BY full_name ASC
-  ");
-  $stmt->execute([$department]);
-
-  $teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-  echo json_encode([
-      'status' => 'success',
-      'data' => $teachers
-  ]);
+echo json_encode([
+    'success' => true,
+    'available_teachers' => $teachers
+]);
 ?>

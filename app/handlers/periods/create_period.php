@@ -2,6 +2,8 @@
 header('Content-type: application/json');
 require_once __DIR__ . '/../../config/database.php';
 
+date_default_timezone_set('Asia/Manila');
+
 $data = json_encode($_POST);
 
 $academic_year = $_POST['academic_year'] ?? '';
@@ -10,6 +12,9 @@ $department = $_POST['department'] ?? '';
 $start_date = $_POST['start_date'] ?? '';
 $end_date = $_POST['end_date'] ?? '';
 $question_set_id = $_POST['question_set'] ?? null;
+
+$start_date = date("Y-m-d H:i:s", strtotime($start_date));
+$end_date   = date("Y-m-d H:i:s", strtotime($end_date));
 
 // basic validation empty fields
 if(!$academic_year || !$semester || !$department || !$start_date || !$end_date || !$question_set_id) {
@@ -52,25 +57,35 @@ if($countSemester > 0){
   exit;
 }
 
-
-//prevent duplicate active
+//check overlap
 $check = $pdo->prepare("
-              SELECT COUNT(*) FROM evaluation_periods
-              WHERE academic_year = ?
-              AND semester = ?
-              AND target_dept = ?
-              AND (
-                (start_date BETWEEN ? AND ?) OR
-                (end_date BETWEEN ? AND ?)
-              )
+    SELECT COUNT(*) 
+    FROM evaluation_periods
+    WHERE target_dept = ?
+    AND semester = ?
+    AND academic_year = ?
+    AND (
+        start_date < ?
+        AND end_date > ?
+    )
 ");
 
-$check->execute([$academic_year, $semester, $department, $start_date, $end_date, $start_date, $end_date]);
+$check->execute([
+    $department,
+    $semester,
+    $academic_year,
+    $end_date,
+    $start_date
+]);
+
 $count = $check->fetchColumn();
 
 if($count > 0){
-  echo json_encode(['status' => 'error', 'message' => 'Evaluation period overlaps with existing schedule.']);
-  exit;
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Evaluation period overlaps with an existing schedule for this department and semester.'
+    ]);
+    exit;
 }
 
 //set active if start date is today

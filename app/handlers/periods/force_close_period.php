@@ -1,96 +1,90 @@
-<?php 
-header('Content-type: application/json');
+<?php
+header('Content-Type: application/json');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once __DIR__ . '/../../config/database.php';
 
-$period_id = $_POST['period_id'];
+$period_id = $_POST['period_id'] ?? null;
 
-if(!$period_id){
-  echo json_encode(['status' => 'error', 'message' => 'period id not found.']);
-  exit;
+if (!$period_id) {
+    echo json_encode(['status' => 'error', 'message' => 'Period ID not found.']);
+    exit;
 }
 
-try{
-  $pdo->beginTransaction();
+try {
+    $pdo->beginTransaction();
 
-  $stmt = $pdo->prepare("
-      SELECT period_id, target_dept, is_active
-      FROM evaluation_periods
-      WHERE period_id = ?
-  ");
-  $stmt->execute([$period_id]);
-  $period = $stmt->fetch();
-
-  if (!$period) {
-      throw new Exception("Period not found.");
-  }
-
-  $dept = $period['target_dept'];
-
-  //count total expected evaluations
-   $stmt = $pdo->prepare("
-      SELECT COUNT(*) AS total_expected
-      FROM teacher_load tl
-      JOIN teachers t
-          ON tl.teacher_id = t.teacher_id
-          AND t.is_active = 1
-      JOIN students s
-          ON s.program_id = tl.program_id
-          AND s.year_level = tl.year_level
-          AND s.is_active = 1
-      JOIN programs p
-          ON s.program_id = p.program_id
-      WHERE p.department = ?
-  ");
-  $stmt->execute([$dept]);
-  $totalExpected = (int)$stmt->fetchColumn();
-
-  if ($totalExpected === 0) {
-      throw new Exception("No expected evaluations found for this period.");
-  }
-
-  //count submitted evalutions
-  $stmt = $pdo->prepare("
-    SELECT COUNT(*) AS total_submitted
-    FROM evaluation_status es
-    JOIN students s
-        ON es.student_id = s.student_id
-        AND s.is_active = 1
-    JOIN teacher_load tl
-        ON tl.program_id = s.program_id
-        AND tl.year_level = s.year_level
-    JOIN teachers t
-        ON tl.teacher_id = t.teacher_id
-        AND t.is_active = 1
-    JOIN programs p
-        ON s.program_id = p.program_id
-    WHERE es.period_id = ?
-        AND es.is_submitted = 1
-        AND p.department = ?
+    // Get period info
+    $stmt = $pdo->prepare("
+        SELECT period_id, target_dept, is_active
+        FROM evaluation_periods
+        WHERE period_id = ?
     ");
-    $stmt->execute([$period_id, $dept]);
-    $totalSubmitted = (int)$stmt->fetchColumn();
+    $stmt->execute([$period_id]);
+    $period = $stmt->fetch(PDO::FETCH_ASSOC);
 
-  //calculate participation rate
-  $participationRate = ($totalSubmitted / $totalExpected) * 100;
+    if (!$period) {
+        throw new Exception("Period not found.");
+    }
 
-  //check if participation is 100%
-  if ($participationRate < 100) {
-      throw new Exception("Cannot force close. Participation is only {$participationRate}%.");
-  }
+    $dept = $period['target_dept'];
 
-  //force_closed
-  $stmt = $pdo->prepare("UPDATE evaluation_periods SET is_active = 0, is_closed = 1 WHERE period_id = ?");
-  $stmt->execute([$period_id]);
+    // Count total expected evaluations (based on total students)
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*) AS total_expected
+        FROM students s
+        INNER JOIN programs p
+            ON s.program_id = p.program_id
+        WHERE s.is_active = 1
+          AND p.department = ?
+    ");
+    $stmt->execute([$dept]);
+    $totalExpected = (int) ($stmt->fetchColumn() ?? 0);
 
-  $pdo->commit();
-  echo json_encode([
-      'status' => 'success',
-      'message' => 'Evaluation period successfully closed. Participation: ' . number_format($participationRate, 2) . '%'
-  ]);
+    if ($totalExpected === 0) {
+        throw new Exception("No expected evaluations found for this period.");
+    }
+
+    // Count total finished evaluations (students with is_finished_all = 1)
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*) AS total_finished
+        FROM students s
+        INNER JOIN programs p
+            ON s.program_id = p.program_id
+        WHERE s.is_active = 1
+          AND s.is_finished_all = 1
+          AND p.department = ?
+    ");
+    $stmt->execute([$dept]);
+    $totalFinished = (int) ($stmt->fetchColumn() ?? 0);
+
+    // Calculate participation rate safely
+    $participationRate = $totalExpected > 0
+        ? ($totalFinished / $totalExpected) * 100
+        : 0;
+
+    // Check if participation is 100%
+    if ($participationRate < 100) {
+        throw new Exception("Cannot force close. Participation is only " . number_format($participationRate, 2) . "%.");
+    }
+
+    // Force close the period
+    $stmt = $pdo->prepare("
+        UPDATE evaluation_periods
+        SET is_active = 0, is_closed = 1
+        WHERE period_id = ?
+    ");
+    $stmt->execute([$period_id]);
+
+    $pdo->commit();
+
+    echo json_encode([
+        'status' => 'success',
+        'message' => 'Evaluation period successfully closed. Participation: ' . number_format($participationRate, 2) . '%'
+    ]);
+
+} catch (Exception $e) {
+    $pdo->rollBack();
+    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }
-catch(Exception $e){
-  $pdo->rollBack();
-  echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
-}
-
-?>

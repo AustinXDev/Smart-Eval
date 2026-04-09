@@ -71,6 +71,7 @@ try {
     ];
 
     $program_id = $user['program_id'];
+    $isFinishedAll = isset($user['is_finished_all']) ? (int)$user['is_finished_all'] : 0;
 
     // Get student's department
     $stmt = $pdo->prepare("SELECT department FROM programs WHERE program_id = ?");
@@ -93,7 +94,7 @@ try {
     // Determine redirect
     if (!$period_id) {
         $redirect = '/Smart-Eval/views/student/no_evaluation.php';
-    } elseif ($user['is_finished_all'] == 1) {
+    } elseif ($isFinishedAll === 1) {
         $redirect = '/Smart-Eval/views/student/evaluation_done.view.php';
     } elseif (!empty($user['enrollment_type'])) {
         // Check if student already selected teachers for irregular
