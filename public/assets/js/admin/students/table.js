@@ -1,5 +1,5 @@
 import { createDataTable } from "../shared/datatable_config.js";
-import { fetchAllPrograms } from "./student_api.js";
+import { fetchAllPrograms } from "../shared/program_api.js";
 
 let department;
 let table;

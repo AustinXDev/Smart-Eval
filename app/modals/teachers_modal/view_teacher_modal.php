@@ -85,11 +85,9 @@
               <?php } ?>
             </select>
 
-            <select class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none" name="program">
+            <select class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none" name="program" id="programSelect">
               <option disabled selected>Select Program</option>
-              <option value="1">BSIT</option>
-              <option value="2">BSOA</option>
-              <option value="3">ABM</option>
+              <!-- JS fill this line -->
             </select>
 
             <button class="flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md shadow transition">

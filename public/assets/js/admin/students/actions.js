@@ -1,6 +1,6 @@
 import { openModal, closeModal, showConfirmation } from "../../modal/modal.js";
 import { loadStudents, loadStudentCard } from "./table.js";
-import { fetchAllPrograms } from "./student_api.js";
+import { fetchAllPrograms } from "../shared/program_api.js";
 import { nameToInitials, formatStatus } from "../shared/utils.js";
 
 const wrapper = document.getElementById("tableWrapper");
