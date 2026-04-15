@@ -47,4 +47,6 @@ $department = $_GET['dept'] ?? '';
     <?php require __DIR__ . '/../pages/dashboard_content.php'?>
   </main>
 </body>
+
+<script src="../../public/assets/js/admin/dashboard/dashboard.js" type="module"></script>
 </html>

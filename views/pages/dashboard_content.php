@@ -15,8 +15,8 @@
     <div id='card-name' class="flex-2 text-xl font-semibold">
       Total Students
     </div>
-    <div id='total' class="text-2xl font-bold">
-      500
+    <div id='totalStudents' class="text-2xl font-bold">
+      <!-- JS fill this line -->
     </div>
   </div>
 
@@ -27,23 +27,32 @@
     <div id='card-name' class="flex-2 text-xl font-semibold">
       Total Teachers
     </div>
-    <div id='total' class="text-2xl font-bold">
-      80
+    <div id='totalTeachers' class="text-2xl font-bold">
+      <!-- JS fill this line -->
     </div>
   </div>
 
-  <div class="group flex items-center gap-3 px-6 py-5 rounded-sm flex-shrink-0 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] hover:-translate-y-2 hover:bg-[#16213E] hover:text-white transition-all duration-300 group">
+  <div class="group flex items-center gap-6 px-6 py-5 rounded-sm flex-shrink-0 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] hover:-translate-y-2 hover:bg-[#16213E] hover:text-white transition-all duration-300 group">
     <div id='icon' class="bg-[#16213E] group-hover:bg-gradient-to-br group-hover:from-blue-500 group-hover:to-indigo-500 p-2 rounded-md transition-colors duration-300">
       <div>
         <svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="#ffff"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M224 64C206.3 64 192 78.3 192 96L192 128L160 128C124.7 128 96 156.7 96 192L96 240L544 240L544 192C544 156.7 515.3 128 480 128L448 128L448 96C448 78.3 433.7 64 416 64C398.3 64 384 78.3 384 96L384 128L256 128L256 96C256 78.3 241.7 64 224 64zM96 288L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 288L96 288z"/></svg>
       </div>
     </div>
     <div id='card-content' class="flex flex-col">
-      <div id="card-name" class="lg:text-xl font-semibold mb-2">Active Evaluation Period</div>
+      <div id="card-name" class="lg:text-xl font-semibold mb-2"></div>
       <div class="flex flex-col gap-1">
-        <h1 id="evaluation-title" class="text-md lg:text-2xl font-bold">2026-2027 - 1st Semester</h1>
-        <span id="start-date" class="text-sm text-gray-500 group-hover:text-white">January 1, 2026</span>
-        <span id="end-date" class="text-sm text-gray-500 group-hover:text-white">April 1,2026</span>
+        <div class="text-md lg:text-2xl font-bold">
+          <span id="academic_year"></span> -
+          <span id="semester"></span>
+        </div>
+        <div class="flex gap-4">
+          <div>
+            <span class="text-green-400">Start Date: </span><span id="start-date" class="text-sm text-gray-500 group-hover:text-white"><!-- JS fill this line --></span>
+          </div>
+          <div>
+            <span class="text-red-400">End Date: </span><span id="end-date" class="text-sm text-gray-500 group-hover:text-white"><!-- JS fill this line --></span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -66,7 +75,7 @@
       <div id="progress-bar" class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
         <div id="progress-fill" class="bg-[#076A04] h-2 rounded-full w-0 transition-all duration-1000"></div>
       </div>
-      <div id="percentage" class="text-right mt-2">80% Completed</div>
+      <div id="percentage" class="text-right mt-2"></div>
     </div>
   </div>
 </div>
@@ -248,11 +257,6 @@ $values = ['90', '5', '2', '3', '0'];
 
 <script>
   const ctx = document.getElementById('scoreChart').getContext('2d');
-  const fill = document.getElementById('progress-fill');
-
-  setTimeout(() => {
-    fill.style.width = '75%';
-  }, 200);
 
   const labels = <?= json_encode($labels) ?>;
   const values = <?= json_encode($values) ?>;
