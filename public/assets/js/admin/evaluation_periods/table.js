@@ -34,7 +34,7 @@ $(document).ready(async function () {
 });
 
 export function loadEvaluationPeriods() {
-  fetch("/Smart-Eval/app/handlers/periods/get_periods.php")
+  fetch("/Smart-Eval/app/Controllers/periods/get_periods.php")
     .then((res) => res.json())
     .then((data) => {
       table.clear();
@@ -167,7 +167,7 @@ export function loadEvaluationPeriods() {
 }
 
 export function loadPeriodCard() {
-  fetch("/Smart-Eval/app/handlers/periods/get_active_periods.php")
+  fetch("/Smart-Eval/app/Controllers/periods/get_active_periods.php")
     .then((res) => res.json())
     .then((data) => {
       // Default values

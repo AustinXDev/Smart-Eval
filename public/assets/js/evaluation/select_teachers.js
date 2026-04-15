@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // LOAD AVAILABLE TEACHERS
   try {
     const res = await fetch(
-      "/Smart-Eval/app/handlers/evaluation/get_teachers.php",
+      "/Smart-Eval/app/Controllers/evaluation/get_teachers.php",
     );
     const data = await res.json();
 
@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
       const res = await fetch(
-        "/Smart-Eval/app/handlers/evaluation/select_teachers.php",
+        "/Smart-Eval/app/Controllers/evaluation/select_teachers.php",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

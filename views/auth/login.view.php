@@ -16,7 +16,10 @@ header('Expires: 0');
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="../../public/assets/css/custom.css">
-
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
 </head>
 
 <body class="bg-[url('../../public/assets/images/BG-login.png')] bg-cover bg-center h-screen w-screen">
@@ -28,12 +31,12 @@ header('Expires: 0');
   <div class="overflow-hidden h-screen flex justify-center items-center relative">  <!-- Wrapper -->
     <div class="animate-fade-slide h-full w-full bg-white  shadow-lg/20 overflow-hidden px-6 pb-12 pt-2 md:h-auto md:w-auto  md:rounded-lg md:px-12 md:pb-15 md:w-lg"> <!-- Login Wrapper -->
       <form id="login-form" method="POST"> 
-        <div class="flex-col shadow-[0_1px_5px_rgba(0,0,0,0.1)] flex justify-center items-center md:gap-3 border-b-2 pt-2 -mx-6 -my-2 border-gray-200 -mx-2 md:shadow-[0] md:-mx-10 pb-2 md:flex-row"> <!-- Login Header Container -->
+        <div class="flex-col shadow-[0_1px_5px_rgba(0,0,0,0.1)] flex justify-center items-center md:gap-3 border-b-2 pt-2 -mx-6 -my-2 border-gray-200 -mx-2 md:shadow-[0] md:-mx-10 pb-2"> <!-- Login Header Container -->
           <div> <!-- Logo wrapper -->
             <img class="h-12 w-12 md:h-18 md:w-18 drop-shadow-xl" src="../../public/assets/images/aite-logo.png" alt="aite-logo.png">
           </div>
           <div class="select-none"> <!-- System name wrapper -->
-            <h1 class="font-roboto text-xl font-bold text-purple-900 uppercase text-center  md:text-4xl md:text-left md:font-extrabold text-shadow-md text-shadow-gray-300">Smart-<span class="text-green-600">Eval</span></h1>
+            <h1 class="font-roboto text-xl font-bold text-purple-900 uppercase text-center  md:text-4xl md:font-extrabold text-shadow-md text-shadow-gray-300">Smart-<span class="text-green-600">Eval</span></h1>
             <span class="font-roboto text-gray-400 text-center text-xs font-regular w-5  md:text-sm md:w-full">Your feedback helps improve teaching quality</span>
           </div>
         </div>
@@ -46,7 +49,7 @@ header('Expires: 0');
         <div class="flex flex-col gap-7 md:gap-10"> <!-- Inputs Wrapper -->
           <div class="relative ">
             <span class="absolute left-5 top-3 md:left-4 md:top-3.5">
-              <img class="w-6 h-6 md:w-8 md:h-8" src="../../public/assets/icons/user.png" alt="user-icon.png">
+              <i class="absolute top-2 left-2 fa-solid fa-user text-purple-900 text-lg md:text-xl"></i>
             </span>
             <input class="bg-gray-100 w-full font-roboto py-4 pl-15 text-sm shadow-md rounded-sm focus:border-purple-900 focus:outline-2 focus:outline-purple-900 md:py-4 md:text-lg" type="text" name="student_id" id="inputStudentID" placeholder="Student ID Number (ex. 00-0000)" required>
           </div>

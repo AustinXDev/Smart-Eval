@@ -48,13 +48,13 @@
         <!-- Buttons -->
         <div class="flex flex-wrap justify-center gap-3 mb-3">
 
-          <a href="../../app/handlers/students/download_csv.php"
+          <a href="../../app/Controllers/students/download_csv.php"
             class="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition flex items-center gap-2">
             <i class="fas fa-download"></i>
             Template
           </a>
 
-          <a href="../../app/handlers/students/download_legend.php?department=<?php echo urlencode($department); ?>"
+          <a href="../../app/Controllers/students/download_legend.php?department=<?php echo urlencode($department); ?>"
             class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition flex items-center gap-2">
             <i class="fas fa-book"></i>
             Program Guide

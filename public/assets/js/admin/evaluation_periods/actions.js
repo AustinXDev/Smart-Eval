@@ -41,7 +41,7 @@ document.addEventListener("click", (e) => {
       title: "Force Active Evaluation",
       message: "Are you sure you want to active this evaluation?",
       onConfirm: () => {
-        fetch("/Smart-Eval/app/handlers/periods/force_active_period.php", {
+        fetch("/Smart-Eval/app/Controllers/periods/force_active_period.php", {
           method: "POST",
           body: new URLSearchParams({ period_id }),
         })
@@ -69,7 +69,7 @@ document.addEventListener("click", (e) => {
       title: "Delete Period",
       message: "Are you sure you want to delete this period?",
       onConfirm: () => {
-        fetch("/Smart-Eval/app/handlers/periods/delete_period.php", {
+        fetch("/Smart-Eval/app/Controllers/periods/delete_period.php", {
           method: "POST",
           body: new URLSearchParams({ period_id }),
         })
@@ -96,7 +96,7 @@ document.addEventListener("click", (e) => {
       title: "Force Close Period",
       message: "Are you sure you want to close this period?",
       onConfirm: () => {
-        fetch("/Smart-Eval/app/handlers/periods/force_close_period.php", {
+        fetch("/Smart-Eval/app/Controllers/periods/force_close_period.php", {
           method: "POST",
           body: new URLSearchParams({ period_id }),
         })
@@ -135,7 +135,7 @@ createPeriodForm.addEventListener("submit", (e) => {
     title: "Confirm Creation",
     message: "Are you sure you want to create this evaluation period?",
     onConfirm: () => {
-      fetch("/Smart-Eval/app/handlers/periods/create_period.php", {
+      fetch("/Smart-Eval/app/Controllers/periods/create_period.php", {
         method: "POST",
         body: formData,
       })

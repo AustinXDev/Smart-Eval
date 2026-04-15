@@ -1,6 +1,6 @@
 <div class="flex justify-between items-center">
   <h1 class="text-xl font-semibold"><span><?php echo strtoupper($department); ?></span> Teachers</h1>
-  <button value="" class="add-btn cursor-pointer bg-[#16213E] py-2 px-3 rounded-md text-white text-sm lg:text-md hover:opacity-50 transition-all duration-200">
+  <button value="" class="add-btn bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-md shadow hover:opacity-90 transition">
     <span><i class="fas fa-plus"></i> Add Teacher</span>
   </button>
 </div>

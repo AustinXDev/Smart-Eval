@@ -76,7 +76,9 @@ document.addEventListener("click", (e) => {
   // View Student Details
   if (viewBtn) {
     const student_id = viewBtn.dataset.studentId;
-    fetch(`/Smart-Eval/app/handlers/students/get_students.php?id=${student_id}`)
+    fetch(
+      `/Smart-Eval/app/Controllers/students/get_students.php?id=${student_id}`,
+    )
       .then((res) => res.json())
       .then((data) => {
         //console.log(data);
@@ -119,7 +121,9 @@ document.addEventListener("click", (e) => {
   if (editBtn) {
     const student_id = editBtn.dataset.studentId;
 
-    fetch(`/Smart-Eval/app/handlers/students/get_students.php?id=${student_id}`)
+    fetch(
+      `/Smart-Eval/app/Controllers/students/get_students.php?id=${student_id}`,
+    )
       .then((res) => res.json())
       .then(async (data) => {
         const student = data.student;
@@ -179,7 +183,7 @@ addForm.addEventListener("submit", (e) => {
     title: "Add Student",
     message: "Do you want to add this student?",
     onConfirm: () => {
-      fetch("/Smart-Eval/app/handlers/students/add_students.php", {
+      fetch("/Smart-Eval/app/Controllers/students/add_students.php", {
         method: "POST",
         body: formData,
       })
@@ -199,7 +203,7 @@ addForm.addEventListener("submit", (e) => {
                 "This student exist but is inactive. Do you want to reactive?",
               onConfirm: () => {
                 fetch(
-                  "/Smart-Eval/app/handlers/students/reactive_student.php",
+                  "/Smart-Eval/app/Controllers/students/reactive_student.php",
                   {
                     method: "POST",
                     body: new URLSearchParams({ student_id: data.student_id }),
@@ -280,7 +284,7 @@ csvForm.addEventListener("submit", (e) => {
       openModal("uploadLoading");
       const startTime = Date.now();
 
-      fetch("/Smart-Eval/app/handlers/students/csv_upload.php", {
+      fetch("/Smart-Eval/app/Controllers/students/csv_upload.php", {
         method: "POST",
         body: formData,
       })
@@ -328,7 +332,7 @@ resetPasswordBtn.addEventListener("click", (e) => {
     message:
       "Are you sure you want to reset the password of this student? The new password will be the same as their student ID.",
     onConfirm: () => {
-      fetch("/Smart-Eval/app/handlers/students/reset_password.php", {
+      fetch("/Smart-Eval/app/Controllers/students/reset_password.php", {
         method: "POST",
         body: JSON.stringify({ student_id: student_id }),
       })
@@ -360,7 +364,7 @@ editForm.addEventListener("submit", (e) => {
     title: "Edit Student",
     message: "Are you sure you want to save changes " + student_name + "?",
     onConfirm: () => {
-      fetch("/Smart-Eval/app/handlers/students/edit_student.php", {
+      fetch("/Smart-Eval/app/Controllers/students/edit_student.php", {
         method: "POST",
         body: formData,
       })
@@ -393,7 +397,7 @@ function sendDeleteRequest(id, force = false) {
     title: "Delete Student",
     message: "Are you sure you want to delete this student?",
     onConfirm: () => {
-      fetch("/Smart-Eval/app/handlers/students/delete_student.php", {
+      fetch("/Smart-Eval/app/Controllers/students/delete_student.php", {
         method: "POST",
         body: new URLSearchParams({
           student_id: id,

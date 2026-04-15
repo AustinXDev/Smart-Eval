@@ -91,12 +91,37 @@ try {
     $period = $stmt->fetch(PDO::FETCH_ASSOC);
     $period_id = $period['period_id'] ?? null;
 
+    $isSHS = ($department === 'shs');
+
     // Determine redirect
     if (!$period_id) {
         $redirect = '/Smart-Eval/views/student/no_evaluation.php';
-    } elseif ($isFinishedAll === 1) {
+    } 
+    
+    elseif ($isFinishedAll === 1) {
         $redirect = '/Smart-Eval/views/student/evaluation_done.php';
-    } elseif (!empty($user['enrollment_type'])) {
+    } 
+    
+    else if ($isSHS){
+        if($period_id) {
+            $stmt = $pdo->prepare("
+                INSERT IGNORE INTO evaluation_status (student_id, load_id, period_id)
+                SELECT ?, load_id, ?
+                FROM teacher_load
+                WHERE program_id = ? AND year_level = ?
+            ");
+            $stmt->execute([$student_id, $period_id, $program_id, $user['year_level']]);
+
+            //mark the shs student as regular to not shown select_enrollment 
+            $pdo->prepare("UPDATE students SET enrollment_type = 'Regular' WHERE student_id = ?")
+                ->execute([$student_id]);
+            $_SESSION['student']['enrollment_type'] = 'Regular';
+        }
+
+        $redirect = '/Smart-Eval/views/student/evaluation.view.php';
+    }
+    
+    elseif (!empty($user['enrollment_type'])) {
         // Check if student already selected teachers for irregular
         if ($user['enrollment_type'] === 'Irregular') {
             $stmt = $pdo->prepare("
@@ -114,7 +139,9 @@ try {
             // Regular student goes straight to evaluation
             $redirect = '/Smart-Eval/views/student/evaluation.view.php';
         }
-    } else {
+    } 
+    
+    else {
         $redirect = '/Smart-Eval/views/student/enrollment_selection.php';
     }
 

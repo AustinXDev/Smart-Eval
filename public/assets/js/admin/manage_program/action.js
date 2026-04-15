@@ -35,7 +35,7 @@ document.addEventListener("click", (e) => {
       onConfirm: async () => {
         try {
           const res = await fetch(
-            "/Smart-Eval/app/handlers/programs/delete_program.php",
+            "/Smart-Eval/app/Controllers/programs/delete_program.php",
             {
               method: "POST",
               body: new URLSearchParams({ program_id: program_id }),
@@ -86,7 +86,7 @@ document.addEventListener("submit", (e) => {
     onConfirm: async () => {
       try {
         const res = await fetch(
-          "/Smart-Eval/app/handlers/programs/add_program.php",
+          "/Smart-Eval/app/Controllers/programs/add_program.php",
           {
             method: "POST",
             body: formData,
@@ -123,7 +123,7 @@ editForm.addEventListener("submit", (e) => {
     onConfirm: async () => {
       try {
         const res = await fetch(
-          "/Smart-Eval/app/handlers/programs/edit_program.php",
+          "/Smart-Eval/app/Controllers/programs/edit_program.php",
           {
             method: "POST",
             body: formData,

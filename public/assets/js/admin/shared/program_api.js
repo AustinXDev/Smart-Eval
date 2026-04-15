@@ -1,4 +1,4 @@
-const BASE_URL = "/Smart-Eval/app/handlers/students/";
+const BASE_URL = "/Smart-Eval/app/Controllers/students/";
 
 //get all programs
 export async function fetchAllPrograms(department) {

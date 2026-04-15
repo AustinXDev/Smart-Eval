@@ -3,7 +3,8 @@ require_once __DIR__ . '/../../app/helpers/session.php';
 $admin = getAdmin();
 ?>
 
-<header class="fixed top-0 left-0 right-0 z-50 bg-[#16213E] h-16 flex items-center px-5 lg:px-10 shadow-md">
+<header class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900
+border-b border-white/10 h-16 flex items-center px-5 lg:px-10 shadow-md">
   
   <!-- Hamburger (mobile) & Logo -->
   <div class="flex items-center gap-3 flex-1">

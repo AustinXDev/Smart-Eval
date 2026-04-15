@@ -62,7 +62,7 @@ $(document).ready(async function () {
 
 export function loadStudents() {
   const url =
-    "/Smart-Eval/app/handlers/students/get_students.php" +
+    "/Smart-Eval/app/Controllers/students/get_students.php" +
     (department ? `?department=${department}` : "");
 
   fetch(url)
@@ -113,7 +113,7 @@ export function loadStudents() {
 
 export function loadStudentCard() {
   const url =
-    "/Smart-Eval/app/handlers/students/get_students.php" +
+    "/Smart-Eval/app/Controllers/students/get_students.php" +
     (department ? `?department=${department}` : "");
 
   fetch(url)

@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const res = await fetch(
-      "/Smart-Eval/app/handlers/evaluation/evaluation_done.php",
+      "/Smart-Eval/app/Controllers/evaluation/evaluation_done.php",
     );
     const data = await res.json();
 

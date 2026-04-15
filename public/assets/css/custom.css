@@ -34,9 +34,8 @@ body {
   pointer-events: auto; /* allow clicks when visible */
 }
 
-/* custom for evaluation done */
 .wrapper {
-  font-family: "Roboto", sans-serif;
+  font-family: "Outfit", sans-serif;
 }
 
 .header-gradient {

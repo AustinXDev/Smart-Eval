@@ -61,10 +61,13 @@ document.addEventListener("click", (e) => {
       title: "Delete Question",
       message: "Are you sure you want to delete this question?",
       onConfirm: () => {
-        fetch("/Smart-Eval/app/handlers/questionnaires/delete_question.php", {
-          method: "POST",
-          body: new URLSearchParams({ question_id: question_id }),
-        })
+        fetch(
+          "/Smart-Eval/app/Controllers/questionnaires/delete_question.php",
+          {
+            method: "POST",
+            body: new URLSearchParams({ question_id: question_id }),
+          },
+        )
           .then((res) => res.json())
           .then((data) => {
             if (data.status === "success" || data.status === "warning") {
@@ -98,7 +101,7 @@ document.addEventListener("click", (e) => {
       title: "Delete Set",
       message: `Are you sure you want to delete ${set_name} set?`,
       onConfirm: () => {
-        fetch("/Smart-Eval/app/handlers/questionnaires/delete_set.php", {
+        fetch("/Smart-Eval/app/Controllers/questionnaires/delete_set.php", {
           method: "POST",
           body: new URLSearchParams({ set_id: set_id }),
         })
@@ -138,7 +141,7 @@ questionSetForm.addEventListener("submit", (e) => {
     title: "Add Question Set",
     message: `Are you sure you want to add ${setName}?`,
     onConfirm: () => {
-      fetch("/Smart-Eval/app/handlers/questionnaires/add_set.php", {
+      fetch("/Smart-Eval/app/Controllers/questionnaires/add_set.php", {
         method: "POST",
         body: formData,
       })
@@ -170,7 +173,7 @@ addQuestionForm.addEventListener("submit", (e) => {
     title: "Add Question",
     message: "Are you sure you want to add this question?",
     onConfirm: () => {
-      fetch("/Smart-Eval/app/handlers/questionnaires/add_question.php", {
+      fetch("/Smart-Eval/app/Controllers/questionnaires/add_question.php", {
         method: "POST",
         body: formData,
       })
@@ -187,7 +190,7 @@ addQuestionForm.addEventListener("submit", (e) => {
               message: data.message,
               onConfirm: () => {
                 fetch(
-                  "/Smart-Eval/app/handlers/questionnaires/active_question.php",
+                  "/Smart-Eval/app/Controllers/questionnaires/active_question.php",
                   {
                     method: "POST",
                     body: new URLSearchParams({
@@ -229,7 +232,7 @@ editQuestionForm.addEventListener("submit", (e) => {
     title: "Edit Question",
     message: "Are you sure you want to edit?",
     onConfirm: () => {
-      fetch("/Smart-Eval/app/handlers/questionnaires/edit_question.php", {
+      fetch("/Smart-Eval/app/Controllers/questionnaires/edit_question.php", {
         method: "POST",
         body: formData,
       })
@@ -260,7 +263,7 @@ editSetForm.addEventListener("submit", (e) => {
     title: "Edit Set Name",
     message: "Are you sure you want to edit this set?",
     onConfirm: () => {
-      fetch("/Smart-Eval/app/handlers/questionnaires/edit_set.php", {
+      fetch("/Smart-Eval/app/Controllers/questionnaires/edit_set.php", {
         method: "POST",
         body: formData,
       })

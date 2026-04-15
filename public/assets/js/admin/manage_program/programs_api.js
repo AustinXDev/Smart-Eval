@@ -1,7 +1,7 @@
 export async function fetchPrograms() {
   try {
     const res = await fetch(
-      "/Smart-Eval/app/handlers/programs/get_programs.php",
+      "/Smart-Eval/app/Controllers/programs/get_programs.php",
     );
     const data = await res.json();
 

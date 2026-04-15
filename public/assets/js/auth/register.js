@@ -1,4 +1,4 @@
-import { notify } from "../../../../resources/components/notify.js";
+import { notify } from "../../../../resources/views/components/notify.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const showConfirmToggle = document.getElementById("showConfirm");

@@ -8,7 +8,7 @@
 
   <div class="flex flex-wrap gap-2">
 
-    <button class="add-btn flex items-center gap-2 bg-[#16213E] px-4 py-2 rounded-md text-white text-sm hover:opacity-90 transition">
+    <button class="add-btn bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-md shadow hover:opacity-90 transition">
       <i class="fas fa-plus"></i>
       <span>Add Student</span>
     </button>

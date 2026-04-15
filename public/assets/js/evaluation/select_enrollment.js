@@ -76,7 +76,7 @@ function resetCards(cards) {
 async function populateStudentProgram(id) {
   try {
     const res = await fetch(
-      "/Smart-Eval/app/handlers/evaluation/get_program.php",
+      "/Smart-Eval/app/Controllers/evaluation/get_program.php",
       {
         method: "POST",
         body: new URLSearchParams({ program_id: id }),
@@ -118,7 +118,7 @@ document
 
     try {
       const res = await fetch(
-        "/Smart-Eval/app/handlers/evaluation/select_enrollment.php",
+        "/Smart-Eval/app/Controllers/evaluation/select_enrollment.php",
         {
           method: "POST",
           body: new URLSearchParams({

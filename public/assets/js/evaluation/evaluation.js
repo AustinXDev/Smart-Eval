@@ -13,7 +13,7 @@ const studentEvaluation = {
   async fetchTeacher() {
     try {
       const res = await fetch(
-        "/Smart-Eval/app/handlers/evaluation/evaluation.php?action=get_teacher",
+        "/Smart-Eval/app/Controllers/evaluation/evaluation.php?action=get_teacher",
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -76,7 +76,7 @@ const studentEvaluation = {
   async fetchQuestions() {
     try {
       const res = await fetch(
-        "/Smart-Eval/app/handlers/evaluation/evaluation.php?action=get_questions",
+        "/Smart-Eval/app/Controllers/evaluation/evaluation.php?action=get_questions",
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -355,7 +355,7 @@ const studentEvaluation = {
 
     try {
       const res = await fetch(
-        "/Smart-Eval/app/handlers/evaluation/evaluation.php?action=submit_evaluation",
+        "/Smart-Eval/app/Controllers/evaluation/evaluation.php?action=submit_evaluation",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -386,7 +386,7 @@ const studentEvaluation = {
   async nextTeacher() {
     try {
       const res = await fetch(
-        "/Smart-Eval/app/handlers/evaluation/evaluation.php?action=next_teacher",
+        "/Smart-Eval/app/Controllers/evaluation/evaluation.php?action=next_teacher",
         { method: "POST" },
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -416,7 +416,7 @@ const studentEvaluation = {
 
     try {
       const res = await fetch(
-        "/Smart-Eval/app/handlers/evaluation/evaluation.php?action=previous_teacher",
+        "/Smart-Eval/app/Controllers/evaluation/evaluation.php?action=previous_teacher",
         { method: "POST" },
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -437,7 +437,7 @@ const studentEvaluation = {
   async checkCompletion() {
     try {
       const res = await fetch(
-        "/Smart-Eval/app/handlers/evaluation/evaluation.php?action=check_completion",
+        "/Smart-Eval/app/Controllers/evaluation/evaluation.php?action=check_completion",
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -473,7 +473,7 @@ const studentEvaluation = {
 
     try {
       const res = await fetch(
-        "/Smart-Eval/app/handlers/evaluation/evaluation.php?action=complete_evaluation",
+        "/Smart-Eval/app/Controllers/evaluation/evaluation.php?action=complete_evaluation",
         { method: "POST" },
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -546,7 +546,7 @@ const studentEvaluation = {
 
     try {
       const res = await fetch(
-        "/Smart-Eval/app/handlers/evaluation/evaluation.php?action=get_all_answers",
+        "/Smart-Eval/app/Controllers/evaluation/evaluation.php?action=get_all_answers",
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
