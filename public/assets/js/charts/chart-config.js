@@ -1,113 +1,179 @@
-function createScoreChart(ctx, labels, data) {
+function createProgramBarChart(ctx, labels, finished, notFinished, totals) {
   return new Chart(ctx, {
-    type: 'bar',
+    type: "bar",
+
     data: {
       labels: labels,
-      datasets: [{
-        label: 'Average',
-        data: data,
-        backgroundColor: [
-          '#16a34a', 
-          '#2563eb', 
-          '#facc15', 
-          '#f87171', 
-          'rgb(130, 0, 0)' 
-        ],
-        borderWidth: 1
-      }]
+
+      datasets: [
+        {
+          label: "Finished",
+          data: finished,
+          backgroundColor: [
+            "rgba(255, 99, 132, 0.5)",
+            "rgba(255, 159, 64, 0.5)",
+            "rgba(255, 205, 86, 0.5)",
+            "rgba(75, 192, 192, 0.5)",
+            "rgba(54, 162, 235, 0.5)",
+            "rgba(153, 102, 255, 0.5)",
+            "rgba(201, 203, 207, 0.5)",
+          ],
+
+          hoverBackgroundColor: [
+            "rgb(255, 99, 132)",
+            "rgb(255, 159, 64)",
+            "rgb(255, 205, 86)",
+            "rgb(75, 192, 192)",
+            "rgb(54, 162, 235)",
+            "rgb(153, 102, 255)",
+            "rgb(201, 203, 207)",
+          ],
+          borderWidth: 1,
+
+          borderRadius: 10,
+          borderSkipped: false,
+
+          barPercentage: 0.6,
+          categoryPercentage: 0.7,
+        },
+      ],
     },
-    options: {   
+
+    options: {
       responsive: true,
-      maintainAspectRatio: false,  
+      maintainAspectRatio: false,
+
       animation: {
-        duration: 1500,
-        easing: 'easeOutBounce',
-        animateScale: true
+        duration: 1000,
+        easing: "easeOutQuart",
       },
+
       plugins: {
-        legend: { display: false }
+        legend: {
+          display: false,
+        },
+
+        tooltip: {
+          backgroundColor: "#111827",
+          titleColor: "#fff",
+          bodyColor: "#e5e7eb",
+          padding: 10,
+          cornerRadius: 8,
+
+          callbacks: {
+            label: function (context) {
+              const idx = context.dataIndex;
+              return `Finished: ${context.raw} students`;
+            },
+            afterLabel: function (context) {
+              const idx = context.dataIndex;
+              return `Not Finished: ${notFinished[idx]} students`;
+            },
+            footer: function (items) {
+              const idx = items[0].dataIndex;
+              return `Total: ${totals[idx]} students`;
+            },
+          },
+        },
       },
+
       scales: {
-        y: { beginAtZero: true }
-      }
-    }
+        x: {
+          grid: {
+            display: false,
+          },
+          ticks: {
+            color: "#6b7280",
+          },
+        },
+
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: "rgba(0,0,0,0.05)",
+          },
+          ticks: {
+            color: "#6b7280",
+            stepSize: 1,
+          },
+        },
+      },
+    },
   });
 }
 
-function createScorePieChart(ctx, labels, data) {
+function createPieChart(ctx, labels, data) {
   return new Chart(ctx, {
-    type: 'pie', // ✅ change to pie
+    type: "pie",
     data: {
       labels: labels,
-      datasets: [{
-        label: 'Average',
-        data: data,
-        backgroundColor: [
-          '#16a34a',  // Excellent
-          '#2563eb',  // Good
-          '#facc15',  // Fair
-          '#f87171',  // Poor
-          'rgb(130, 0, 0)' // Very Poor
-        ],
-        borderWidth: 1
-      }]
+      datasets: [
+        {
+          label: "Total",
+          data: data,
+          backgroundColor: ["#16a34a", "#f87171"],
+          borderWidth: 1,
+        },
+      ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       animation: {
         animateRotate: true,
-        animateScale: true,  
+        animateScale: true,
         duration: 1500,
-        easing: 'easeOutBounce'
+        easing: "easeOutBounce",
       },
       plugins: {
         legend: {
-          display: true,  
-          position: 'bottom'
-        }
-      }
-    }
+          display: true,
+          position: "bottom",
+        },
+      },
+    },
   });
 }
 
 function createScoreDoughnutChart(ctx, labels, data) {
   return new Chart(ctx, {
-    type: 'doughnut', // ✅ doughnut chart
+    type: "doughnut", // ✅ doughnut chart
     data: {
       labels: labels,
-      datasets: [{
-        label: 'Score',
-        data: data,
-        backgroundColor: [
-          '#16a34a',  // Excellent
-          '#2563eb',  // Good
-          '#facc15',  // Fair
-          '#f87171',  // Poor
-          'rgb(130, 0, 0)' // Very Poor
-        ],
-        borderWidth: 1
-      }]
+      datasets: [
+        {
+          label: "Score",
+          data: data,
+          backgroundColor: [
+            "#16a34a", // Excellent
+            "#2563eb", // Good
+            "#facc15", // Fair
+            "#f87171", // Poor
+            "rgb(130, 0, 0)", // Very Poor
+          ],
+          borderWidth: 1,
+        },
+      ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       animation: {
-        animateRotate: true, 
-        animateScale: true,  
+        animateRotate: true,
+        animateScale: true,
         duration: 1500,
-        easing: 'easeOutBounce'
+        easing: "easeOutBounce",
       },
       plugins: {
         legend: {
           display: true,
-          position: 'bottom'
+          position: "bottom",
         },
         tooltip: {
-          enabled: true
-        }
+          enabled: true,
+        },
       },
-      cutout: '50%' 
-    }
+      cutout: "50%",
+    },
   });
 }

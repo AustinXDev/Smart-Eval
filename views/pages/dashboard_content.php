@@ -85,7 +85,7 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-    <div class="lg:col-span-1 bg-white rounded-lg [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] p-5 hover:-translate-y-2 transition-all duration-300 hover:bg-gray-100  ">
+    <div class="lg:col-span-2 bg-white rounded-lg [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] p-5 hover:-translate-y-2 transition-all duration-300 hover:bg-gray-100  ">
       <!-- Ranking Table -->
 
       <div class="mb-4"> <!-- Header -->
@@ -93,120 +93,184 @@
       </div>
 
       <div class="overflow-x-auto">
-        <table class="w-full min-w-[400px] text-sm text-left border-1 rounded">
-          
+        <div class="w-full overflow-x-auto rounded-xl border border-gray-200">
+          <table class="w-full min-w-[400px] text-sm text-left">
+
           <colgroup>
             <col style="width: 10%;">
-            <col style="width: 50%">
+            <col style="width: 40%">
             <col style="width: 15%">
-            <col style="width: 25%">
+            <col style="width: 15%">
+            <col style="width: 15%">
           </colgroup>
 
-          <thead class="bg-[#16213E] text-white text-sm lg:text-md ">
-            <tr>
-              <th class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Rank</th>
-              <th class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Name</th>
-              <th class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Department</th>
-              <th class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Score</th>
+          <thead>
+            <tr class="bg-[#16213E] text-white">
+              <th class="px-4 py-3 text-center font-medium tracking-wide whitespace-nowrap">Rank</th>
+              <th class="px-4 py-3 font-medium tracking-wide whitespace-nowrap">Name</th>
+              <th class="px-4 py-3 text-center font-medium tracking-wide whitespace-nowrap">Evaluators</th>
+              <th class="px-4 py-3 text-center font-medium tracking-wide whitespace-nowrap">Evaluated</th>
+              <th class="px-4 py-3 text-center font-medium tracking-wide whitespace-nowrap">Score</th>
             </tr>
           </thead>
 
-          <tbody class="divide-y">
-            <tr class="hover:bg-gray-50">
-              <td class="px-4 py-3 " style="font-family: roboto, 'sans-serif';">1</td>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Juan Dela Cruz</td>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">College</td>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">4.9</td>
-            </tr>
-            <tr class="hover:bg-gray-50">
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">2</td>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Maria Gonzales</td>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">College</td>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">4.5</td>
-            </tr>
-            <tr class="hover:bg-gray-50">
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">3</td>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Juan Tamad</td>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">SHS</td>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">4.2</td>
-            </tr class="hover:bg-gray-50">
-            <tr>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">4</td>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Anna Santos</td>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">College</td>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">4.1</td>
-            </tr>
-            <tr class="hover:bg-gray-50">
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">5</td>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">Joana San Miguel</td>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">SHS</td>
-              <td class="px-4 py-3" style="font-family: roboto, 'sans-serif';">3.9</td>
-            </tr>
+          <tbody class="divide-y divide-gray-100" id="tbody-ranking">
+            <!-- JS fill this line  -->
           </tbody>
-        </table>
 
-        <div class="flex flex-col sm:flex-row mt-3 shadow-lg p-2 px-5 border rounded-md items-start sm:items-center gap-2">
-            <div id="name" class="flex-1">
-              <p class="font-semibold">Juan Dela Cruz</p>
-              <p class="text-sm text-gray-500">(Highest rating)</p>
-            </div>
+          </table>
+        </div>
 
-            <div id="average" class="flex-1 flex justify-start sm:justify-end items-center gap-2">
-              <p>Avg. Score:</p>
-              <span id="score" class="text-green-900 font-semibold">4.9</span>
+        <div class="py-4">
+          <div class="bg-white border border-gray-100 rounded-xl p-4 flex flex-wrap items-center gap-3">
+
+          <div id="top_initials" class="w-11 h-11 rounded-full bg-purple-100 flex items-center justify-center text-sm font-medium text-purple-800 shrink-0">
+            JD
+          </div>
+
+          <div class="flex-1 min-w-[120px]">
+            <p class="m-0 text-[15px] font-medium text-gray-900" id="highest-teacher-name">Juan Dela Cruz</p>
+            <span class="inline-block mt-1 text-[11px] font-medium bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
+              Highest rating
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-[13px] text-gray-500">Avg. score</span>
+            <div class="flex items-center gap-1 bg-green-100 rounded-lg px-2.5 py-1">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1l1.8 3.6L14 5.3l-3 2.9.7 4.1L8 10.3l-3.7 2 .7-4.1-3-2.9 4.2-.7z" fill="#166534"/></svg>
+              <span id="avg-score" class="text-[15px] font-medium text-green-900">4.9</span>
             </div>
+          </div>
+
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- Doughnut Chart -->
+    <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:-translate-y-1 transition-all duration-300">
 
-    <div class="bg-white rounded-lg p-5 pb-12 
-            [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] 
-            h-60 sm:h-64 md:h-80 hover:-translate-y-2 transition-all duration-300">
-
-        <div class="mb-5">
-          <h1 class="text-md lg:text-lg">Overall Score Distribution</h1>
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h1 class="text-sm font-semibold text-gray-800 tracking-wide">Score Distribution</h1>
+          <p class="text-xs text-gray-400 mt-0.5">Total students per rating</p>
         </div>
-        <canvas id="scoreChart" class="w-full h-full"></canvas>
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-[#16213E]"></span>
+          <span class="text-xs text-gray-400">Responses</span>
+        </div>
+      </div>
+
+      <div class="w-full h-px bg-gray-100 mb-4"></div>
+
+      <!-- Rating legend pills -->
+      <div class="flex items-center gap-2 mb-4 flex-wrap">
+        <span class="inline-flex items-center gap-1 bg-green-50 text-green-700 text-xs font-medium px-2 py-0.5 rounded-full">5 — Excellent</span>
+        <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-xs font-medium px-2 py-0.5 rounded-full">4 — Good</span>
+        <span class="inline-flex items-center gap-1 bg-yellow-50 text-yellow-700 text-xs font-medium px-2 py-0.5 rounded-full">3 — Average</span>
+        <span class="inline-flex items-center gap-1 bg-orange-50 text-orange-700 text-xs font-medium px-2 py-0.5 rounded-full">2 — Poor</span>
+        <span class="inline-flex items-center gap-1 bg-red-50 text-red-700 text-xs font-medium px-2 py-0.5 rounded-full">1 — Very Poor</span>
+      </div>
+
+      <div class="relative w-full h-64">
+        <canvas id="scoreChart"></canvas>
+      </div>
+
+    </div>
+
+    <!-- PIE Chart -->
+    <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:-translate-y-1 transition-all duration-300">
+
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h1 class="text-sm font-semibold text-gray-800 tracking-wide">Evaluation Participation</h1>
+          <p class="text-xs text-gray-400 mt-0.5">Completed vs pending per department</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-[#16213E]"></span>
+            <span class="text-xs text-gray-400">Completed</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-gray-200"></span>
+            <span class="text-xs text-gray-400">Pending</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-full h-px bg-gray-100 mb-4"></div>
+
+      <div class="flex items-center gap-2 mb-4 flex-wrap">
+        <span class="inline-flex items-center gap-1 bg-green-50 text-green-700 text-xs font-medium px-2 py-0.5 rounded-full">Completed</span>
+        <span class="inline-flex items-center gap-1 bg-gray-50 text-[#f87171] text-xs font-medium px-2 py-0.5 rounded-full">Pending</span>
+      </div>
+
+      <div class="relative w-full h-64">
+        <canvas id="participationChart"></canvas>
+      </div>
+
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="lg:col-span-2 bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:-translate-y-1 transition-all duration-300">
+
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h1 class="text-sm font-semibold text-gray-800 tracking-wide">
+            Total Evaluated per Program
+          </h1>
+
+          <p class="text-xs text-gray-400 mt-0.5">
+            Number of students who completed evaluations by program
+          </p>
+        </div>
+      </div>
+
+      <div class="w-full h-px bg-gray-100 mb-4"></div>
+
+      <div class="relative w-full h-64">
+        <canvas id="programChart"></canvas>
+      </div>
+
     </div>
   </div>
-
 </div>
 
-<!-- Student Participation Card Container-->
-<div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 
+  <!-- Student Participation Card Container-->
+  <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 
             [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] 
             rounded-sm mt-7">
-  <div class="flex flex-col gap-5 border-r-1 border-gray-200">
-    <div class="flex items-center gap-3 border-b-1 border-gray-200 pb-3">
-      <div class="bg-[#1A1A2E] p-3 rounded-sm">
-        <svg class="w-10 h-10" data-slot="icon" fill="none" stroke-width="1.5" stroke="#ffff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <div class="flex flex-col gap-5 border-r-1 border-gray-200">
+      <div class="flex items-center gap-3 border-b-1 border-gray-200 pb-3">
+        <div class="bg-[#1A1A2E] p-3 rounded-sm">
+          <svg class="w-10 h-10" data-slot="icon" fill="none" stroke-width="1.5" stroke="#ffff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"></path>
-        </svg>
+          </svg>
+        </div>
+        <p>Students Who Evaluated</p>
       </div>
-      <p>Students Who Evaluated</p>
-    </div>
-    <div class="flex pr-5 items-center">
-      <div class="flex-1">
-        <span id="total" class="text-lg font-semibold lg:text-xl">200</span>
-        <span id="label">Total</span>
-      </div>
-      <span id="arrow">
-        <svg class="w-7 h-7" data-slot="icon" fill="none" stroke-width="1.5" stroke="green" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <div class="flex pr-5 items-center">
+        <div class="flex-1">
+          <span id="total" class="text-lg font-semibold lg:text-xl">200</span>
+          <span id="label">Total</span>
+        </div>
+        <span id="arrow">
+          <svg class="w-7 h-7" data-slot="icon" fill="none" stroke-width="1.5" stroke="green" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"></path>
-        </svg>
-      </span>
-    </div>
-  </div>
-
-  <div class="flex flex-col gap-5 border-r-1 border-gray-200">
-    <div class="flex items-center gap-3 border-b-1 border-gray-200 pb-3">
-      <div class="bg-[#1A1A2E] p-3 rounded-sm">
-        <svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red" class="size-6">
-        <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-2.625 6c-.54 0-.828.419-.936.634a1.96 1.96 0 0 0-.189.866c0 .298.059.605.189.866.108.215.395.634.936.634.54 0 .828-.419.936-.634.13-.26.189-.568.189-.866 0-.298-.059-.605-.189-.866-.108-.215-.395-.634-.936-.634Zm4.314.634c.108-.215.395-.634.936-.634.54 0 .828.419.936.634.13.26.189.568.189.866 0 .298-.059.605-.189.866-.108.215-.395.634-.936.634-.54 0-.828-.419-.936-.634a1.96 1.96 0 0 1-.189-.866c0-.298.059-.605.189-.866Zm-4.34 7.964a.75.75 0 0 1-1.061-1.06 5.236 5.236 0 0 1 3.73-1.538 5.236 5.236 0 0 1 3.695 1.538.75.75 0 1 1-1.061 1.06 3.736 3.736 0 0 0-2.639-1.098 3.736 3.736 0 0 0-2.664 1.098Z" clip-rule="evenodd" />
-      </svg>
+          </svg>
+        </span>
       </div>
-      <p>Students Who Evaluated</p>
+    </div>
+
+    <div class="flex flex-col gap-5 border-r-1 border-gray-200">
+      <div class="flex items-center gap-3 border-b-1 border-gray-200 pb-3">
+        <div class="bg-[#1A1A2E] p-3 rounded-sm">
+          <svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red" class="size-6">
+          <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-2.625 6c-.54 0-.828.419-.936.634a1.96 1.96 0 0 0-.189.866c0 .298.059.605.189.866.108.215.395.634.936.634.54 0 .828-.419.936-.634.13-.26.189-.568.189-.866 0-.298-.059-.605-.189-.866-.108-.215-.395-.634-.936-.634Zm4.314.634c.108-.215.395-.634.936-.634.54 0 .828.419.936.634.13.26.189.568.189.866 0 .298-.059.605-.189.866-.108.215-.395.634-.936.634-.54 0-.828-.419-.936-.634a1.96 1.96 0 0 1-.189-.866c0-.298.059-.605.189-.866Zm-4.34 7.964a.75.75 0 0 1-1.061-1.06 5.236 5.236 0 0 1 3.73-1.538 5.236 5.236 0 0 1 3.695 1.538.75.75 0 1 1-1.061 1.06 3.736 3.736 0 0 0-2.639-1.098 3.736 3.736 0 0 0-2.664 1.098Z" clip-rule="evenodd" />
+        </svg>
+      </div>
+        <p>Students Who Evaluated</p>
     </div>
     <div class="flex pr-5 items-center">
       <div class="flex-1">
@@ -245,21 +309,3 @@
   </div>
 
 </div>
-
-<?php
-// Example: fetch data from database
-$labels = ['5', '4', '3', '2','1'];
-$values = ['90', '5', '2', '3', '0'];
-?>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="../../public/assets/js/charts/chart-config.js"></script>
-
-<script>
-  const ctx = document.getElementById('scoreChart').getContext('2d');
-
-  const labels = <?= json_encode($labels) ?>;
-  const values = <?= json_encode($values) ?>;
-
-  createScoreDoughnutChart(ctx, labels, values);
-</script>
