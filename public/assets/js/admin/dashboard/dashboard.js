@@ -17,14 +17,23 @@ async function fetchDashboardData() {
     data.teacher_total || 0;
   document.getElementById("totalTeachers").textContent =
     data.teacher_total || 0;
-  document.getElementById("academic_year").textContent =
-    data.evaluation_period.academic_year || "--";
-  document.getElementById("semester").textContent =
-    data.evaluation_period.semester || "--";
-  document.getElementById("start-date").textContent =
-    convertDateStr(data.evaluation_period.start_date) || "--";
-  document.getElementById("end-date").textContent =
-    convertDateStr(data.evaluation_period.end_date) || "--";
+
+  if (data.evaluation_period) {
+    document.getElementById("academic_year").textContent =
+      data.evaluation_period.academic_year || "--";
+    document.getElementById("semester").textContent =
+      data.evaluation_period.semester || "--";
+    document.getElementById("start-date").textContent =
+      convertDateStr(data.evaluation_period.start_date) || "--";
+    document.getElementById("end-date").textContent =
+      convertDateStr(data.evaluation_period.end_date) || "--";
+  } else {
+    // ✅ Fallback when no active period
+    document.getElementById("academic_year").textContent = "No active period";
+    document.getElementById("semester").textContent = "--";
+    document.getElementById("start-date").textContent = "--";
+    document.getElementById("end-date").textContent = "--";
+  }
 
   const particpationPercentage =
     data.student_total > 0
@@ -61,25 +70,39 @@ async function fetchTeacherRanking() {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
 
-  if (data.length > 0) {
-    const topTeacher = data[0];
+  const top_initials = document.getElementById("top_initials");
+  const top_name = document.getElementById("highest-teacher-name");
+  const top_score = document.getElementById("avg-score");
+  const tbody = document.getElementById("tbody-ranking");
 
-    const top_initials = document.getElementById("top_initials");
-    const top_name = document.getElementById("highest-teacher-name");
-    const top_score = document.getElementById("avg-score");
+  tbody.innerHTML = "";
 
-    if (top_name && top_score) {
-      top_initials.textContent = nameToInitials(topTeacher.teacher_name);
-      top_name.textContent = topTeacher.teacher_name;
-      top_score.textContent = topTeacher.overall_mean_score;
-    }
+  if (!data || data.length === 0) {
+    if (top_initials) top_initials.textContent = "--";
+    if (top_name) top_name.textContent = "No active evaluation period";
+    if (top_score) top_score.textContent = "--";
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="px-4 py-6 text-center text-gray-400 text-sm">
+          No ranking data available.
+        </td>
+      </tr>
+    `;
+    return;
   }
 
-  let tbody = document.getElementById("tbody-ranking");
+  // ✅ Render top teacher
+  const topTeacher = data[0];
+  if (top_initials)
+    top_initials.textContent = nameToInitials(topTeacher.teacher_name);
+  if (top_name) top_name.textContent = topTeacher.teacher_name;
+  if (top_score) top_score.textContent = topTeacher.overall_mean_score;
 
-  const rowsHTML = data
-    .map((d, i) => {
-      return `
+  // ✅ Render table rows
+  tbody.innerHTML = data
+    .map(
+      (d, i) => `
       <tr class="bg-amber-50 hover:bg-amber-100 transition-colors">
         <td class="px-4 py-3 text-center">
           <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-400 text-white font-semibold text-xs">${i + 1}</span>
@@ -96,11 +119,9 @@ async function fetchTeacherRanking() {
           <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-1 rounded-full">${d.overall_mean_score}</span>
         </td>
       </tr>
-    `;
-    })
+    `,
+    )
     .join("");
-
-  tbody.innerHTML = rowsHTML;
 }
 
 async function fetchScoreChart() {

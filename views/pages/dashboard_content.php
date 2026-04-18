@@ -149,7 +149,7 @@
     </div>
 
     <!-- Doughnut Chart -->
-    <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:-translate-y-1 transition-all duration-300">
+    <div class="bg-white rounded-xl p-5 border border-gray-100 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] hover:-translate-y-1 transition-all duration-300">
 
       <div class="flex items-center justify-between mb-3">
         <div>
@@ -180,7 +180,7 @@
     </div>
 
     <!-- PIE Chart -->
-    <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:-translate-y-1 transition-all duration-300">
+    <div class="bg-white rounded-xl p-5 border border-gray-100 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] hover:-translate-y-1 transition-all duration-300">
 
       <div class="flex items-center justify-between mb-3">
         <div>
@@ -213,7 +213,7 @@
     </div>
 
     <!-- Bar Chart -->
-    <div class="lg:col-span-2 bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:-translate-y-1 transition-all duration-300">
+    <div class="lg:col-span-2 bg-white rounded-xl p-5 border border-gray-100 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] hover:-translate-y-1 transition-all duration-300">
 
       <div class="flex items-center justify-between mb-3">
         <div>

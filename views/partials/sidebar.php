@@ -1,6 +1,6 @@
-<aside class="overflow-y-auto fixed top-2 left-0 hidden w-90 min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-900 text-white  flex-col lg:flex">
+<aside class="overflow-y-auto fixed top-16 bottom-0 left-0 hidden w-90 bg-[#221e38] text-white flex-col lg:flex">
     <!-- Nav -->
-    <nav class="flex-1 px-4 py-4 space-y-4 overflow-y-auto mt-15">
+    <nav class="flex-1 px-4 py-4 space-y-4 overflow-y-auto">
         <?php require __DIR__ . '/sidebar_nav.php';?>
     </nav>
     <!-- Logout -->

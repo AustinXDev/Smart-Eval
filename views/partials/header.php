@@ -3,14 +3,14 @@ require_once __DIR__ . '/../../app/helpers/session.php';
 $admin = getAdmin();
 ?>
 
-<header class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900
-border-b border-white/10 h-16 flex items-center px-5 lg:px-10 shadow-md">
+<header class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-purple-100 via-purple-50 to-violet-100
+border-b border-purple-200/70 h-16 flex items-center px-5 lg:px-10 shadow-sm backdrop-blur-sm">
   
   <!-- Hamburger (mobile) & Logo -->
   <div class="flex items-center gap-3 flex-1">
     
     <!-- Hamburger Button (mobile only) -->
-    <button id="hamburger-btn" class="lg:hidden text-white focus:outline-none" aria-label="Toggle menu">
+    <button id="hamburger-btn" class="lg:hidden text-purple-700 focus:outline-none" aria-label="Toggle menu">
       <svg id="hamburger-icon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
       </svg>
@@ -21,14 +21,14 @@ border-b border-white/10 h-16 flex items-center px-5 lg:px-10 shadow-md">
 
     <!-- Logo & Title -->
     <img src="../../public/assets/images/aite-logo.png" alt="AITE Logo" width="38">
-    <h1 class="text-white text-sm md:text-base font-semibold tracking-wide">Smart-Eval</h1>
+    <h1 class="text-purple-900 text-sm md:text-base font-semibold tracking-wide">Smart-Eval</h1>
   </div>
 
   <!-- Role & Avatar -->
   <div class="flex items-center gap-3">
     <div class="hidden lg:flex flex-col items-end">
-      <p class="text-white text-sm font-medium"><?= htmlspecialchars($admin['username'] ?? $student['full_name'] ?? 'Unknown') ?></p>
-      <p class="text-blue-400 text-xs"><?= htmlspecialchars(ucwords(str_replace('_', ' ', $admin['role']))) ?></p>
+      <p class="text-purple-900 text-sm font-medium"><?= htmlspecialchars($admin['username'] ?? $student['full_name'] ?? 'Unknown') ?></p>
+      <p class="text-purple-600 text-xs"><?= htmlspecialchars(ucwords(str_replace('_', ' ', $admin['role']))) ?></p>
     </div>
     <img src="../../public/assets/icons/profile.png" alt="Profile" width="35" class="rounded-full">
   </div>

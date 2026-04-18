@@ -39,6 +39,22 @@ switch($req){
 function getDashboardData($department, $pdo){
     $data = [];
 
+    //check active period first
+    $periodStmt = $pdo->prepare("
+      SELECT period_id
+      FROM evaluation_periods
+      WHERE target_dept = ?
+      AND is_active = 1
+      LIMIT 1
+    ");
+    $periodStmt->execute([$department]);
+    $period = $periodStmt->fetch(PDO::FETCH_ASSOC);
+
+    if(!$period){
+      echo json_encode([]);
+      return;
+    }
+
     //Student total
     $stmt = $pdo->prepare('
       SELECT COUNT(*)
@@ -107,100 +123,181 @@ function getTeacherRanking($department, $pdo){
 
     if(!$period) {
       echo json_encode([]);
-      return;
+      exit;
     }
 
     $periodId = $period['period_id'];
 
     // get teacher ranking for active period only
-    $stmt = $pdo->prepare("
-      SELECT 
+$stmt = $pdo->prepare("
+    SELECT 
         t.teacher_id,
         t.full_name AS teacher_name,
 
         COUNT(DISTINCT expected.student_id) AS total_expected_students,
-        COUNT(DISTINCT es.student_id) AS total_evaluated_students,
+        COUNT(DISTINCT CASE WHEN s_fin.student_id IS NOT NULL THEN es.student_id END) AS total_evaluated_students,
 
         ROUND(
-          COUNT(DISTINCT es.student_id) * 100.0 /
-          NULLIF(COUNT(DISTINCT expected.student_id), 0),
-          2
+            COUNT(DISTINCT CASE WHEN s_fin.student_id IS NOT NULL THEN es.student_id END) * 100.0 /
+            NULLIF(COUNT(DISTINCT expected.student_id), 0),
+            2
         ) AS participation_rate,
 
-        -- total scores submitted 
-        -- Non-evaluators count as 0
         COALESCE(
-          ROUND(
-              NULLIF(SUM(student_means.answer_sum), 0) /
-              NULLIF(
-                  COUNT(DISTINCT expected.student_id) * (
-                      SELECT COUNT(*)
-                      FROM questions q
-                      INNER JOIN evaluation_periods ep ON ep.set_id = q.set_id
-                      WHERE ep.period_id = ?
-                      AND q.is_active = 1
-                  ),
-              0),
-          2),
-          0
+            ROUND(
+                NULLIF(SUM(student_means.answer_sum), 0) /
+                NULLIF(
+                    COUNT(DISTINCT CASE WHEN s_fin.student_id IS NOT NULL THEN es.student_id END) * (
+                        SELECT COUNT(*)
+                        FROM questions q
+                        INNER JOIN evaluation_periods ep ON ep.set_id = q.set_id
+                        WHERE ep.period_id = ?
+                        AND q.is_active = 1
+                    ),
+                0),
+            2),
+            0
         ) AS overall_mean_score
 
-      FROM teachers t
+    FROM teachers t
 
-      INNER JOIN teacher_load tl ON tl.teacher_id = t.teacher_id
-      INNER JOIN programs p      ON p.program_id  = tl.program_id
+    INNER JOIN teacher_load tl ON tl.teacher_id = t.teacher_id
+    INNER JOIN programs p ON p.program_id = tl.program_id
 
-      LEFT JOIN (
-        SELECT s.student_id, s.program_id, s.year_level
+    INNER JOIN (
+        -- loads that have evaluation_status rows this period (covers irregular)
+        SELECT DISTINCT load_id
+        FROM evaluation_status
+        WHERE period_id = ?
+
+        UNION
+
+        -- loads that have matching regular students (covers loads with no submissions yet)
+        SELECT DISTINCT tl_a.load_id
+        FROM teacher_load tl_a
+        INNER JOIN students s_a
+            ON  s_a.program_id = tl_a.program_id
+            AND s_a.year_level = tl_a.year_level
+            AND s_a.is_active  = 1
+            AND (s_a.enrollment_type = 'Regular' OR s_a.enrollment_type IS NULL)
+        INNER JOIN programs p_a ON p_a.program_id = tl_a.program_id
+        WHERE p_a.department = ?
+    ) AS active_loads ON active_loads.load_id = tl.load_id
+
+    LEFT JOIN (
+        -- Regular: match by program + year_level
+        SELECT 
+            s.student_id, 
+            s.program_id, 
+            s.year_level,
+            NULL AS load_id,
+            'regular' AS match_type
         FROM students s
-        WHERE s.enrollment_type = 'Regular' OR s.enrollment_type IS NULL
+        WHERE (s.enrollment_type = 'Regular' OR s.enrollment_type IS NULL)
+        AND s.is_active = 1
 
-      UNION
+        UNION ALL
 
-        SELECT s2.student_id, s2.program_id, s2.year_level
+        -- Irregular: match only by explicit load assignment this period
+        SELECT DISTINCT
+            s2.student_id, 
+            s2.program_id, 
+            s2.year_level,
+            es_irr.load_id,
+            'irregular' AS match_type
         FROM evaluation_status es_irr
         INNER JOIN students s2 ON s2.student_id = es_irr.student_id
-        WHERE s2.enrollment_type = 'Irregular'
-      ) AS expected
-      ON (
-          (expected.program_id = tl.program_id AND expected.year_level = tl.year_level)
-          OR
-          expected.student_id IN (
-              SELECT student_id FROM evaluation_status WHERE load_id = tl.load_id
-          )
-      )
+        WHERE es_irr.period_id = ?
+        AND s2.enrollment_type = 'Irregular'
+    ) AS expected
+    ON (
+        -- Regular: match by program + year_level
+        (
+            expected.match_type = 'regular' 
+            AND expected.program_id = tl.program_id 
+            AND expected.year_level = tl.year_level
+        )
+        OR
+        -- Irregular: match by explicit load_id only
+        (
+            expected.match_type = 'irregular' 
+            AND expected.load_id = tl.load_id
+        )
+    )
 
-      LEFT JOIN evaluation_status es
+    LEFT JOIN evaluation_status es
         ON  es.load_id      = tl.load_id
         AND es.student_id   = expected.student_id
         AND es.period_id    = ?
         AND es.is_submitted = 1
 
-      LEFT JOIN (
+    -- finished = submitted all assigned loads this period
+    LEFT JOIN (
+        SELECT es_done.student_id
+        FROM evaluation_status es_done
+        WHERE es_done.period_id = ?
+        AND es_done.is_submitted = 1
+        GROUP BY es_done.student_id
+        HAVING COUNT(es_done.load_id) = (
+            SELECT COUNT(*)
+            FROM evaluation_status es_total
+            WHERE es_total.student_id = es_done.student_id
+            AND es_total.period_id    = ?
+        )
+    ) AS s_fin ON s_fin.student_id = es.student_id
+
+    -- scores from fully finished students only
+    LEFT JOIN (
         SELECT 
-          ea.eval_id,
-          SUM(ea.score)   AS answer_sum,
-          COUNT(ea.score) AS answer_count
+            ea.eval_id,
+            SUM(ea.score)   AS answer_sum,
+            COUNT(ea.score) AS answer_count
         FROM evaluation_answers ea
         INNER JOIN evaluation_status es_scope
-          ON  es_scope.eval_id     = ea.eval_id
-          AND es_scope.period_id   = ?  
-          AND es_scope.is_submitted = 1
+            ON  es_scope.eval_id      = ea.eval_id
+            AND es_scope.period_id    = ?
+            AND es_scope.is_submitted = 1
+        INNER JOIN (
+            SELECT es_done.student_id
+            FROM evaluation_status es_done
+            WHERE es_done.period_id = ?
+            AND es_done.is_submitted = 1
+            GROUP BY es_done.student_id
+            HAVING COUNT(es_done.load_id) = (
+                SELECT COUNT(*)
+                FROM evaluation_status es_total
+                WHERE es_total.student_id = es_done.student_id
+                AND es_total.period_id    = ?
+            )
+        ) AS finished_students ON finished_students.student_id = es_scope.student_id
         GROUP BY ea.eval_id
-      ) AS student_means
-        ON student_means.eval_id = es.eval_id
+    ) AS student_means ON student_means.eval_id = es.eval_id
 
-      WHERE p.department = ? 
+    WHERE p.department = ?
 
-      GROUP BY 
+    GROUP BY
         t.teacher_id,
         t.full_name
 
-      ORDER BY overall_mean_score DESC
-      LIMIT 5;
-  ");
+    HAVING overall_mean_score > 0
+    ORDER BY overall_mean_score DESC
+    LIMIT 5;
+");
 
-  $stmt->execute([$periodId, $periodId, $periodId, $department]);
+$stmt->execute([
+    $periodId,   
+    $periodId,  
+    $department, 
+    $periodId,   
+    $periodId,   
+    $periodId,   
+    $periodId,   
+    $periodId,   
+    $periodId,   
+    $periodId,   
+    $department 
+]);
+
 
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -279,6 +376,23 @@ function getScoreChart($department, $pdo){
 
 //Get Particpation Chart Data
 function getParticipationChart($department, $pdo){
+
+    //check active period first
+    $periodStmt = $pdo->prepare("
+      SELECT period_id
+      FROM evaluation_periods
+      WHERE target_dept = ?
+      AND is_active = 1
+      LIMIT 1
+    ");
+    $periodStmt->execute([$department]);
+    $period = $periodStmt->fetch(PDO::FETCH_ASSOC);
+
+    if(!$period){
+      echo json_encode([]);
+      return;
+    }
+
     $stmt = $pdo->prepare("
       SELECT 
         SUM(CASE WHEN s.is_finished_all = 1 THEN 1 ELSE 0 END) AS finished,
@@ -306,6 +420,24 @@ function getParticipationChart($department, $pdo){
 
 //Get Program Chart Data
 function getProgramChart($department, $pdo){
+
+    //check active period first
+    $periodStmt = $pdo->prepare("
+      SELECT period_id
+      FROM evaluation_periods
+      WHERE target_dept = ?
+      AND is_active = 1
+      LIMIT 1
+    ");
+    $periodStmt->execute([$department]);
+    $period = $periodStmt->fetch(PDO::FETCH_ASSOC);
+
+    if(!$period){
+      echo json_encode([]);
+      return;
+    }
+
+
     $stmt = $pdo->prepare("
       SELECT 
         p.program_name,
