@@ -1,10 +1,16 @@
-function createProgramBarChart(ctx, labels, finished, notFinished, totals) {
+import { programToInitials } from "../admin/shared/utils.js";
+
+export function createProgramBarChart(
+  ctx,
+  labels,
+  finished,
+  notFinished,
+  totals,
+) {
   return new Chart(ctx, {
     type: "bar",
-
     data: {
       labels: labels,
-
       datasets: [
         {
           label: "Finished",
@@ -18,7 +24,6 @@ function createProgramBarChart(ctx, labels, finished, notFinished, totals) {
             "rgba(153, 102, 255, 0.5)",
             "rgba(201, 203, 207, 0.5)",
           ],
-
           hoverBackgroundColor: [
             "rgb(255, 99, 132)",
             "rgb(255, 159, 64)",
@@ -29,72 +34,65 @@ function createProgramBarChart(ctx, labels, finished, notFinished, totals) {
             "rgb(201, 203, 207)",
           ],
           borderWidth: 1,
-
           borderRadius: 10,
           borderSkipped: false,
-
           barPercentage: 0.6,
           categoryPercentage: 0.7,
         },
       ],
     },
-
     options: {
       responsive: true,
       maintainAspectRatio: false,
-
       animation: {
         duration: 1000,
         easing: "easeOutQuart",
       },
-
       plugins: {
-        legend: {
-          display: false,
-        },
-
+        legend: { display: false },
         tooltip: {
           backgroundColor: "#111827",
           titleColor: "#fff",
           bodyColor: "#e5e7eb",
           padding: 10,
           cornerRadius: 8,
-
           callbacks: {
+            // Show full label in tooltip title
+            title: function (items) {
+              return labels[items[0].dataIndex];
+            },
             label: function (context) {
-              const idx = context.dataIndex;
               return `Finished: ${context.raw} students`;
             },
             afterLabel: function (context) {
-              const idx = context.dataIndex;
-              return `Not Finished: ${notFinished[idx]} students`;
+              return `Not Finished: ${notFinished[context.dataIndex]} students`;
             },
             footer: function (items) {
-              const idx = items[0].dataIndex;
-              return `Total: ${totals[idx]} students`;
+              return `Total: ${totals[items[0].dataIndex]} students`;
             },
           },
         },
       },
-
       scales: {
         x: {
-          grid: {
-            display: false,
-          },
+          grid: { display: false },
           ticks: {
-            color: "#6b7280",
+            maxRotation: 0,
+            minRotation: 0,
+            font: { size: 11 },
+            callback: function (value, index) {
+              return programToInitials(labels[index]);
+            },
           },
         },
-
         y: {
           beginAtZero: true,
+          ticks: {
+            stepSize: 1,
+            precision: 0,
+          },
           grid: {
             color: "rgba(0,0,0,0.05)",
-          },
-          ticks: {
-            color: "#6b7280",
-            stepSize: 1,
           },
         },
       },
@@ -102,7 +100,7 @@ function createProgramBarChart(ctx, labels, finished, notFinished, totals) {
   });
 }
 
-function createPieChart(ctx, labels, data) {
+export function createPieChart(ctx, labels, data) {
   return new Chart(ctx, {
     type: "pie",
     data: {
@@ -135,7 +133,7 @@ function createPieChart(ctx, labels, data) {
   });
 }
 
-function createScoreDoughnutChart(ctx, labels, data) {
+export function createScoreDoughnutChart(ctx, labels, data) {
   return new Chart(ctx, {
     type: "doughnut", // ✅ doughnut chart
     data: {

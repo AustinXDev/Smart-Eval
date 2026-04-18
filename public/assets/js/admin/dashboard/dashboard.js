@@ -1,4 +1,9 @@
 import { nameToInitials } from "../shared/utils.js";
+import {
+  createPieChart,
+  createScoreDoughnutChart,
+  createProgramBarChart,
+} from "../../charts/chart-config.js";
 
 const queryString = new URL(window.location.href);
 const department = queryString.searchParams.get("dept");
@@ -28,7 +33,7 @@ async function fetchDashboardData() {
     document.getElementById("end-date").textContent =
       convertDateStr(data.evaluation_period.end_date) || "--";
   } else {
-    // ✅ Fallback when no active period
+    // Fallback when no active period
     document.getElementById("academic_year").textContent = "No active period";
     document.getElementById("semester").textContent = "--";
     document.getElementById("start-date").textContent = "--";
@@ -92,14 +97,14 @@ async function fetchTeacherRanking() {
     return;
   }
 
-  // ✅ Render top teacher
+  // Render top teacher
   const topTeacher = data[0];
   if (top_initials)
     top_initials.textContent = nameToInitials(topTeacher.teacher_name);
   if (top_name) top_name.textContent = topTeacher.teacher_name;
   if (top_score) top_score.textContent = topTeacher.overall_mean_score;
 
-  // ✅ Render table rows
+  // Render table rows
   tbody.innerHTML = data
     .map(
       (d, i) => `
@@ -133,6 +138,8 @@ async function fetchScoreChart() {
     if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
 
     const data = await res.json();
+
+    console.log(data);
 
     const ctx = document.getElementById("scoreChart").getContext("2d");
 

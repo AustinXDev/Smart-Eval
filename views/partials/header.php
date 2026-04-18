@@ -3,14 +3,13 @@ require_once __DIR__ . '/../../app/helpers/session.php';
 $admin = getAdmin();
 ?>
 
-<header class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-purple-100 via-purple-50 to-violet-100
-border-b border-purple-200/70 h-16 flex items-center px-5 lg:px-10 shadow-sm backdrop-blur-sm">
+<header class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-[#2D1B69] via-[#4C1D95] to-[#6D28D9] h-16 flex items-center px-5 lg:px-10 shadow-md">
   
   <!-- Hamburger (mobile) & Logo -->
   <div class="flex items-center gap-3 flex-1">
     
     <!-- Hamburger Button (mobile only) -->
-    <button id="hamburger-btn" class="lg:hidden text-purple-700 focus:outline-none" aria-label="Toggle menu">
+    <button id="hamburger-btn" class="lg:hidden text-white focus:outline-none" aria-label="Toggle menu">
       <svg id="hamburger-icon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
       </svg>
@@ -21,16 +20,19 @@ border-b border-purple-200/70 h-16 flex items-center px-5 lg:px-10 shadow-sm bac
 
     <!-- Logo & Title -->
     <img src="../../public/assets/images/aite-logo.png" alt="AITE Logo" width="38">
-    <h1 class="text-purple-900 text-sm md:text-base font-semibold tracking-wide">Smart-Eval</h1>
+    <h1 class="text-white drop-shadow-sm text-sm md:text-base font-bold tracking-wider">Smart-Eval</h1>
   </div>
 
   <!-- Role & Avatar -->
   <div class="flex items-center gap-3">
     <div class="hidden lg:flex flex-col items-end">
-      <p class="text-purple-900 text-sm font-medium"><?= htmlspecialchars($admin['username'] ?? $student['full_name'] ?? 'Unknown') ?></p>
-      <p class="text-purple-600 text-xs"><?= htmlspecialchars(ucwords(str_replace('_', ' ', $admin['role']))) ?></p>
+      <!-- White with drop shadow for contrast on gradient -->
+      <p class="text-white drop-shadow-sm text-sm font-semibold"><?= htmlspecialchars($admin['username'] ?? $student['full_name'] ?? 'Unknown') ?></p>
+      <!-- Slightly transparent white for role subtitle -->
+      <p class="text-white/70 text-xs font-medium"><?= htmlspecialchars(ucwords(str_replace('_', ' ', $admin['role']))) ?></p>
     </div>
-    <img src="../../public/assets/icons/profile.png" alt="Profile" width="35" class="rounded-full">
+    <!-- Avatar with white ring that pops on gradient -->
+    <img src="../../public/assets/icons/profile.png" alt="Profile" width="35" class="rounded-full border-2 border-white/60 shadow-sm">
   </div>
 
 </header>
@@ -39,21 +41,21 @@ border-b border-purple-200/70 h-16 flex items-center px-5 lg:px-10 shadow-sm bac
 <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
 
 <!-- Mobile Sidebar Drawer -->
-<div id="mobile-drawer" class="fixed top-0 left-0 h-full w-75 bg-gray-900 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden">
+<div id="mobile-drawer" class="fixed top-0 left-0 h-full w-75 bg-[#F5F0FF] z-50 transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden">
   
-  <!-- Drawer Header -->
-  <div class="flex items-center gap-3 px-6 py-5 border-b border-gray-700">
+  <!-- Drawer Header matches main header gradient -->
+  <div class="flex items-center gap-3 px-6 py-5 border-b border-[#DDD5F5] bg-gradient-to-r from-[#8B5CF6] via-[#A98FD4] to-[#C4B5FD]">
     <img src="../../public/assets/images/aite-logo.png" alt="AITE Logo" width="35">
-    <span class="text-white font-semibold text-sm">Smart-Eval System</span>
+    <span class="text-white font-bold text-sm tracking-wide drop-shadow-sm">Smart-Eval System</span>
   </div>
   
   <div id="mobile-nav" class="flex-1 px-4 py-4 space-y-4 overflow-y-auto">
     <?php require __DIR__ . '/sidebar_nav.php';?>
 
-    <div class="px-4 py-4 border-t border-gray-700">
+    <div class="px-4 py-4 border-t border-[#DDD5F5]">
         <a href="<?= $logout ?>"
            class="flex items-center gap-3 px-4 py-2 rounded-lg text-red-400
-                  hover:bg-red-600 hover:text-white transition-colors duration-200">
+                  hover:bg-red-500 hover:text-white transition-colors duration-200">
             🚪 Logout
         </a>
     </div>
@@ -86,6 +88,5 @@ border-b border-purple-200/70 h-16 flex items-center px-5 lg:px-10 shadow-sm bac
     drawer.classList.contains('-translate-x-full') ? openDrawer() : closeDrawer();
   });
 
-  // Close when clicking overlay
   overlay.addEventListener('click', closeDrawer);
 </script>

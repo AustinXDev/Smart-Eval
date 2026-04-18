@@ -49,6 +49,6 @@ $department = $_GET['dept'] ?? '';
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="../../public/assets/js/charts/chart-config.js"></script>
+<script src="../../public/assets/js/charts/chart-config.js" type="module"></script>
 <script src="../../public/assets/js/admin/dashboard/dashboard.js" type="module"></script>
 </html>

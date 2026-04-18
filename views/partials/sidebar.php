@@ -1,4 +1,4 @@
-<aside class="overflow-y-auto fixed top-16 bottom-0 left-0 hidden w-90 bg-[#221e38] text-white flex-col lg:flex">
+<aside class="overflow-y-auto fixed top-16 bottom-0 left-0 hidden w-90 text-white flex-col lg:flex" style="background: linear-gradient(180deg, #1E0F4E 0%, #2D1B69 60%, #1A0A3D 100%);">
     <!-- Nav -->
     <nav class="flex-1 px-4 py-4 space-y-4 overflow-y-auto">
         <?php require __DIR__ . '/sidebar_nav.php';?>
