@@ -103,7 +103,7 @@
                     <div class="relative">
 
                       <span class="absolute left-4 top-2 md:left-4 md:top-3">
-                        <i class="absolute top-1 left-2 fas fa-key text-purple-900 text-lg md:text-xl"></i>
+                        <i class="absolute top-1 left-2 fa fa-lock text-purple-900 text-lg md:text-xl"></i>
                       </span>
 
                       <input class="bg-gray-100 w-full font-roboto py-3 pl-15 text-sm shadow-md rounded-sm focus:border-purple-900 focus:outline-2 focus:outline-purple-900 md:py-4 md:text-md" type="password" name="re-enter-password" id="inputConfirmPassword" placeholder="Confirm Password" required>

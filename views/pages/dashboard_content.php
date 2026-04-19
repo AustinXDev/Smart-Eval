@@ -121,11 +121,11 @@
           <div class="bg-white border border-gray-100 rounded-xl p-4 flex flex-wrap items-center gap-3">
 
           <div id="top_initials" class="w-11 h-11 rounded-full bg-purple-100 flex items-center justify-center text-sm font-medium text-purple-800 shrink-0">
-            JD
+            
           </div>
 
           <div class="flex-1 min-w-[120px]">
-            <p class="m-0 text-[15px] font-medium text-gray-900" id="highest-teacher-name">Juan Dela Cruz</p>
+            <p class="m-0 text-[15px] font-medium text-gray-900" id="highest-teacher-name"></p>
             <span class="inline-block mt-1 text-[11px] font-medium bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
               Highest rating
             </span>
@@ -135,7 +135,7 @@
             <span class="text-[13px] text-gray-500">Avg. score</span>
             <div class="flex items-center gap-1 bg-green-100 rounded-lg px-2.5 py-1">
               <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1l1.8 3.6L14 5.3l-3 2.9.7 4.1L8 10.3l-3.7 2 .7-4.1-3-2.9 4.2-.7z" fill="#166534"/></svg>
-              <span id="avg-score" class="text-[15px] font-medium text-green-900">4.9</span>
+              <span id="avg-score" class="text-[15px] font-medium text-green-900"></span>
             </div>
           </div>
 
@@ -313,4 +313,8 @@
 
 </div>
 
+</div>
+
+<div id="connection-error" class="hidden fixed bottom-4 right-4 bg-red-100 text-red-700 text-sm px-4 py-3 rounded-xl border border-red-200 z-50">
+  Connection error — retrying...
 </div>

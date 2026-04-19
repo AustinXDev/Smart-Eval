@@ -105,6 +105,7 @@ document.addEventListener("click", (e) => {
             if (data.status === "success") {
               alert(data.message);
               loadEvaluationPeriods();
+              loadPeriodCard();
             } else {
               alert(data.message);
             }
