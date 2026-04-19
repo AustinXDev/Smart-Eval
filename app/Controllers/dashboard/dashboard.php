@@ -28,6 +28,10 @@ switch($req){
   case 'program_chart':
     getProgramChart($department, $pdo);
     break;
+
+  case 'get_participation':
+    getParticipation($department, $pdo);
+    break;
   
   default:
     http_response_code(400);
@@ -475,5 +479,112 @@ function getProgramChart($department, $pdo){
       'not_finished' => $not_finished,
       'totals' => $totals,
     ]);
+}
+
+function getParticipation($department, $pdo){
+  
+  //get active period
+  $periodStmt = $pdo->prepare("
+    SELECT period_id
+    FROM evaluation_periods
+    WHERE target_dept = ?
+    AND is_active = 1
+    LIMIT 1
+  ");
+  $periodStmt->execute([$department]);
+  $period = $periodStmt->fetch(PDO::FETCH_ASSOC);
+
+  if(!$period){
+    echo json_encode([]);
+    return;
+  }
+
+  $periodId = $period['period_id'];
+
+  $stmt = $pdo->prepare("
+    SELECT
+      COUNT(DISTINCT es.student_id) AS total,
+      COUNT(DISTINCT CASE WHEN fin.student_id IS NOT NULL THEN es.student_id END) AS finished,
+      COUNT(DISTINCT CASE WHEN fin.student_id IS NULL THEN es.student_id END) AS not_finished
+    FROM evaluation_status es
+    INNER JOIN students s ON s.student_id = es.student_id
+    INNER JOIN programs p ON p.program_id = s.program_id
+    LEFT JOIN (
+      SELECT student_id
+      FROM evaluation_status
+      WHERE period_id = ?
+      AND is_submitted = 1
+      GROUP BY student_id
+      HAVING COUNT(load_id) = (
+        SELECT COUNT(*) FROM evaluation_status es2
+        WHERE es2.student_id = evaluation_status.student_id
+        AND es2.period_id = ?
+      )
+    ) AS fin ON fin.student_id = es.student_id
+    WHERE es.period_id = ?
+    AND p.department = ?
+  ");
+  $stmt->execute([$periodId, $periodId, $periodId, $department]);
+  $current = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  $prevStmt = $pdo->prepare("
+    SELECT period_id
+    FROM evaluation_periods
+    WHERE target_dept = ?
+    AND is_active = 0
+    ORDER BY end_date DESC
+    LIMIT 1
+  ");
+  $prevStmt->execute([$department]);
+  $prevPeriod = $prevStmt->fetch(PDO::FETCH_ASSOC);
+
+  $finished_change = null;
+  $is_up = true;
+
+  if($prevPeriod){
+    $prevId = $prevPeriod['period_id'];
+
+    // previous period finished count from evaluation_status history
+    $prevStmt2 = $pdo->prepare("
+      SELECT
+        COUNT(DISTINCT CASE WHEN fin.student_id IS NOT NULL THEN es.student_id END) AS prev_finished
+      FROM evaluation_status es
+      INNER JOIN students s ON s.student_id = es.student_id
+      INNER JOIN programs p ON p.program_id = s.program_id
+      LEFT JOIN (
+        SELECT student_id
+        FROM evaluation_status
+        WHERE period_id = ?
+        AND is_submitted = 1
+        GROUP BY student_id
+        HAVING COUNT(load_id) = (
+          SELECT COUNT(*) FROM evaluation_status es2
+          WHERE es2.student_id = evaluation_status.student_id
+          AND es2.period_id = ?
+        )
+      ) AS fin ON fin.student_id = es.student_id
+      WHERE es.period_id = ?
+      AND p.department = ?
+    ");
+
+    $prevStmt2->execute([$prevId, $prevId, $prevId, $department]);
+    $prev = $prevStmt2->fetch(PDO::FETCH_ASSOC);
+
+    $prevFinished = (int) $prev['prev_finished'];
+
+    if($prevFinished > 0){
+      $change = (((int)$current['finished'] - $prevFinished) / $prevFinished) * 100;
+      $finished_change = round(abs($change), 1);
+      $is_up = $change >= 0;
+    }
+  }
+
+  echo json_encode([
+    'finished'        => (int) $current['finished'],
+    'not_finished'    => (int) $current['not_finished'],
+    'total'           => (int) $current['total'],
+    'finished_change' => $finished_change,
+    'is_up'           => $is_up,
+  ]);
 }
 ?>

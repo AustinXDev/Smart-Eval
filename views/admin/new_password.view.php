@@ -10,11 +10,9 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="../../public/assets/css/custom.css">
 </head>
-<body class="bg-[url('../../public/assets/images/BG-login.png')] bg-cover bg-center h-screen w-screen">
+<body class="min-h-screen w-screen overflow-hidden relative flex items-center justify-center" style="background: linear-gradient(135deg, #1E0F4E 0%, #2D1B69 40%, #4C1D95 70%, #6D28D9 100%);">
 
   <?php include '../../public/assets/includes/toast.php'; ?> <!-- Toast Notification -->
-  
-  <?php include '../../public/assets/includes/auth-floating-icons.php'; ?> <!-- Floating Icons -->
 
   <!-- Content Wrapper -->
   <div class="h-screen flex justify-center items-center">

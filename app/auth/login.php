@@ -47,6 +47,14 @@ try {
     $stmt->execute([$student_id]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    if(!$user['is_active']){
+        echo json_encode([
+            'status' => 'error',
+            'message' => "This account not available."
+        ]);
+        exit;
+    }
+
     if (!$user || empty($user['password_hash']) || !password_verify($password, $user['password_hash'])) {
         // Store failed attempt
         $stmt = $pdo->prepare("INSERT INTO login_attempts (student_id, ip_address, success) VALUES (?, ?, 0)");
