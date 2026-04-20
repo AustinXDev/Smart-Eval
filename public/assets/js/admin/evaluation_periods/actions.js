@@ -164,20 +164,24 @@ createPeriodForm.addEventListener("submit", (e) => {
 let isUpdating = false;
 
 async function updatePeriodAndReload() {
-  if (isUpdating) return; // Prevent overlapping calls
+  if (isUpdating) return;
   isUpdating = true;
 
   try {
-    await fetch("/Smart-Eval/scripts/auto_active_period.php");
+    // 1. Wait for the PHP to finish its work
+    const response = await fetch("/Smart-Eval/scripts/auto_update.php");
+    const result = await response.text(); // Or .json() if your PHP outputs json
 
-    // Reload UI components
-    loadEvaluationPeriods();
-    loadPeriodCard();
+    console.log("PHP Script result:", result);
+
+    // 2. ONLY THEN reload the UI
+    await loadEvaluationPeriods();
+    await loadPeriodCard();
   } catch (err) {
     console.log("Error updating periods:", err);
+  } finally {
+    isUpdating = false;
   }
-
-  isUpdating = false;
 }
 
 // Load page
@@ -188,5 +192,6 @@ $(document).ready(() => {
   // Run every 30 seconds
   setInterval(() => {
     updatePeriodAndReload();
+    console.log("refreshed");
   }, 30000);
 });
