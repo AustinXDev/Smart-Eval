@@ -28,11 +28,25 @@ let pollTimer = null;
 let isVisible = true;
 let lastData = null;
 
+const chartInstances = {
+  score: null,
+  participation: null,
+  program: null,
+};
+
+function destroyChart(key) {
+  if (chartInstances[key]) {
+    chartInstances[key].destroy();
+    chartInstances[key] = null;
+  }
+}
+
 //////////// Polling Controls /////////////
 function startPolling() {
   stopPolling();
   pollTimer = setInterval(async () => {
     if (isVisible) await fetchDashboardBundle();
+    console.log("refreshed");
   }, POLL_INTERVAL);
 }
 
@@ -100,6 +114,7 @@ async function fetchDashboardBundle() {
       renderParticipationCards({
         ...data.participation_chart,
         total_submitted: data.cards.total_submitted,
+        not_evaluated: data.cards.not_evaluated,
       });
     }
 
@@ -201,8 +216,10 @@ function renderParticipationCards(participation) {
     return;
   }
 
+  console.log(participation.not_evaluated);
+
   set("evaluated-total", participation.finished ?? 0);
-  set("not-evaluated-total", participation.not_finished ?? 0);
+  set("not-evaluated-total", participation.not_evaluated ?? 0);
   set("submitted-total", participation.total_submitted ?? 0);
 
   const percent =
@@ -300,7 +317,12 @@ function renderTeacherRanking(data) {
 }
 
 function renderCharts(data) {
-  if (!data) return;
+  if (!data) {
+    destroyChart("score");
+    destroyChart("participation");
+    destroyChart("program");
+    return;
+  }
 
   const scoreCtx = document.getElementById("scoreChart").getContext("2d");
   const participationCtx = document
@@ -308,23 +330,34 @@ function renderCharts(data) {
     .getContext("2d");
   const programCtx = document.getElementById("programChart").getContext("2d");
 
-  createScoreDoughnutChart(
-    scoreCtx,
-    data.score_chart.labels,
-    data.score_chart.data,
-  );
-  createPieChart(
-    participationCtx,
-    data.participation_chart.labels,
-    data.participation_chart.data,
-  );
-  createProgramBarChart(
-    programCtx,
-    data.program_chart.labels,
-    data.program_chart.finished,
-    data.program_chart.not_finished,
-    data.program_chart.totals,
-  );
+  if (scoreCtx) {
+    destroyChart("score");
+    chartInstances.score = createScoreDoughnutChart(
+      scoreCtx,
+      data.score_chart.labels,
+      data.score_chart.data,
+    );
+  }
+
+  if (participationCtx) {
+    destroyChart("participation");
+    chartInstances.participation = createPieChart(
+      participationCtx,
+      data.participation_chart.labels,
+      data.participation_chart.data,
+    );
+  }
+
+  if (programCtx) {
+    destroyChart("program");
+    chartInstances.program = createProgramBarChart(
+      programCtx,
+      data.program_chart.labels,
+      data.program_chart.finished,
+      data.program_chart.not_finished,
+      data.program_chart.totals,
+    );
+  }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

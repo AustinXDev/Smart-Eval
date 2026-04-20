@@ -155,23 +155,45 @@ function getDashboardBundle($department, $pdo){
     $stmt = $pdo->prepare("
       SELECT
         p.program_name,
-        COUNT(DISTINCT es.student_id) AS total_students,
-        COUNT(DISTINCT CASE WHEN fin.student_id IS NOT NULL THEN es.student_id END) AS finished,
-        COUNT(DISTINCT CASE WHEN fin.student_id IS NULL THEN es.student_id END) AS not_finished
+
+        -- Total active students in the program
+        COUNT(DISTINCT s.student_id) AS total_students,
+
+        -- Finished: submitted ALL their assigned loads
+        COUNT(DISTINCT CASE WHEN fin.student_id IS NOT NULL THEN s.student_id END) AS finished,
+
+        -- Not finished: either has partial submissions OR has no evaluation_status at all
+        COUNT(DISTINCT CASE WHEN fin.student_id IS NULL THEN s.student_id END) AS not_finished
+
       FROM programs p
-      INNER JOIN students s ON s.program_id = p.program_id AND s.is_active = 1
-      INNER JOIN evaluation_status es ON es.student_id = s.student_id AND es.period_id = ?
+
+      -- Start from ALL active students in the department
+      INNER JOIN students s 
+        ON s.program_id = p.program_id 
+        AND s.is_active = 1
+
+      -- Left join so students with NO eval status are still counted
+      LEFT JOIN evaluation_status es 
+        ON es.student_id = s.student_id 
+        AND es.period_id = ?
+
+      -- Finished subquery: submitted count matches assigned count
       LEFT JOIN (
-        SELECT student_id FROM evaluation_status
+        SELECT student_id 
+        FROM evaluation_status
         WHERE period_id = ? AND is_submitted = 1
         GROUP BY student_id
         HAVING COUNT(load_id) = (
-          SELECT COUNT(*) FROM evaluation_status es2
+          SELECT COUNT(*) 
+          FROM evaluation_status es2
           WHERE es2.student_id = evaluation_status.student_id
-          AND es2.period_id = ?
+            AND es2.period_id = ?
         )
-      ) AS fin ON fin.student_id = es.student_id
-      WHERE p.department = ? AND p.is_active = 1
+      ) AS fin ON fin.student_id = s.student_id
+
+      WHERE p.department = ? 
+        AND p.is_active = 1
+
       GROUP BY p.program_id, p.program_name
       ORDER BY p.program_name ASC
     ");
@@ -321,6 +343,26 @@ function getDashboardBundle($department, $pdo){
     }
   
   ////////////////////////////////////////////////////////// 
+
+  ////////////// Get student who did not evaluated //////////////
+
+    $stmt = $pdo->prepare("
+      SELECT COUNT(*)
+      FROM students s
+      INNER JOIN programs p ON s.program_id = p.program_id
+      WHERE p.department = ?
+        AND s.is_active = 1
+        AND NOT EXISTS (
+          SELECT 1 
+          FROM evaluation_status es
+          WHERE es.student_id = s.student_id
+          AND es.period_id = ?
+        )
+    ");
+    $stmt->execute([$department, $periodId]);
+    $notEvaluatedTotal = (int) $stmt->fetchColumn();
+
+  ////////////////////////////////////////////////////////// 
   
   ////////////// Bundle All Request into one response //////////////
     echo json_encode([
@@ -328,6 +370,7 @@ function getDashboardBundle($department, $pdo){
         'student_total'    => $studentTotal,
         'teacher_total'    => $teacherTotal,
         'completed_student'=> $completedStudent,
+        'not_evaluated' => $notEvaluatedTotal,
         'total_submitted'  => $totalSubmitted,
         'evaluation_period'=> $evalPeriod,
       ],

@@ -1,0 +1,45 @@
+.pdf-page {
+  width: 210mm;
+  padding: 20mm;
+  font-family: Arial, sans-serif;
+  color: #111827;
+  background: white;
+}
+
+.pdf-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.pdf-header h1 {
+  font-size: 22px;
+  margin: 0;
+}
+
+.pdf-header p {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.pdf-info {
+  margin-bottom: 20px;
+  font-size: 12px;
+}
+
+.pdf-teachers h3 {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.pdf-teacher-item {
+  padding: 6px 0;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 12px;
+}
+
+.pdf-footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 10px;
+  color: #9ca3af;
+}
