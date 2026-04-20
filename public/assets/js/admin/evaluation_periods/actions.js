@@ -27,6 +27,7 @@ document.addEventListener("click", (e) => {
   const deleteBtn = e.target.closest(".deleteBtn");
   const closeBtn = e.target.closest(".closeBtn");
   const viewBtn = e.target.closest(".viewBtn");
+  const downloadBtn = e.target.closest(".downloadBtn");
 
   if (createBtn) {
     openModal("createPeriodModal");
@@ -115,7 +116,13 @@ document.addEventListener("click", (e) => {
     });
   }
 
-  if (viewBtn) {
+  if (downloadBtn) {
+    const period_id = downloadBtn.dataset.id;
+
+    let url = `/Smart-Eval/public/download_report.php?type=period&period_id=${period_id}`;
+
+    // trigger download
+    window.location.href = url;
   }
 });
 
