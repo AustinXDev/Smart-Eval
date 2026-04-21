@@ -36,14 +36,21 @@ try {
             $snapshotStmt = $pdo->prepare("
                 UPDATE evaluation_periods ep
                 SET
-                    -- Mean Score
+                    -- Mean Score: Sum of scores / Total count of answer rows
                     ep.final_average = (
-                        SELECT ROUND(AVG(ea.score), 2)
+                        SELECT ROUND(SUM(ea.score) / NULLIF(COUNT(ea.answer_id), 0), 2)
                         FROM evaluation_answers ea
                         INNER JOIN evaluation_status es ON ea.eval_id = es.eval_id
                         WHERE es.period_id = ?
+                        AND es.student_id IN (
+                            SELECT es_inner.student_id
+                            FROM evaluation_status es_inner
+                            WHERE es_inner.period_id = ?
+                            GROUP BY es_inner.student_id
+                            HAVING SUM(es_inner.is_submitted) = COUNT(es_inner.load_id)
+                        )
                     ),
-                    -- Total Students who finished ALL their assigned loads
+                    -- Total Students who finished
                     ep.total_responses = (
                         SELECT COUNT(*) FROM (
                             SELECT es_inner.student_id
@@ -58,31 +65,43 @@ try {
                             )
                         ) AS temp_list
                     ), 
-                    -- Participation Rate (Float math)
+                    -- Total UNRESPONSIVE
+                    ep.total_unresponsive_students = (
+                        SELECT COUNT(*) FROM students s
+                        INNER JOIN programs p ON s.program_id = p.program_id
+                        WHERE p.department = ep.target_dept AND s.is_active = 1
+                        AND NOT EXISTS (
+                            SELECT 1 FROM evaluation_status es 
+                            WHERE es.student_id = s.student_id AND es.period_id = ? 
+                        )
+                    ),
+                    -- Total INCOMPLETE
+                    ep.total_incomplete_students = (
+                        SELECT COUNT(*) FROM students s
+                        INNER JOIN programs p ON s.program_id = p.program_id
+                        WHERE p.department = ep.target_dept AND s.is_active = 1
+                        AND s.is_finished_all = 0
+                        AND EXISTS (
+                            SELECT 1 FROM evaluation_status es 
+                            WHERE es.student_id = s.student_id AND es.period_id = ? 
+                        )
+                    ),
+                    -- Participation Rate
                     ep.participation_rate = (
                         SELECT ROUND(
-                            (COUNT(DISTINCT CASE WHEN fin.is_complete = 1 THEN es_out.student_id END) * 100.0) / 
-                            NULLIF(COUNT(DISTINCT es_out.student_id), 0), 2
+                            (COUNT(DISTINCT CASE WHEN s.is_finished_all = 1 THEN s.student_id END) * 100.0) / 
+                            NULLIF(COUNT(DISTINCT s.student_id), 0), 2
                         )
-                        FROM evaluation_status es_out
-                        LEFT JOIN (
-                            SELECT es_sub.student_id, 1 as is_complete
-                            FROM evaluation_status es_sub
-                            WHERE es_sub.period_id = ? AND es_sub.is_submitted = 1
-                            GROUP BY es_sub.student_id
-                            HAVING COUNT(es_sub.load_id) = (
-                                SELECT COUNT(*) FROM evaluation_status es_check
-                                WHERE es_check.student_id = es_sub.student_id 
-                                  AND es_check.period_id = ?
-                            ) 
-                        ) fin ON fin.student_id = es_out.student_id
-                        WHERE es_out.period_id = ?
-                    ), 
-                    ep.is_active = 0
+                        FROM students s
+                        INNER JOIN programs p ON s.program_id = p.program_id
+                        WHERE p.department = ep.target_dept 
+                        AND s.is_active = 1
+                    ),
+                    ep.is_active = 0,
+                    ep.is_closed = 1 -- Mark closed
                 WHERE ep.period_id = ?
             ");
 
-            // 7 placeholders for the specific Period ID
             $snapshotStmt->execute([$pid, $pid, $pid, $pid, $pid, $pid, $pid]);
         }
 
