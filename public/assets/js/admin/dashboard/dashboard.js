@@ -102,6 +102,7 @@ async function fetchDashboardBundle() {
       renderParticipationCards(null);
       renderTeacherRanking([]);
       renderCharts(null);
+      renderCategoricalBreakdown(null);
       lastData = null;
       return;
     }
@@ -130,6 +131,10 @@ async function fetchDashboardBundle() {
       setTimeout(() => {
         renderCharts(data);
       }, 50);
+    }
+
+    if (hasChanged(data, "categorical_breakdown")) {
+      renderCategoricalBreakdown(data.categorical_breakdown);
     }
 
     lastData = data;
@@ -317,10 +322,28 @@ function renderTeacherRanking(data) {
 }
 
 function renderCharts(data) {
+  const programContainer = document.getElementById("program-breakdown");
+  const participationContainer = document.getElementById(
+    "participation-breakdown",
+  );
+  const scoreContainer = document.getElementById("score-breakdown");
+
   if (!data) {
-    destroyChart("score");
-    destroyChart("participation");
-    destroyChart("program");
+    const chart = [
+      { id: "score", container: scoreContainer },
+      { id: "participation", container: participationContainer },
+      { id: "pogram", container: programContainer },
+    ];
+
+    chart.forEach(({ id, container }) => {
+      destroyChart(id);
+
+      container.innerHTML = `
+        <div class="px-4 py-6 text-center text-gray-400 text-sm">
+          No chart data available.
+        </div>
+      `;
+    });
     return;
   }
 
@@ -358,6 +381,67 @@ function renderCharts(data) {
       data.program_chart.totals,
     );
   }
+}
+
+function renderCategoricalBreakdown(data) {
+  const container = document.getElementById("categorical-breakdown");
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (!data) {
+    container.innerHTML = `
+      <div class="px-4 py-6 text-center text-gray-400 text-sm">
+        No categorical breakdown data available.
+      </div>
+    `;
+    return;
+  }
+
+  const COLORS = [
+    "#6366f1",
+    "#0ea5e9",
+    "#10b981",
+    "#f59e0b",
+    "#ec4899",
+    "#8b5cf6",
+  ];
+  const MAX_SCORE = 5;
+
+  data.forEach((cat, i) => {
+    const avg = parseFloat(cat.cat_avg);
+    const barPct = Math.round((avg / MAX_SCORE) * 100);
+    const color = COLORS[i % COLORS.length];
+
+    const row = document.createElement("div");
+    row.innerHTML = `
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="text-xs font-medium text-gray-700">${cat.category}</span>
+        <span class="text-[11px] font-semibold tabular-nums" style="color:${color}">
+            ${avg.toFixed(2)}
+          <span class="text-gray-300 font-normal">/ ${MAX_SCORE}.00</span>
+        </span>
+      </div>
+
+      <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-4">
+        <div class="h-full rounded-full"
+              style="width:0%; background-color:${color};
+                    transition: width 700ms cubic-bezier(0.34,1.56,0.64,1) ${i * 80}ms;"
+              data-width="${barPct}">
+        </div>
+      </div>
+    `;
+
+    container.appendChild(row);
+
+    setTimeout(
+      () => {
+        row.querySelector("[data-width]").style.width = barPct + "%";
+      },
+      i * 80 + 100,
+    );
+  });
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

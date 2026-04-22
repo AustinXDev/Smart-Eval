@@ -169,7 +169,7 @@
         <span class="inline-flex items-center gap-1 bg-red-50 text-red-700 text-xs font-medium px-2 py-0.5 rounded-full">1 — Very Poor</span>
       </div>
 
-      <div class="relative w-full h-64">
+      <div id="score-breakdown" class="relative w-full h-64">
         <canvas id="scoreChart"></canvas>
       </div>
 
@@ -202,7 +202,7 @@
         <span class="inline-flex items-center gap-1 bg-gray-50 text-[#f87171] text-xs font-medium px-2 py-0.5 rounded-full">Pending</span>
       </div>
 
-      <div class="relative w-full h-64">
+      <div id="participation-breakdown" class="relative w-full h-64">
         <canvas id="participationChart"></canvas>
       </div>
 
@@ -213,24 +213,47 @@
               [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] 
               hover:-translate-y-1 transition-all duration-300">
 
-    <div class="flex items-center justify-between mb-3">
-      <div>
-        <h1 class="text-sm font-semibold text-gray-800 tracking-wide">
-          Total Evaluated per Program
-        </h1>
-        <p class="text-xs text-gray-400 mt-0.5">
-          Number of students who completed evaluations by program
-        </p>
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h1 class="text-sm font-semibold text-gray-800 tracking-wide">
+            Total Evaluated per Program
+          </h1>
+          <p class="text-xs text-gray-400 mt-0.5">
+            Number of students who completed evaluations by program
+          </p>
+        </div>
+      </div>
+
+      <div class="w-full h-px bg-gray-100 mb-4"></div>
+
+      <div id="program-breakdown" class="relative w-full h-64">
+        <canvas id="programChart"></canvas>
+      </div>
+
+    </div>
+
+    <!-- Catrgorical Breakdown -->
+    <div class="lg:col-span-2 bg-white rounded-xl p-5 border border-gray-100 
+              [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] 
+              hover:-translate-y-1 transition-all duration-300">
+
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h1 class="text-sm font-semibold text-gray-800 tracking-wide">
+            Categorical Breakdown of Evaluations
+          </h1>
+          <p class="text-xs text-gray-400 mt-0.5">
+           Evaluation Category Breakdown
+          </p>
+        </div>
+      </div>
+
+      <div class="w-full h-px bg-gray-100 mb-4"></div>
+
+      <div id="categorical-breakdown" class="relative w-full h-64">
+        
       </div>
     </div>
-
-    <div class="w-full h-px bg-gray-100 mb-4"></div>
-
-    <div class="relative w-full h-64">
-      <canvas id="programChart"></canvas>
-    </div>
-
-  </div>
   </div>
 </div>
 

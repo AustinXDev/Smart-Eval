@@ -2,6 +2,7 @@
 $period = $period;
 $rankings = $rankings;
 $rating = $rating;
+$participation_rate = $participation_rate;
 
 $imagePath = __DIR__ . '/../../public/assets/images/aite-logo.png';
 $base64 = base64_encode(file_get_contents($imagePath));
@@ -25,11 +26,24 @@ $logo = 'data:image/png;base64,' . $base64;
         
         .schoolName{ font-weight: 100;}
 
-        .summary-container { display: table; width: 100%; margin-bottom: 20px; }
+        .summary-container { display: table; width: 100%; margin-bottom: 20px; border-spacing: 8px;}
+
+        .row {
+            display: table-row;
+            margin-bottom: 0.5rem;
+        }
+
+        .t-header{
+            white-space: nowrap;
+        }
+
+        .t-content{
+            margin-top: 0.5rem;
+        }
 
         .card {
             display: table-cell;
-            width: 33%;
+            width: 33.33%;
             border: 1px solid #ddd;
             padding: 10px;
             text-align: center;
@@ -89,21 +103,43 @@ $logo = 'data:image/png;base64,' . $base64;
 <h3 style="margin-bottom: 0.5rem;font-size: medium;">Executive Summary</h3>
 
 <div class="summary-container">
-    <div class="card">
-        <strong>Participation Rate</strong><br>
-        <?= $period['participation_rate'] ?>%
+    <div class="row">
+        <div class="card">
+            <strong class="t-header">Participation Rate</strong>
+            <p class="t-content" style="color:<?= $participation_rate['color'] ?>;">
+                <?= $period['participation_rate'] ?>%
+            </p>
+        </div>
+
+        <div class="card">
+            <strong class="t-header">Non-Participating Students</strong>
+            <p class="t-content">
+                <?= $period['total_unresponsive_students'] ?>
+            </p>
+        </div>
+
+        <div class="card">
+            <strong class="t-header">Incomplete Submissions</strong>
+            <p class="t-content">
+                <?= $period['total_incomplete_students'] ?>
+            </p>
+        </div>
     </div>
 
-    <div class="card">
-        <strong>Department Mean</strong><br>
-        <?= $period['final_average'] ?>
-    </div>
+    <div class="row">
+        <div class="card">
+            <strong class="t-header">Department Mean</strong>
+            <p class="t-content">
+                <?= $period['final_average'] ?>
+            </p>
+        </div>
 
-    <div class="card">
-        <strong>Adjective Rating</strong><br>
-        <span style="color: <?= $rating['color'] ?>">
-            <?= $rating['text'] ?>
-        </span>
+        <div class="card">
+            <strong class="t-header">Adjective Rating</strong>
+            <p class="t-content" style="color: <?= $rating['color'] ?>">
+                <?= $rating['text'] ?>
+            </p>
+        </div>
     </div>
 </div>
 
@@ -134,6 +170,24 @@ $logo = 'data:image/png;base64,' . $base64;
         </tr>
     <?php endforeach; ?>
 </table>
+
+<div class="categorical-summary" style="margin-top: 2rem;">
+    <h3 style="margin-bottom: 0.5rem; font-size: medium">Category Breakdown</h3>
+
+    <table>
+        <tr>
+            <th>Category</th>
+            <th>Average Score</th>
+        </tr>
+
+        <?php foreach ($categories as $row): ?>
+            <tr>
+                <td><?= $row['category'] ?></td>
+                <td><?= $row['cat_avg'] ?></td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
+</div>
 
 </body>
 </html>
