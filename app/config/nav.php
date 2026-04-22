@@ -44,8 +44,8 @@ $navigation = [
             'label' => 'Reports & Analytics',
             'icon'  => 'fa-solid fa-chart-bar',
             'url'   => [
-                ['label' => 'College Reports', 'url' => '/Smart-Eval/views/admin/reports.view.php?dept=college', 'icon' => 'fa-solid fa-graduation-cap'],
-                ['label' => 'SHS Reports',     'url' => '/Smart-Eval/views/admin/reports.view.php?dept=shs',    'icon' => 'fa-solid fa-building-columns'],
+                ['label' => 'College Reports', 'url' => '/Smart-Eval/views/admin/report_analytics.view.php?dept=college', 'icon' => 'fa-solid fa-graduation-cap'],
+                ['label' => 'SHS Reports',     'url' => '/Smart-Eval/views/admin/report_analytics.view.php?dept=shs',    'icon' => 'fa-solid fa-building-columns'],
             ],
         ],
     ],
@@ -63,8 +63,8 @@ $navigation = [
             'label' => 'Reports & Analytics',
             'icon'  => 'fa-solid fa-chart-bar',
             'url'   => [
-                ['label' => 'College Reports', 'url' => '/Smart-Eval/views/admin/reports.view.php?dept=college', 'icon' => 'fa-solid fa-graduation-cap'],
-                ['label' => 'SHS Reports',     'url' => '/Smart-Eval/views/admin/reports.view.php?dept=shs',    'icon' => 'fa-solid fa-building-columns'],
+                ['label' => 'College Reports', 'url' => '/Smart-Eval/views/admin/report_analytics.view.php?dept=college', 'icon' => 'fa-solid fa-graduation-cap'],
+                ['label' => 'SHS Reports',     'url' => '/Smart-Eval/views/admin/report_analytics.view.php?dept=shs',    'icon' => 'fa-solid fa-building-columns'],
             ],
         ],
     ],

@@ -31,6 +31,7 @@ $department = $_GET['dept'] ?? '';
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="../../public/assets/css/custom.css">
+  <link rel="stylesheet" href="../../public/assets/css/reportAnalytics.css">
 
   <!-- Icons cdn --->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -49,4 +50,5 @@ $department = $_GET['dept'] ?? '';
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../../public/assets/js/admin/report_analytics/report_analytics.js" type="module"></script>
 </html>
