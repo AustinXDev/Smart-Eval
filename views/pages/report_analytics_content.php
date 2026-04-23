@@ -19,7 +19,7 @@
           <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.2">
             <rect x="1" y="3" width="14" height="12" rx="2"/><path d="M1 7h14M5 1v3M11 1v3" stroke-linecap="round"/>
           </svg>
-          <span class="shrink-0">Current view:</span>
+          <span class="shrink-0">Current view: </span>
         </div>
 
         <div class="flex items-center gap-2 flex-wrap">
@@ -75,7 +75,7 @@
 </div>
 
 <!-- Content -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-2">
 
   <!-- Participation funnel -->
   <div class="section-card my-5 col-span-2">
@@ -148,6 +148,57 @@
         <p style="font-size:22px;font-weight:700;color:#71271300;color:#712713;color:#993C1D;margin-top:4px;" id="neverStartedRate"></p>
       </div>
 
+    </div>
+
+  </div>
+
+  <!-- Live Chart for period trend -->
+  <div class="section-card col-span-2">
+
+    <!-- Section header -->
+    <div class="section-header flex items-center justify-between">
+      <div class="flex flex-col gap-1">
+        <p class="section-title">Longitudinal Trend</p>
+        <p class="section-subtitle text-sm text-gray-500">Mean score over 5 semester</p>
+      </div>
+      <span class="badge" style="background:#E6F1FB;color:#185FA5;">Trend</span>
+
+    </div>
+
+    <div class="w-full h-px bg-gray-300 mb-4 mt-4"></div>
+
+    <div style="display:flex;gap:14px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot" style="background:#534AB7;"></span><span style="font-size:11px;color:#6B6860;">Mean Score</span></div>
+    </div>
+
+    <div id="trendChart" style="width:100%;height:300px; border: 1px solid #e8e4dc;">
+      <canvas id="trendChartCanvas" style="display:block; width:100%; height:100%;"></canvas>
+    </div>
+
+    <div class="items-center" style="margin-top:10px;">
+      <div style="background:#EEEDFE;border-radius:10px;padding:10px 12px;">
+        <p class="label-xs" style="color:#534AB7;">Score Trend</p>
+        <p id="trendGrowth" style="font-size:18px;font-weight:700;color:#3C3489;margin-top:3px;"></p>
+        <p style="font-size:10px;color:#7F77DD;">vs. last semester</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-card col-span-2 mt-6">
+
+    <div class="section-header flex items-center justify-between">
+      <div>
+        <p class="section-title ">Year-Level Participation</p>
+        <p class="section-subtitle text-sm text-gray-500">Evaluation completion rate broken down by student year level</p>
+      </div>
+      <span class="badge whitespace-nowrap" style="background:#FAEEDA;color:#854F0B;">Grouped Bar</span>
+    </div>
+
+    <div class="w-full h-px bg-gray-300 mb-4 mt-4"></div>
+
+    <div id="participationContainer" style="width:100%;height:300px; border: 1px solid #e8e4dc;">
+      <canvas id="participationChart" style="display:block; width:100%; height:100%;"></canvas>
     </div>
 
   </div>

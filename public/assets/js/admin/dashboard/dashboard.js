@@ -96,6 +96,8 @@ async function fetchDashboardBundle() {
 
     const data = await res.json();
 
+    console.log(data);
+
     if (!data || Array.isArray(data) || data.error === "no_active_period") {
       console.warn("No active evaluation period.");
       renderCards(null);

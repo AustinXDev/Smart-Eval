@@ -33,6 +33,38 @@ try {
             $pid = $period['period_id'];
             $deptsToReset[] = $period['target_dept'];
 
+            // --- NEW: ARCHIVE INDIVIDUAL STUDENT LISTS ---
+            $archiveStudents = $pdo->prepare("
+                INSERT INTO participation_history (
+                    period_id, 
+                    student_id, 
+                    full_name_at_time, 
+                    year_level_at_time, 
+                    dept_at_time, 
+                    status
+                )
+                SELECT 
+                    ?, 
+                    s.student_id, 
+                    s.full_name, 
+                    s.year_level, 
+                    p.department,
+                    CASE 
+                        WHEN s.is_finished_all = 1 THEN 'Completed'
+                        WHEN EXISTS (
+                            SELECT 1 FROM evaluation_status es 
+                            WHERE es.student_id = s.student_id AND es.period_id = ?
+                        ) THEN 'Abandoned'
+                        ELSE 'Never Started'
+                    END
+                FROM students s
+                INNER JOIN programs p ON s.program_id = p.program_id
+                -- Target students from the correct department who didn't finish
+                WHERE p.department = ? 
+                AND s.is_active = 1
+            ");
+            $archiveStudents->execute([$pid, $pid, $period['target_dept']]);
+
             $snapshotStmt = $pdo->prepare("
                 UPDATE evaluation_periods ep
                 SET
