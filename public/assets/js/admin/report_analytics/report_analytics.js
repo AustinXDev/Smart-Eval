@@ -190,6 +190,8 @@ function renderCharts(data) {
   const participationChartContainer = document.getElementById(
     "participationContainer",
   );
+  const meanParentContainer = document.getElementById("meanParentContainer");
+  const meanScoreContainer = document.getElementById("meanScore");
 
   if (
     !data ||
@@ -198,6 +200,7 @@ function renderCharts(data) {
     data.trend.trend.length === 0
   ) {
     destroyChart("trend");
+    meanScoreContainer.innerHTML = `<div class="text-center text-gray-400 text-sm">No data availbale.</div>`;
     trendChartContainer.innerHTML = `<div class="text-center text-gray-400 text-sm">No trend data available.</div>`;
     document.getElementById("trendGrowth").innerText = `0%`;
   } else {
@@ -208,6 +211,16 @@ function renderCharts(data) {
     const labels = data.trend.trend.map((t) => t.academic_year);
     const scores = data.trend.trend.map((t) => t.final_average);
     chartInstances.trend = createTrendLineChart(trendCtx, labels, scores);
+
+    const latestMean = data.trend.trend.at(-1)?.final_average ?? 0;
+    const adjectiveRating = data.trend.adjectiveRating;
+
+    meanScoreUi(
+      latestMean,
+      adjectiveRating,
+      meanParentContainer,
+      meanScoreContainer,
+    );
     growthRateUI(data.trend.growth, "trendGrowth");
   }
 
@@ -224,7 +237,9 @@ function renderCharts(data) {
       .getContext("2d");
     destroyChart("participation");
 
-    const labels = data.year_participation.map((item) => item.year_level);
+    const labels = data.year_participation.map((item) =>
+      formatYearLevel(item.year_level),
+    );
     const finished = data.year_participation.map((item) =>
       parseFloat(item.completion_percentage),
     );
@@ -241,15 +256,22 @@ function renderCharts(data) {
   }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/*                                 HELPERS                                   */
+///////////////////////////////////////////////////////////////////////////////
+
+//growthRateUI helpers
 function growthRateUI(growthRate, id) {
   const growthEl = document.getElementById(id);
 
   if (!growthEl) return;
 
-  const prefix = growthRate > 0 ? "+" : "";
-  growthEl.textContent = `${prefix}${growthRate}%`;
+  const rate = Number(growthRate);
 
-  if (growthRate > 0) {
+  const prefix = growthRate > 0 ? "+" : "";
+  growthEl.textContent = `${prefix}${rate}%`;
+
+  if (rate > 0) {
     growthEl.className = `text-green-600 font-bold`;
   } else if (growthRate < 0) {
     growthEl.className = "text-red-600 font-bold";
@@ -257,6 +279,87 @@ function growthRateUI(growthRate, id) {
     growthEl.className = "text-gray-500";
     growthEl.textContent = "0%";
   }
+}
+
+//mean score UI helpers
+function meanScoreUi(mean, adjectiveRating, parentId, childId) {
+  if (!parentId || !childId) {
+    console.warn("Mean UI elements missing");
+    return;
+  }
+
+  childId.textContent = Number(mean).toFixed(2);
+
+  const states = [
+    {
+      min: 4.21,
+      max: 5.0,
+      bg: "#ECFDF5",
+      text: "#065F46",
+      label: "#34D399",
+      sublabel: "#6EE7B7",
+    },
+    {
+      min: 3.41,
+      max: 4.2,
+      bg: "#EDFAF1",
+      text: "#1A7F3C",
+      label: "#4ADE80",
+      sublabel: "#86EFAC",
+    },
+    {
+      min: 2.61,
+      max: 3.4,
+      bg: "#FFFBEB",
+      text: "#B45309",
+      label: "#F59E0B",
+      sublabel: "#FCD34D",
+    },
+    {
+      min: 1.81,
+      max: 2.6,
+      bg: "#FEF3C7",
+      text: "#92400E",
+      label: "#D97706",
+      sublabel: "#FCD34D",
+      adjectiveRating: "Fair",
+    },
+    {
+      min: 1.0,
+      max: 1.8,
+      bg: "#FEF2F2",
+      text: "#991B1B",
+      label: "#F87171",
+      sublabel: "#FCA5A5",
+    },
+  ];
+
+  const state = states.find((s) => mean >= s.min && mean <= s.max) ?? states[0];
+
+  parentId.style.background = state.bg;
+  childId.style.color = state.text;
+
+  const titleEl = parentId.querySelector(".mean-title");
+  const sublabelEl = parentId.querySelector(".mean-sublabel");
+  const adjectiveRatingEl = parentId.querySelector(".adjectiveRating");
+
+  adjectiveRatingEl.style.color = state.text;
+
+  if (titleEl) titleEl.style.color = state.label;
+  if (adjectiveRatingEl) adjectiveRatingEl.textContent = adjectiveRating;
+  if (sublabelEl) sublabelEl.style.color = state.sublabel;
+}
+
+//year formatting helper
+function formatYearLevel(raw) {
+  const num = parseInt(raw, 10);
+
+  if (num === 11 || num === 12) return `Grade ${num}`;
+
+  const suffixes = ["", "1st", "2nd", "3rd", "4th"];
+  if (num >= 1 && num <= 4) return `${suffixes[num]} Year`;
+
+  return String(raw);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

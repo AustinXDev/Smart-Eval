@@ -82,8 +82,8 @@
 
     <div class="section-header flex items-center justify-between">
       <div class="flex flex-col gap-1">
-        <p class="section-title">Participation Funnel</p>
-        <p class="section-subtitle text-sm text-gray-500">Drop-off analysis across evaluation stages</p>
+        <p class="section-title text-sm font-semibold text-gray-800 tracking-wide">Participation Funnel</p>
+        <p class="section-subtitle text-xs text-gray-400 mt-0.5">Drop-off analysis across evaluation stages</p>
       </div>
       <span class="badge" style="background:#EEEDFE;color:#3C3489;">Funnel</span>
 
@@ -158,8 +158,8 @@
     <!-- Section header -->
     <div class="section-header flex items-center justify-between">
       <div class="flex flex-col gap-1">
-        <p class="section-title">Longitudinal Trend</p>
-        <p class="section-subtitle text-sm text-gray-500">Mean score over 5 semester</p>
+        <p class="section-title text-sm font-semibold text-gray-800 tracking-wide">Longitudinal Trend</p>
+        <p class="section-subtitle text-xs text-gray-400 mt-0.5">Mean score over 5 semester</p>
       </div>
       <span class="badge" style="background:#E6F1FB;color:#185FA5;">Trend</span>
 
@@ -175,22 +175,34 @@
       <canvas id="trendChartCanvas" style="display:block; width:100%; height:100%;"></canvas>
     </div>
 
-    <div class="items-center" style="margin-top:10px;">
-      <div style="background:#EEEDFE;border-radius:10px;padding:10px 12px;">
-        <p class="label-xs" style="color:#534AB7;">Score Trend</p>
-        <p id="trendGrowth" style="font-size:18px;font-weight:700;color:#3C3489;margin-top:3px;"></p>
-        <p style="font-size:10px;color:#7F77DD;">vs. last semester</p>
+    <div class="flex gap-2 mt-2.5">
+
+      <div id="meanParentContainer" class="flex-1 flex flex-col justify-between rounded-xl p-3" style="background:#EDFAF1;">
+        <p class="mean-title label-xs" style="color:#334155;">Mean Score</p>
+        <div class="flex items-center gap-1.5">
+          <p id="meanScore" class="text-lg font-bold mt-1" style="color:#3C3489;"> </p>
+          <sub class="adjectiveRating"></sub>
+        </div>
+        <p class="mean-sublabel text-xs mt-1" style="color:#64748B;">Overall Rating</p> 
       </div>
+
+      <div class="flex-1 flex flex-col justify-between rounded-xl p-3" style="background:#EEEDFE;">
+        <p class="label-xs" style="color:#534AB7;">Score Trend</p>
+        <p id="trendGrowth" class="text-lg font-bold mt-1" style="color:#3C3489;"></p>
+        <p class="text-xs mt-1" style="color:#7F77DD;">vs. last semester</p>
+      </div>
+
     </div>
 
   </div>
 
+  <!-- Participation Chart -->
   <div class="section-card col-span-2 mt-6">
 
     <div class="section-header flex items-center justify-between">
       <div>
-        <p class="section-title ">Year-Level Participation</p>
-        <p class="section-subtitle text-sm text-gray-500">Evaluation completion rate broken down by student year level</p>
+        <p class="section-title text-sm font-semibold text-gray-800 tracking-wide">Year-Level Participation</p>
+        <p class="section-subtitle text-xs text-gray-400 mt-0.5">Evaluation completion rate broken down by student year level</p>
       </div>
       <span class="badge whitespace-nowrap" style="background:#FAEEDA;color:#854F0B;">Grouped Bar</span>
     </div>
@@ -199,6 +211,29 @@
 
     <div id="participationContainer" style="width:100%;height:300px; border: 1px solid #e8e4dc;">
       <canvas id="participationChart" style="display:block; width:100%; height:100%;"></canvas>
+    </div>
+
+  </div>
+
+  <!-- Categorical Radar Chart -->
+
+  <div class="section-card col-span-1 mt-6">
+
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <h1 class="text-sm font-semibold text-gray-800 tracking-wide">Performance by Category</h1>
+        <p class="text-xs text-gray-400 mt-0.5">Score per evaluation criterion</p>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-[#534AB7]"></span>
+        <span class="text-xs text-gray-400">Score</span>
+      </div>
+    </div>
+
+    <div class="w-full h-px bg-gray-100 mb-4"></div>
+
+    <div class="relative w-full h-72">
+      <canvas id="radarChart"></canvas>
     </div>
 
   </div>

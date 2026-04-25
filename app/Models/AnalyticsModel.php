@@ -174,14 +174,15 @@ class AnalyticsModel
   public function getAnalyticsBundle($periodId, $department, $isActive) {
     
     $trendRaw = $this->getMeanScoreTrend($department, $periodId);
-    
     $growthrate = $this->calculateGrowthRate($trendRaw);
+    $adjectiverate = $this->adjectiveRating($trendRaw);
 
     return [
       'funnel' => $isActive ? $this->getLiveFunnel($periodId, $department) : [],
       'trend' => [
           'trend' => array_reverse($trendRaw), 
-          'growth' => $growthrate
+          'growth' => $growthrate,
+          'adjectiveRating' => $adjectiverate,
       ],
       'year_participation' => $this->getYearLevelAnalytics($periodId, $department),
     ];
@@ -215,6 +216,28 @@ class AnalyticsModel
 
     return round($change, 2);
   }
+
+  private function adjectiveRating($trend){
+    
+    $mean = (float)$trend[0]['final_average'];
+
+    if ($mean >= 4.21) {
+      return "Outstanding";
+    } 
+    elseif ($mean >= 3.41) {
+      return "Very Satisfactory";
+    } 
+    elseif ($mean >= 2.61) {
+      return "Satisfactory";
+    } 
+    elseif ($mean >= 1.81) {
+      return "Fair";
+    } 
+    else {
+      return "Poor";
+    }
+  }
+
 }
 
 ?>
