@@ -75,7 +75,7 @@
 </div>
 
 <!-- Content -->
-<div class="grid grid-cols-1 lg:grid-cols-2">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-1.5">
 
   <!-- Participation funnel -->
   <div class="section-card my-5 col-span-2">
@@ -215,27 +215,262 @@
 
   </div>
 
-  <!-- Categorical Radar Chart -->
+  <!-- Radar + Question Gap — 1 col mobile, 2 col desktop -->
+  <div class="col-span-2">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 w-full">
 
-  <div class="section-card col-span-1 mt-6">
+      <!-- Categorical Radar Chart -->
+      <div class="section-card h-full w-full flex flex-col">
+
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h1 class="text-sm font-semibold text-gray-800 tracking-wide">Performance by Category</h1>
+            <p class="text-xs text-gray-400 mt-0.5">Score per evaluation criterion</p>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-[#534AB7]"></span>
+            <span class="text-xs text-gray-400">Score</span>
+          </div>
+        </div>
+
+        <div class="w-full h-px bg-gray-100 mb-4"></div>
+
+        <div id="categoryContainer" style="width:100%;height:300px;" class="flex justify-center items-center">
+          <canvas id="radarChartCanvas" style="display:block; width:100%; height:100%;"></canvas>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mt-4">
+
+          <div class="rounded-xl p-3 border border-green-100" style="background:#ECFDF5;">
+            <div class="flex items-center gap-1.5 mb-2">
+              <div class="w-5 h-5 rounded-full bg-green-100 border border-green-200 flex items-center justify-center flex-shrink-0">
+                <svg class="w-3 h-3 text-green-600" fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8 12V4M4 8l4-4 4 4"/>
+                </svg>
+              </div>
+              <p class="text-xs font-medium text-green-700">Highest Category</p>
+            </div>
+            <p id="highestCategory" class="text-sm font-semibold text-green-900 truncate">—</p>
+            <div class="flex items-center justify-between mt-1.5">
+              <p id="highestScore" class="text-xl font-bold" style="color:#065F46;">—</p>
+              <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700">/ 5.00</span>
+            </div>
+          </div>
+
+          <div class="rounded-xl p-3 border border-red-100" style="background:#FEF2F2;">
+            <div class="flex items-center gap-1.5 mb-2">
+              <div class="w-5 h-5 rounded-full bg-red-100 border border-red-200 flex items-center justify-center flex-shrink-0">
+                <svg class="w-3 h-3 text-red-500" fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8 4v8M4 8l4 4 4-4"/>
+                </svg>
+              </div>
+              <p class="text-xs font-medium text-red-600">Lowest Category</p>
+            </div>
+            <p id="lowestCategory" class="text-sm font-semibold text-red-900 truncate">—</p>
+            <div class="flex items-center justify-between mt-1.5">
+              <p id="lowestScore" class="text-xl font-bold" style="color:#991B1B;">—</p>
+              <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-600">/ 5.00</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Question Gap -->
+      <div class="section-card h-full w-full flex flex-col">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h1 class="text-sm font-semibold text-gray-800 tracking-wide">Question Gap Analysis</h1>
+            <p class="text-xs text-gray-400 mt-0.5">highest vs. lowest rated evaluation questions</p>
+          </div>
+          <span class="badge whitespace-nowrap" style="background:#FCEBEB;color:#A32D2D;">Talking Points</span>
+        </div>
+
+        <div class="w-full h-px bg-gray-100 mb-4"></div>
+
+        <div id="parentContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Highest Question -->
+          <div>
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-5 h-5 rounded-full bg-green-100 border border-green-200 flex items-center justify-center flex-shrink-0">
+                <svg class="w-3 h-3 text-green-600" fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M8 12V4M4 8l4-4 4 4"/>
+                </svg>
+              </div>
+              <p class="text-xs font-semibold text-green-700 uppercase tracking-wide">Strongest Questions</p>
+            </div>
+
+            <div id="highestQuestions" class="flex flex-col gap-2">
+
+              <!-- Repeated per question — populated by JS -->
+              <div class="flex items-start gap-2.5 p-2.5 rounded-lg border border-green-100" style="background:#F0FDF4;">
+                <span class="flex-shrink-0 w-5 h-5 rounded-full bg-green-500 text-white text-xs font-bold flex items-center justify-center mt-0.5">1</span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs text-gray-700 leading-relaxed line-clamp-2">The teacher explains lessons clearly and understandably.</p>
+                  <div class="flex items-center gap-2 mt-1.5">
+                    <div class="flex-1 bg-green-100 rounded-full h-1.5 overflow-hidden">
+                      <div class="h-full rounded-full bg-green-500" style="width:92%;"></div>
+                    </div>
+                    <span class="text-xs font-bold text-green-700 flex-shrink-0">4.60</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-2.5 p-2.5 rounded-lg border border-green-100" style="background:#F0FDF4;">
+                <span class="flex-shrink-0 w-5 h-5 rounded-full bg-green-400 text-white text-xs font-bold flex items-center justify-center mt-0.5">2</span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs text-gray-700 leading-relaxed line-clamp-2">The teacher encourages student participation in class.</p>
+                  <div class="flex items-center gap-2 mt-1.5">
+                    <div class="flex-1 bg-green-100 rounded-full h-1.5 overflow-hidden">
+                      <div class="h-full rounded-full bg-green-400" style="width:86%;"></div>
+                    </div>
+                    <span class="text-xs font-bold text-green-600 flex-shrink-0">4.30</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Lowest Question -->
+          <div>
+
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-5 h-5 rounded-full bg-red-100 border border-red-200 flex items-center justify-center flex-shrink-0">
+                <svg class="w-3 h-3 text-red-500" fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M8 4v8M4 8l4 4 4-4"/>
+                </svg>
+              </div>
+              <p class="text-xs font-semibold text-red-600 uppercase tracking-wide">Needs Improvement</p>
+            </div>
+
+            <div id="lowestQuestions" class="flex flex-col gap-2">
+
+            <div class="flex items-start gap-2.5 p-2.5 rounded-lg border border-red-100" style="background:#FEF2F2;">
+              <span class="flex-shrink-0 w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center mt-0.5">1</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs text-gray-700 leading-relaxed line-clamp-2">The teacher provides timely and constructive feedback.</p>
+                <div class="flex items-center gap-2 mt-1.5">
+                  <div class="flex-1 bg-red-100 rounded-full h-1.5 overflow-hidden">
+                    <div class="h-full rounded-full bg-red-500" style="width:48%;"></div>
+                  </div>
+                  <span class="text-xs font-bold text-red-600 flex-shrink-0">2.40</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-2.5 p-2.5 rounded-lg border border-red-100" style="background:#FEF2F2;">
+              <span class="flex-shrink-0 w-5 h-5 rounded-full bg-red-400 text-white text-xs font-bold flex items-center justify-center mt-0.5">2</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs text-gray-700 leading-relaxed line-clamp-2">The teacher uses varied and engaging teaching strategies.</p>
+                <div class="flex items-center gap-2 mt-1.5">
+                  <div class="flex-1 bg-red-100 rounded-full h-1.5 overflow-hidden">
+                    <div class="h-full rounded-full bg-red-400" style="width:54%;"></div>
+                  </div>
+                  <span class="text-xs font-bold text-red-500 flex-shrink-0">2.70</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Tables -->
+  <div class="section-card col-span-2 mt-6">
 
     <div class="flex items-center justify-between mb-3">
+
       <div>
-        <h1 class="text-sm font-semibold text-gray-800 tracking-wide">Performance by Category</h1>
-        <p class="text-xs text-gray-400 mt-0.5">Score per evaluation criterion</p>
+        <h1 class="text-sm font-semibold text-gray-800 tracking-wide">Teacher evaluation</h1>
+        <p class="text-xs text-gray-400 mt-0.5">Manage and monitor teacher performance, comments, and evaluation status.</p>
       </div>
-      <div class="flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full bg-[#534AB7]"></span>
-        <span class="text-xs text-gray-400">Score</span>
-      </div>
+
     </div>
 
     <div class="w-full h-px bg-gray-100 mb-4"></div>
 
-    <div class="relative w-full h-72">
-      <canvas id="radarChart"></canvas>
-    </div>
+    <div class="card">
 
+      <!-- Tabs -->
+      <div class="tabs overflow-x-auto">
+        <button class="tab-btn active" data-target="panel-ranking">
+          Ranking
+          <span class="badge badge-blue" id="cnt-ranking">0</span>
+        </button>
+        <button class="tab-btn" data-target="panel-not-evaluated">
+          Not evaluated
+          <span class="badge badge-gray" id="cnt-not-evaluated">0</span>
+        </button>
+        <button class="tab-btn" data-target="panel-abandoned">
+          Abandoned
+          <span class="badge badge-red" id="cnt-abandoned">0</span>
+        </button>
+      </div>
+
+      <!-- Panel: Ranking -->
+        <div id="panel-ranking" class="tab-panel active overflow-x-auto">
+          <div class="toolbar">
+            <div class="toolbar-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input type="text" id="search-ranking" placeholder="Search teacher…" />
+            </div>
+            <button class="btn-export" id="btn-export-ranking">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 10v3h10v-3M8 2v7M5 6l3 3 3-3"/>
+              </svg>
+              Export to Excel
+            </button>
+          </div>
+          <div class="dt-table-wrap">
+            <table id="tbl-ranking" class="w-full"></table>
+          </div>
+        </div>
+
+      <!-- Panel: Not Evaluated -->
+        <div id="panel-not-evaluated" class="tab-panel hidden  overflow-x-auto">
+          <div class="toolbar">
+            <div class="toolbar-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input type="text" id="search-not-evaluated" placeholder="Search student…" />
+            </div>
+            <button class="btn-notify-all" id="btn-notify-all">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="3" width="14" height="10" rx="1.5"/>
+                <path d="m1 4 7 5 7-5"/>
+              </svg>
+              Notify All
+            </button>
+          </div>
+          <div class="dt-table-wrap">
+            <table id="tbl-not-evaluated" class="w-full"></table>
+          </div>
+        </div>
+
+      <!-- Panel: Abandoned -->
+        <div id="panel-abandoned" class="tab-panel hidden overflow-x-auto">
+          <div class="toolbar">
+            <div class="toolbar-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input type="text" id="search-abandoned" placeholder="Search student…" />
+            </div>
+          </div>
+          <div class="dt-table-wrap">
+            <table id="tbl-abandoned" class="w-full"></table>
+          </div>
+        </div>
+    </div>
   </div>
 
 </div>

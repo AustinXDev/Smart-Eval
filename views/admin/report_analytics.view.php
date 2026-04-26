@@ -32,9 +32,18 @@ $department = $_GET['dept'] ?? '';
   <!-- Custom CSS -->
   <link rel="stylesheet" href="../../public/assets/css/custom.css">
   <link rel="stylesheet" href="../../public/assets/css/reportAnalytics.css">
+  <link rel="stylesheet" href="../../public/assets/css/dataTable.css">
 
   <!-- Icons cdn --->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- jQuery (DataTables dependency) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+  <!-- DataTables core -->
+  <link  rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/jquery.dataTables.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"></script>
+
 </head>
 <body>
 

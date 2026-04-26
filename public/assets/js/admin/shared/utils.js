@@ -44,3 +44,71 @@ export function programToInitials(program) {
     .map((word) => word[0].toUpperCase())
     .join("");
 }
+
+export function getRatingBadge(rating) {
+  const map = {
+    Outstanding: {
+      bg: "#EAF3DE",
+      border: "#97C459",
+      dot: "#639922",
+      text: "#27500A",
+    },
+    "Very Satisfactory": {
+      bg: "#E1F5EE",
+      border: "#5DCAA5",
+      dot: "#1D9E75",
+      text: "#085041",
+    },
+    Satisfactory: {
+      bg: "#E6F1FB",
+      border: "#85B7EB",
+      dot: "#378ADD",
+      text: "#0C447C",
+    },
+    Fair: {
+      bg: "#FAEEDA",
+      border: "#EF9F27",
+      dot: "#BA7517",
+      text: "#633806",
+    },
+    Poor: {
+      bg: "#FCEBEB",
+      border: "#F09595",
+      dot: "#E24B4A",
+      text: "#791F1F",
+    },
+  };
+
+  const s = map[rating] ?? {
+    bg: "#F1EFE8",
+    border: "#B4B2A9",
+    dot: "#888780",
+    text: "#444441",
+  };
+
+  return `
+    <div class="flex justify-center">
+      <span style="
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: ${s.bg};
+        border: 0.5px solid ${s.border};
+        font-size: 11px;
+        font-weight: 500;
+        color: ${s.text};
+        white-space: nowrap;
+      ">
+        <span style="
+          width: 5px; height: 5px;
+          border-radius: 50%;
+          background: ${s.dot};
+          flex-shrink: 0;
+        "></span>
+        ${rating}
+      </span>
+    </div>
+  `;
+}

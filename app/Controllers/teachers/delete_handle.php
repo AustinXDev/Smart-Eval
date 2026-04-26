@@ -46,26 +46,29 @@ if (!$load) {
 $load_id = $load['load_id'];
 
 //check if this handle already evaluated by students
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM evaluation_status WHERE load_id = ?");
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM evaluation_status WHERE load_id = ? AND is_submitted = 1");
 $stmt->execute([$load_id]);
 $studentCount = $stmt->fetchColumn();
 
-if ($studentCount > 0 && !$force_delete) {
-    echo json_encode([
-        'status' => 'warning',
-        'message' => "⚠️ Warning: {$studentCount} students have already evaluated this teacher. Deleting this handle will hide their results. Proceed anyway?"
-    ]);
-    exit;
-}
-
-//Delete the handle
-$stmt = $pdo->prepare("DELETE FROM teacher_load WHERE load_id = ?");
-if ($stmt->execute([$load_id])) {
-    echo json_encode([
-        'status' => 'success',
-        'message' => '✅ Teacher handle deleted successfully.'
-    ]);
+if ($studentCount > 0) {
+    $stmt = $pdo->prepare("UPDATE teacher_load SET is_active = 0 WHERE load_id = ?");
+    if ($stmt->execute([$load_id])) {
+        echo json_encode([
+            'status' => 'success',
+            'message' => "⚠️ Load contains {$evaluationCount} evaluations. It has been deactivated instead of deleted to preserve data integrity."
+        ]);
+    }
 } else {
-    echo json_encode(['status' => 'error', 'message' => 'Failed to delete teacher handle.']);
-}
+    // If NO students have evaluated yet, it is safe to actually delete
+    $stmt = $pdo->prepare("DELETE FROM teacher_load WHERE load_id = ?");
+    if ($stmt->execute([$load_id])) {
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Unused teacher handle deleted successfully.'
+        ]);
+    }
+} 
+
+echo json_encode(['status' => 'error', 'message' => 'Failed to delete teacher handle.']);
+
 ?>

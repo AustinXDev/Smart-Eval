@@ -171,11 +171,156 @@ class AnalyticsModel
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 
+  public function getDepartmentCategoryPerformance($periodId, $department) {
+    $sql = "SELECT
+             q.category,
+             ROUND(AVG(ea.score), 2) as average_score
+            FROM evaluation_answers ea
+            INNER JOIN questions q ON ea.question_id = q.question_id
+            INNER JOIN evaluation_status es ON ea.eval_id = es.eval_id
+            INNER JOIN students s ON es.student_id = s.student_id
+            INNER JOIN programs p ON s.program_id = p.program_id
+            WHERE es.period_id = ?
+             AND p.department = ?
+             AND s.is_active = 1
+            -- Only include students who have completed their entire load
+            AND s.student_id IN (
+              SELECT es_inner.student_id
+              FROM evaluation_status es_inner
+              WHERE es_inner.period_id = ?
+              GROUP BY es_inner.student_id
+              HAVING SUM(es_inner.is_submitted) = COUNT(es_inner.load_id)
+            )
+            GROUP BY q.category 
+            ORDER BY q.category ASC
+    ";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$periodId, $department, $periodId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function getQuestionBreakDown($periodId, $department){
+    $sql = "
+      SELECT
+        q.question_text,
+        ROUND(AVG(ea.score), 2) as average_score
+      FROM evaluation_answers ea
+      INNER JOIN questions q ON ea.question_id = q.question_id
+      INNER JOIN evaluation_status es ON ea.eval_id = es.eval_id
+      INNER JOIN students s ON es.student_id = s.student_id
+      INNER JOIN programs p ON s.program_id = p.program_id
+      WHERE es.period_id = ?
+        AND p.department = ?
+        AND s.is_active = 1
+      -- Only include students who have completed their entire load
+      AND s.student_id IN (
+        SELECT es_inner.student_id
+        FROM evaluation_status es_inner
+        WHERE es_inner.period_id = ?
+        GROUP BY es_inner.student_id
+        HAVING SUM(es_inner.is_submitted) = COUNT(es_inner.load_id)
+      )
+      GROUP BY q.question_text
+      ORDER BY average_score DESC;
+    ";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$periodId, $department, $periodId]);
+    return $stmt->fetchAll(PDO:: FETCH_ASSOC);
+  }
+
+  public function getTeacherRanking($periodId, $department){
+    $sql = "
+      SELECT 
+        t.teacher_id,
+        t.employee_id,
+        t.full_name,
+        ROUND(AVG(ea.score), 2) as mean_score,
+        COUNT(DISTINCT es.student_id) as total_evaluated
+      FROM teachers t
+      INNER JOIN teacher_load tl ON t.teacher_id = tl.teacher_id
+      INNER JOIN evaluation_status es ON tl.load_id = es.load_id
+      INNER JOIN evaluation_answers ea ON es.eval_id = ea.eval_id
+      INNER JOIN evaluation_periods ep ON es.period_id = ep.period_id
+      INNER JOIN programs pr ON tl.program_id = pr.program_id
+      WHERE ep.period_id = ?
+        AND pr.department = ?
+        AND tl.is_active = 1
+        AND es.is_submitted = 1
+        AND es.student_id IN (
+          SELECT es_inner.student_id
+          FROM evaluation_status es_inner
+          WHERE es_inner.period_id = ?
+          GROUP BY es_inner.student_id
+          HAVING SUM(es_inner.is_submitted) = COUNT(es_inner.load_id)
+        )
+      GROUP BY t.teacher_id, t.employee_id, t.full_name
+      ORDER BY mean_score DESC, total_evaluated DESC;;
+    ";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$periodId, $department, $periodId]);
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach($results as &$teacher){
+      $ratingData = $this->getAdjectiveRating($teacher['mean_score']);
+      $teacher['adjective_rating'] = $ratingData['rating'];
+    }
+
+    return $results;
+  }
+
+  public function getNotEvaluatedList($periodId, $department){
+    $sql = '
+      SELECT s.student_id, s.full_name, s.email, p.program_name
+      FROM students s
+      INNER JOIN programs p ON s.program_id = p.program_id
+      WHERE p.department = ? 
+        AND s.is_active = 1
+        -- Gate: The student has NO entries at all for this period
+        AND NOT EXISTS (
+            SELECT 1 FROM evaluation_status es 
+            WHERE es.student_id = s.student_id 
+            AND es.period_id = ?
+        )
+    ';
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$department, $periodId]);
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function getAbandonedList($periodId, $department) {
+    $sql = '
+      SELECT s.student_id, s.full_name, s.email, p.program_name
+      FROM students s
+      INNER JOIN programs p ON s.program_id = p.program_id
+      WHERE p.department = ? 
+        AND s.is_finished_all = 0 -- Logic: They aren\'t done yet
+        AND s.is_active = 1
+        -- Gate: They MUST have at least one entry (meaning they started)
+        AND EXISTS (
+            SELECT 1 FROM evaluation_status es 
+            WHERE es.student_id = s.student_id 
+            AND es.period_id = ?
+        )
+    ';
+    
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$department, $periodId]);
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
   public function getAnalyticsBundle($periodId, $department, $isActive) {
     
     $trendRaw = $this->getMeanScoreTrend($department, $periodId);
     $growthrate = $this->calculateGrowthRate($trendRaw);
     $adjectiverate = $this->adjectiveRating($trendRaw);
+    $categoryRaw = $this->getDepartmentCategoryPerformance($periodId, $department);
+    $categoryPerformanceHiglights = $this->getDepartmentPerformanceHighlights($categoryRaw);
+    $questionRaw = $this->getQuestionBreakDown($periodId, $department);
+    $questionPerformanceHighlights = $this->getQuestionPerformanceHighlights($questionRaw);
 
     return [
       'funnel' => $isActive ? $this->getLiveFunnel($periodId, $department) : [],
@@ -185,6 +330,14 @@ class AnalyticsModel
           'adjectiveRating' => $adjectiverate,
       ],
       'year_participation' => $this->getYearLevelAnalytics($periodId, $department),
+      'category' => [
+        'category_performance' => $categoryRaw,
+        'performance_highlights' => $categoryPerformanceHiglights
+      ],
+      'questions' => $questionPerformanceHighlights, 
+      'teachers' => $this->getTeacherRanking($periodId, $department),
+      'not_evaluated' => $this->getNotEvaluatedList($periodId, $department),
+      'abandoned' => $this->getAbandonedList($periodId, $department),
     ];
 }
 
@@ -221,16 +374,16 @@ class AnalyticsModel
     
     $mean = (float)$trend[0]['final_average'];
 
-    if ($mean >= 4.21) {
+    if ($mean >= 4.50) {
       return "Outstanding";
     } 
-    elseif ($mean >= 3.41) {
+    elseif ($mean >= 3.50) {
       return "Very Satisfactory";
     } 
-    elseif ($mean >= 2.61) {
+    elseif ($mean >= 2.50) {
       return "Satisfactory";
     } 
-    elseif ($mean >= 1.81) {
+    elseif ($mean >= 1.50) {
       return "Fair";
     } 
     else {
@@ -238,6 +391,68 @@ class AnalyticsModel
     }
   }
 
+  //Highlight performance helpers(highest and lowest)
+  private function getDepartmentPerformanceHighlights($data){
+    if(empty($data)) {
+      return ['highest' => null, 'lowest' => null];
+    }
+
+    $highest = $data[0];
+    $lowest = $data[0];
+
+    foreach ($data as $item){
+      if ($item['average_score'] > $highest['average_score']){
+        $highest = $item;
+      }
+
+      if ($item['average_score'] < $lowest['average_score']){
+        $lowest = $item;
+      }
+    }
+
+    return [
+      'highest' => $highest,
+      'lowest' => $lowest,
+    ];
+  }
+
+  //Highlight question helpers(highest and lowest)
+  private function getQuestionPerformanceHighlights($data){
+    if(empty($data)) {
+      return ['highest' => [], 'lowest' => []];
+    }
+
+    $highest = array_filter($data, function($q){
+      return (float)$q['average_score'] >= 4.0;
+    });
+
+    $lowest = array_filter($data, function($q) {
+      return (float)$q['average_score'] <= 3.9;
+    });
+
+    usort($highest, fn($a, $b) => $b['average_score'] <=> $a['average_score']);
+    usort($lowest, fn($a, $b) => $b['average_score'] <=> $a['average_score']);
+
+    return [
+      'highest' => array_values($highest),
+      'lowest' => array_values($lowest)
+    ];
+  }
+
+  //get adjective Rating per teacher
+  private function getAdjectiveRating($score) {
+    if ($score >= 4.50) {
+        return ['rating' => 'Outstanding'];
+    } elseif ($score >= 3.50) {
+        return ['rating' => 'Very Satisfactory'];
+    } elseif ($score >= 2.50) {
+        return ['rating' => 'Satisfactory'];
+    } elseif ($score >= 1.50) {
+        return ['rating' => 'Fair'];
+    } else {
+        return ['rating' => 'Poor'];
+    }
+  }
 }
 
 ?>

@@ -326,3 +326,68 @@ export function createYearLevelParticipationChart(
     },
   });
 }
+
+export function createRadarChart(ctx, labels, scores) {
+  return new Chart(ctx, {
+    type: "radar",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Score",
+          data: scores,
+          borderColor: "#534AB7",
+          backgroundColor: "rgba(83, 74, 183, 0.15)",
+          borderWidth: 2,
+          pointBackgroundColor: "#534AB7",
+          pointBorderColor: "#fff",
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointHoverBackgroundColor: "#fff",
+          pointHoverBorderColor: "#534AB7",
+          pointHoverBorderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: "#1E1A14",
+          titleColor: "#9E9A93",
+          bodyColor: "#fff",
+          padding: { top: 8, bottom: 8, left: 12, right: 12 },
+          cornerRadius: 8,
+          displayColors: false,
+        },
+      },
+      scales: {
+        r: {
+          min: 0,
+          max: 5,
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1,
+            color: "#9E9A93",
+            font: { size: 10 },
+            backdropColor: "transparent",
+          },
+          grid: {
+            color: "#E5E7EB",
+          },
+          angleLines: {
+            color: "#E5E7EB",
+          },
+          pointLabels: {
+            color: "#374151",
+            font: { size: 11, weight: "500" },
+          },
+        },
+      },
+    },
+  });
+}
