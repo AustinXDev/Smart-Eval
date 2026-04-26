@@ -1,4 +1,5 @@
 import { getRatingBadge } from "./utils.js";
+import { openModal, closeModal, showConfirmation } from "../../modal/modal.js";
 
 export function initRankingTable() {
   return $("#tbl-ranking").DataTable({
@@ -79,7 +80,7 @@ export function initRankingTable() {
                 <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V5a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
               </svg>
             </button>
-            <button class="btn-act btn-act--green btn-download" data-id="${row.teacher_id}" title="Download">
+            <button class="btn-act btn-act--green btn-download" data-id="${row.teacher_id}" data-name="${row.full_name}" title="Download" id="download-btn">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
@@ -186,8 +187,6 @@ export function initNotEvaluatedTable() {
   });
 }
 
-// ✅ fixed — was using dummy avatarCell/statusPill/notifyBtn that don't exist
-// update the data: keys below to match whatever your backend actually returns
 export function initAbandonedTable() {
   return $("#tbl-abandoned").DataTable({
     pageLength: 8,
@@ -195,7 +194,7 @@ export function initAbandonedTable() {
     searching: true,
     dom: "tip",
     language: {
-      emptyTable: "No abandoned evaluations at this time.", // ✅ friendly empty message
+      emptyTable: "No abandoned evaluations at this time.",
     },
     columns: [
       {
@@ -275,5 +274,39 @@ export function initAbandonedTable() {
       },
     ],
     order: [[1, "asc"]],
+  });
+}
+
+export function initTableButtonEvents(dept, periodId) {
+  document.addEventListener("click", function (e) {
+    const viewBtn = e.target.closest(".btn-view");
+    if (viewBtn) {
+      const teacherId = viewBtn.dataset.id;
+      return;
+    }
+
+    const downloadBtn = e.target.closest(".btn-download");
+    if (downloadBtn) {
+      const teacherId = downloadBtn.dataset.id;
+      const name = downloadBtn.dataset.name;
+
+      const url = `/Smart-Eval/app/Controllers/reportAnalytics/AnalyticsController.php?action=teacherReport&teacher_id=${teacherId}&dept=${dept}&period_id=${periodId || ""}`;
+
+      showConfirmation({
+        title: "Download Report ",
+        message: `Are you sure you want to download the report for ${name}`,
+        onConfirm: () => {
+          window.open(url, "_blank");
+        },
+      });
+      return;
+    }
+
+    const mailBtn = e.target.closest(".btn-mail");
+    if (mailBtn) {
+      const teacherId = mailBtn.dataset.id;
+      const teacherName = mailBtn.dataset.name;
+      return;
+    }
   });
 }

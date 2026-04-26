@@ -339,7 +339,85 @@ class AnalyticsModel
       'not_evaluated' => $this->getNotEvaluatedList($periodId, $department),
       'abandoned' => $this->getAbandonedList($periodId, $department),
     ];
-}
+  }
+
+
+  //get Individual teacher Bundle
+  public function getIndividualTeacherBundle($periodId, $teacherId){
+    $validStudentsSql = "
+        SELECT es.student_id
+        FROM evaluation_status es
+        JOIN teacher_load tl ON es.load_id = tl.load_id
+        WHERE es.period_id = ?
+        GROUP BY es.student_id
+        HAVING COUNT(CASE WHEN es.is_submitted = 1 THEN 1 END) = COUNT(tl.load_id)
+    ";
+
+    //Fetch Overall Stats (Filtering by Valid Students)
+    $stmt = $this->pdo->prepare("
+        SELECT 
+            AVG(ea.score) as average_score,
+            COUNT(DISTINCT es.student_id) as total_evaluated,
+            t.full_name
+        FROM evaluation_status es
+        JOIN teacher_load tl ON es.load_id = tl.load_id
+        JOIN teachers t ON tl.teacher_id = t.teacher_id
+        JOIN evaluation_answers ea ON es.eval_id = ea.eval_id
+        WHERE es.period_id = ? 
+          AND tl.teacher_id = ?
+          AND es.student_id IN ($validStudentsSql)
+    ");
+    $stmt->execute([$periodId, $teacherId, $periodId]);
+    $summary = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$summary || !$summary['full_name']) return null;
+
+    $summary['adjective_rating'] = $this->getAdjectiveRating($summary['average_score']);
+
+    // Categorical Breakdown (Filtering by Valid Students)
+    $stmt = $this->pdo->prepare("
+        SELECT 
+            q.category,
+            AVG(ea.score) as avg_score
+        FROM evaluation_answers ea
+        JOIN evaluation_status es ON ea.eval_id = es.eval_id
+        JOIN teacher_load tl ON es.load_id = tl.load_id
+        JOIN questions q ON ea.question_id = q.question_id
+        WHERE es.period_id = ? 
+          AND tl.teacher_id = ?
+          AND es.student_id IN ($validStudentsSql)
+        GROUP BY q.category
+    ");
+    $stmt->execute([$periodId, $teacherId, $periodId]);
+    $breakdown = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $stmt = $this->pdo->prepare("
+        SELECT 
+            q.question_text,
+            AVG(ea.score) as q_avg,
+            (AVG(ea.score) - ?) as gap
+        FROM evaluation_answers ea
+        JOIN evaluation_status es ON ea.eval_id = es.eval_id
+        JOIN teacher_load tl ON es.load_id = tl.load_id
+        JOIN questions q ON ea.question_id = q.question_id
+        WHERE es.period_id = ? 
+          AND tl.teacher_id = ?
+          AND es.student_id IN ($validStudentsSql)
+        GROUP BY q.question_id
+        ORDER BY q_avg ASC
+    ");
+    $stmt->execute([$summary['average_score'], $periodId, $teacherId, $periodId]);
+    $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    return [
+        'info' => $summary,
+        'breakdown' => $breakdown,
+        'question_gaps' => [
+            'weakest' => array_slice($questions, 0, 5),
+            'strongest' => array_slice($questions, -5)
+        ]
+    ];
+  }
 
   //helpers to keep formatting identical between live and historical data
   private function formatHistoricalFunnel($total, $never, $abandoned, $completed) {

@@ -8,6 +8,7 @@ import {
   initRankingTable,
   initNotEvaluatedTable,
   initAbandonedTable,
+  initTableButtonEvents,
 } from "../shared/table-config.js";
 
 import { openModal, closeModal, showConfirmation } from "../../modal/modal.js";
@@ -569,6 +570,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   tableInstances.ranking = initRankingTable();
   tableInstances.not_evaluated = initNotEvaluatedTable();
   tableInstances.abandoned = initAbandonedTable();
+  initTableButtonEvents(dept, periodId);
 
   const searchMap = [
     { inputId: "search-ranking", table: tableInstances.ranking },
@@ -632,6 +634,27 @@ document.addEventListener("DOMContentLoaded", async () => {
       },
     });
   });
+
+  document
+    .getElementById("btn-export-ranking")
+    .addEventListener("click", (e) => {
+      e.preventDefault();
+
+      if (!dept) {
+        alert("Please select a department first.");
+        return;
+      }
+
+      const url = `/Smart-Eval/app/Controllers/reportAnalytics/AnalyticsController.php?action=exportExcel&dept=${dept}&period_id=${periodId || ""}`;
+
+      showConfirmation({
+        title: "Export to Excel",
+        message: "Are you sure you want to export teacher ranking to excel?",
+        onConfirm: () => {
+          window.location.href = url;
+        },
+      });
+    });
 
   await fetchAnalytics(dept, periodId);
   startLivePolling();
