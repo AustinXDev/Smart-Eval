@@ -10,6 +10,8 @@ import {
   initAbandonedTable,
 } from "../shared/table-config.js";
 
+import { openModal, closeModal, showConfirmation } from "../../modal/modal.js";
+
 const urlParams = new URLSearchParams(window.location.search);
 const dept = urlParams.get("dept");
 const periodId = urlParams.get("period_id");
@@ -609,6 +611,25 @@ document.addEventListener("DOMContentLoaded", async () => {
       setTimeout(() => {
         tableMap[target]?.columns.adjust().draw(false);
       }, 100);
+    });
+  });
+
+  document.getElementById("exportPdfBtn").addEventListener("click", (e) => {
+    e.preventDefault();
+
+    if (!dept) {
+      alert("Please select a department first.");
+      return;
+    }
+
+    const url = `/Smart-Eval/app/Controllers/reportAnalytics/AnalyticsController.php?action=downloadPDF&dept=${dept}&period_id=${periodId || ""}`;
+
+    showConfirmation({
+      title: "Export to PDF",
+      message: "Are you sure you want to export to PDF?",
+      onConfirm: () => {
+        window.open(url, "_blank");
+      },
     });
   });
 

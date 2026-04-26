@@ -16,6 +16,7 @@ class ReportController
         $renderer = new PdfRenderer();
         $renderer->render($result['view'], $result['data']);
     }
+
 }
 
 ?>
