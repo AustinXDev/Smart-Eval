@@ -58,6 +58,7 @@ $department = $_GET['dept'] ?? '';
   </main>
 
   <?php require __DIR__ . '/../../app/modals/shared/confirmation_modal.php';?>
+  <?php require __DIR__ . '/../../app/modals/analytics_modal/progressModal.php';?>
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

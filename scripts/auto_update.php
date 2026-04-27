@@ -65,6 +65,24 @@ try {
             ");
             $archiveStudents->execute([$pid, $pid, $period['target_dept']]);
 
+            $queueTeachers = $pdo->prepare("
+                INSERT INTO teacher_notification_queue (teacher_id, period_id, status)
+                SELECT DISTINCT t.teacher_id, ?, 'pending'
+                FROM teachers t
+                INNER JOIN teacher_load tl ON t.teacher_id = tl.teacher_id
+                WHERE t.department = ? 
+                AND tl.is_active = 1 
+                AND t.is_active = 1 
+                AND EXISTS (
+                    SELECT 1 
+                    FROM evaluation_status es 
+                    WHERE es.load_id = tl.load_id 
+                        AND es.period_id = ? 
+                        AND es.is_submitted = 1
+                )
+            ");
+            $queueTeachers->execute([$pid, $period['target_dept'], $pid]);
+
             $snapshotStmt = $pdo->prepare("
                 UPDATE evaluation_periods ep
                 SET

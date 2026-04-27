@@ -64,6 +64,7 @@ $meta = array_merge([
 <html>
 <head>
 <meta charset="UTF-8">
+<title>Teacher Report</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
 
@@ -213,7 +214,7 @@ $meta = array_merge([
     <?php if (!empty($info['employee_id'])): ?>
       Employee ID: <?= htmlspecialchars($info['employee_id']) ?> &nbsp;&nbsp;&middot;&nbsp;&nbsp;
     <?php endif; ?>
-    Faculty Evaluation Report
+    Smart-Eval Evaluation Result
   </span>
 </div>
 

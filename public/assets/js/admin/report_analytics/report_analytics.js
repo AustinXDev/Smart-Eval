@@ -566,6 +566,42 @@ function buildRow(item, rank, isHigh) {
   </div>`;
 }
 
+//Notification helpers
+async function processNotificationBatches($dept) {
+  let finished = false;
+  const btn = document.getElementById("btn-notify-all");
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+  while (!finished) {
+    const processUrl = `/Smart-Eval/app/Controllers/notification/NotificationController.php?action=process&dept=${dept}`;
+    try {
+      let response = await fetch(processUrl);
+      let data = await response.json();
+
+      if (data.status === "finished") {
+        finished = true;
+        alert(`All emails sent successfully!`);
+        btn.disabled = false;
+        btn.innerHTML = "Notify All Non-participants";
+      } else if (data.status === "processing") {
+        console.log(`Sent batch... Total so far: ${data.sent}`);
+      } else {
+        finished = true;
+        alert("Batch processing stopped: " + data.message);
+        btn.disabled = false;
+        btn.innerHTML = "Notify All Non-participants";
+      }
+    } catch (error) {
+      finished = true;
+      console.error("Fetch error:", error);
+      btn.disabled = false;
+      btn.innerHTML = "Notify All Non-participants";
+    }
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   tableInstances.ranking = initRankingTable();
   tableInstances.not_evaluated = initNotEvaluatedTable();
@@ -641,7 +677,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       e.preventDefault();
 
       if (!dept) {
-        alert("Please select a department first.");
+        alert("Missing department parameter. Please try Again.");
         return;
       }
 
@@ -655,6 +691,37 @@ document.addEventListener("DOMContentLoaded", async () => {
         },
       });
     });
+
+  document.getElementById("btn-notify-all").addEventListener("click", (e) => {
+    e.preventDefault();
+
+    if (!dept) {
+      alert("Missing department parameter. Please try Again.");
+      return;
+    }
+
+    showConfirmation({
+      title: "Notify All Non-participants",
+      message: `Are you sure you want to notify all non-participants for ${dept}?`,
+      onConfirm: async () => {
+        try {
+          const prepareUrl = `/Smart-Eval/app/Controllers/notification/NotificationController.php?action=prepare&dept=${dept}`;
+
+          let prepResponse = await fetch(prepareUrl);
+          let prepData = await prepResponse.json();
+
+          if (prepData.status === "success") {
+            await processNotificationBatches(dept);
+          } else {
+            alert(prepData.message);
+          }
+        } catch (err) {
+          console.error("Initialization Error:", err);
+          alert("An error occurred while initializing notifications.");
+        }
+      },
+    });
+  });
 
   await fetchAnalytics(dept, periodId);
   startLivePolling();

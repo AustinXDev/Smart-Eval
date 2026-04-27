@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../Models/AnalyticsModel.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../Controllers/reports/utils/PdfRenderer.php'; // Ensure path to renderer is correct
+require_once __DIR__ . '/../../Controllers/reports/utils/PdfRenderer.php';
 
 $controller = new AnalyticsController();
 $action = $_GET['action'] ?? 'index';

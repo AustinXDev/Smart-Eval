@@ -33,3 +33,5 @@ export function showConfirmation({ title, message, onConfirm }) {
     modal.classList.add("hidden");
   };
 }
+
+//analytics helpers
