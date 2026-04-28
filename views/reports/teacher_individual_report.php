@@ -41,8 +41,8 @@ function sectionAccent(): string {
 }
 
 // ── Aliases ───────────────────────────────────────────────
-$info      = $data['info'];
-$breakdown = $data['breakdown'];
+$info      = $data['info'] ?? [];
+$breakdown = $data['breakdown'] ?? [];
 $weakest   = $data['question_gaps']['weakest']  ?? [];
 $strongest = $data['question_gaps']['strongest'] ?? [];
 

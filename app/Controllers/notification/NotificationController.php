@@ -177,8 +177,8 @@ class NotificationController {
           $model = new AnalyticsModel($pdo);
           $renderer = new PdfRenderer();
 
-          set_time_limit(300); 
-          ini_set('memory_limit', '512M');
+          set_time_limit(60); 
+          ini_set('memory_limit', '128');
 
           $stmt = $pdo->query("
             SELECT q.queue_id, q.status, q.teacher_id,   
@@ -190,6 +190,8 @@ class NotificationController {
           $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
           if(empty($tasks)) return;
+
+          $periodCache = [];
 
           $mail = new PHPMailer(true);
           try {
@@ -217,11 +219,19 @@ class NotificationController {
           
             try {
               $data = $model->getIndividualTeacherBundle($task['period_id'], $task['teacher_id']);
+
               if(!$data) continue;
+
+              $pid = $task['period_id'];
+              if (!isset($periodCache[$pid])) {
+                $periodCache[$pid] = $model->getPeriodById($pid);
+              }
+              
+              $period = $periodCache[$pid];
 
               $pdfBinary = $renderer->getPdfBinary('teacher_individual_report.php', [
                   'data' => $data,
-                  'meta' => ['is_live' => false, 'generated_at' => date('Y-m-d')]
+                  'meta' => ['academic_year' => $period['academic_year'], 'semester' => $period['semester'], 'is_live' => false, 'generated_at' => date('Y-m-d')]
               ]);
               
               file_put_contents($tempPath, $pdfBinary);
@@ -237,6 +247,7 @@ class NotificationController {
               if($mail->send()) {
                   $update = $pdo->prepare("UPDATE teacher_notification_queue SET status='sent', processed_at=NOW() WHERE  queue_id=?");
                   $update->execute([$task['queue_id']]);
+                  usleep(500000);
               }
 
             } catch (Exception $e) {

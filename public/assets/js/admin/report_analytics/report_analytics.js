@@ -18,6 +18,7 @@ const dept = urlParams.get("dept");
 const periodId = urlParams.get("period_id");
 
 let isFetching = false;
+let isActive = false;
 
 const POLL_INTERVAL = 30000;
 let pollTimer = null;
@@ -89,9 +90,12 @@ async function fetchAnalytics(deptParam, pidParam) {
     const data = await response.json();
 
     console.log(data);
-    console.log("not_evaluated key:", data?.not_evaluated);
 
-    if (!data || Object.keys(data).length === 0) {
+    if (
+      !data ||
+      Object.keys(data).length === 0 ||
+      data.error === "No period found"
+    ) {
       renderHeaderInfo(null);
       renderParticipationFunnel(null);
       renderCharts(null);
@@ -105,7 +109,7 @@ async function fetchAnalytics(deptParam, pidParam) {
 
     if (data && data.meta) {
       if (hasChanged(data, "meta")) {
-        renderHeaderInfo(data.meta);
+        renderHeaderInfo(data, data.meta);
       }
     }
 
@@ -143,6 +147,10 @@ async function fetchAnalytics(deptParam, pidParam) {
       renderAbandoned(data.abandoned);
     }
 
+    if (data.isActive && hasChanged(data, "isActive")) {
+      isActive = data.isActive;
+    }
+
     lastData = data;
   } catch (error) {
     console.error("Error fetching analytics:", error);
@@ -151,11 +159,13 @@ async function fetchAnalytics(deptParam, pidParam) {
   }
 }
 
-function renderHeaderInfo(meta) {
+function renderHeaderInfo(data, meta) {
   const set = (id, value) => {
     const el = document.getElementById(id);
     if (el) el.textContent = value;
   };
+
+  console.log(meta);
 
   const liveContainer = document.getElementById("status");
   const periodText = document.getElementById("evaluationPeriod");
@@ -175,6 +185,20 @@ function renderHeaderInfo(meta) {
       liveContainer.classList.add("border-gray-300");
     }
     return;
+  }
+
+  if (data.isActive === false) {
+    set("evaluationPeriod", meta.academic_year);
+    set("semester", meta.semester);
+    if (liveContainer) {
+      liveContainer.textContent = "Previous Evaluation";
+      liveContainer.classList.remove("text-green-700");
+      liveContainer.classList.remove("bg-green-50");
+      liveContainer.classList.remove("border-green-300");
+      liveContainer.classList.add("text-gray-500");
+      liveContainer.classList.add("bg-gray-50");
+      liveContainer.classList.add("border-gray-300");
+    }
   }
 
   set("evaluationPeriod", meta.academic_year);
@@ -234,6 +258,7 @@ function renderCharts(data) {
   const participationChartContainer = document.getElementById(
     "participationContainer",
   );
+  const categoryContainer = document.getElementById("categoryContainer");
   const meanParentContainer = document.getElementById("meanParentContainer");
   const meanScoreContainer = document.getElementById("meanScore");
   const radarChartContainer = document.getElementById("radarChart");
@@ -275,6 +300,7 @@ function renderCharts(data) {
     data.year_participation.length === 0
   ) {
     destroyChart("participation");
+    participationChartContainer.innerHTML = "";
     participationChartContainer.innerHTML = `<div class="text-center text-gray-400 text-sm">No participation data available.</div>`;
   } else {
     const partCtx = document
@@ -307,7 +333,7 @@ function renderCharts(data) {
     data.category.category_performance.length === 0
   ) {
     destroyChart("category");
-    participationChartContainer.innerHTML = `<div class="text-center text-gray-400 text-sm">No data available in this period.</div>`;
+    categoryContainer.innerHTML = `<div class="text-center text-gray-400 text-sm">No data available in this period.</div>`;
   } else {
     const radarCtx = document
       .getElementById("radarChartCanvas")
@@ -349,10 +375,11 @@ function renderQuestionBreakDown(data) {
   const highestEl = document.getElementById("highestQuestions");
   const lowestEl = document.getElementById("lowestQuestions");
 
-  if (highest.length === 0 && lowest.length === 0) {
+  if (!data) {
     if (parentContainer) {
+      parentContainer.innerHTML = "";
       parentContainer.innerHTML =
-        '<div class="col-span-full text-center py-10"><p class="text-gray-400 text-sm">No performance highlights available for this period.</p></div>';
+        '<div class="col-span-full text-center py-10 w-full h-full flex justify-center items-center"><p class="text-gray-400 text-sm">No performance highlights available for this period.</p></div>';
     }
     return;
   }
@@ -692,37 +719,53 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     });
 
-  document.getElementById("btn-notify-all").addEventListener("click", (e) => {
-    e.preventDefault();
+  const notifyButton = document.getElementById("btn-notify-all");
 
-    if (!dept) {
-      alert("Missing department parameter. Please try Again.");
-      return;
-    }
+  if (isActive === false) {
+    notifyButton.disabled = true;
+    notifyButton.classList.remove("cursor-pointer");
+    notifyButton.classList.add(
+      "cursor-not-allowed",
+      "pointer-events-none",
+      "opacity-50",
+    );
+  } else {
+    notifyButton
+      .getElementById("btn-notify-all")
+      .addEventListener("click", (e) => {
+        e.preventDefault();
 
-    showConfirmation({
-      title: "Notify All Non-participants",
-      message: `Are you sure you want to notify all non-participants for ${dept}?`,
-      onConfirm: async () => {
-        try {
-          const prepareUrl = `/Smart-Eval/app/Controllers/notification/NotificationController.php?action=prepare&dept=${dept}`;
-
-          let prepResponse = await fetch(prepareUrl);
-          let prepData = await prepResponse.json();
-
-          if (prepData.status === "success") {
-            await processNotificationBatches(dept);
-          } else {
-            alert(prepData.message);
-          }
-        } catch (err) {
-          console.error("Initialization Error:", err);
-          alert("An error occurred while initializing notifications.");
+        if (!dept) {
+          alert("Missing department parameter. Please try Again.");
+          return;
         }
-      },
-    });
-  });
+
+        showConfirmation({
+          title: "Notify All Non-participants",
+          message: `Are you sure you want to notify all non-participants for ${dept}?`,
+          onConfirm: async () => {
+            try {
+              const prepareUrl = `/Smart-Eval/app/Controllers/notification/NotificationController.php?action=prepare&dept=${dept}`;
+
+              let prepResponse = await fetch(prepareUrl);
+              let prepData = await prepResponse.json();
+
+              if (prepData.status === "success") {
+                await processNotificationBatches(dept);
+              } else {
+                alert(prepData.message);
+              }
+            } catch (err) {
+              console.error("Initialization Error:", err);
+              alert("An error occurred while initializing notifications.");
+            }
+          },
+        });
+      });
+  }
 
   await fetchAnalytics(dept, periodId);
   startLivePolling();
+
+  console.log(isActive);
 });

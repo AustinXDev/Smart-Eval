@@ -1,8 +1,8 @@
 <?php
-$period = $period;
-$rankings = $rankings;
-$rating = $rating;
-$participation_rate = $participation_rate;
+$period = $period ?? [];
+$rankings = $rankings ?? [];
+$rating = $rating ?? [];
+$participation_rate = $participation_rate ?? [];
 
 $imagePath = __DIR__ . '/../../public/assets/images/aite-logo.png';
 $base64 = base64_encode(file_get_contents($imagePath));

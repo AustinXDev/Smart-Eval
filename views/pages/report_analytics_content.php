@@ -288,7 +288,7 @@
 
         <div class="w-full h-px bg-gray-100 mb-4"></div>
 
-        <div id="parentContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div id="parentContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full h-full">
           <!-- Highest Question -->
           <div>
             <div class="flex items-center gap-2 mb-3">

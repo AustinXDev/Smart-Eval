@@ -50,6 +50,9 @@ function scoreBar(float $score, float $max = 5.0, int $width = 64): string {
 function sectionAccent(): string {
     return "<div style='width:3px;height:14px;background:" . CLR_PURPLE_MID . ";border-radius:2px;display:inline-block;vertical-align:middle;margin-right:7px;'></div>";
 }
+ 
+$trendData = $data['trend']['trend'] ?? [];
+$currentPeriod = end($trendData);
 ?>
 <!DOCTYPE html>
 <html>
@@ -256,9 +259,9 @@ function sectionAccent(): string {
   <div class="cover-clearfix"></div>
   <p class="report-title">Faculty Evaluation Summary Report</p>
   <p class="report-sub">
-    Academic Year <?= htmlspecialchars($data['meta']['academic_year']) ?>
+    Academic Year <?= htmlspecialchars($data['meta']['academic_year'] ?? []) ?>
     &nbsp;&mdash;&nbsp;
-    <?= htmlspecialchars($data['meta']['semester']) ?>
+    <?= htmlspecialchars($data['meta']['semester'] ?? []) ?>
     &nbsp;&nbsp;&middot;&nbsp;&nbsp;
     Generated <?= date('F j, Y') ?>
   </p>
@@ -272,19 +275,19 @@ function sectionAccent(): string {
 <div class="stat-row">
   <div class="stat-card">
     <p class="stat-label">Mean Score</p>
-    <p class="stat-value"><?= number_format($data['trend']['trend'][0]['final_average'] ?? 0, 2) ?></p>
+    <p class="stat-value"><?= number_format($currentPeriod['final_average'] ?? 0, 2) ?></p>
     <p class="stat-sub">out of 5.00</p>
   </div>
   <div class="stat-card">
     <p class="stat-label">Growth Rate</p>
-    <p class="stat-value"><?= htmlspecialchars($data['trend']['growth']) ?>%</p>
+    <p class="stat-value"><?= htmlspecialchars($data['trend']['growth'] ?? []) ?>%</p>
     <p class="stat-sub">vs. previous semester</p>
   </div>
   <div class="stat-card">
     <p class="stat-label">Adjective Rating</p>
-    <?php $rc = ratingColor($data['trend']['adjectiveRating']); ?>
+    <?php $rc = ratingColor($data['trend']['adjectiveRating'] ?? []); ?>
     <p class="stat-value" style="font-size:15px;color:<?= $rc['text'] ?>;">
-      <?= htmlspecialchars($data['trend']['adjectiveRating']) ?>
+      <?= htmlspecialchars($data['trend']['adjectiveRating'] ?? [])  ?>
     </p>
     <p class="stat-sub">department average</p>
   </div>
@@ -332,7 +335,7 @@ function sectionAccent(): string {
       </tr>
     </thead>
     <tbody>
-      <?php foreach ($data['year_participation'] as $item):
+      <?php foreach ($data['year_participation'] ?? [] as $item):
         $total = $item['total_finished'] + $item['total_not_finished'];
         $rate  = $total > 0 ? round(($item['total_finished'] / $total) * 100) : 0;
       ?>
@@ -359,7 +362,7 @@ function sectionAccent(): string {
       </tr>
     </thead>
     <tbody>
-      <?php foreach ($data['category']['category_performance'] as $cat): ?>
+      <?php foreach ($data['category']['category_performance'] ?? [] as $cat): ?>
       <tr>
         <td><?= htmlspecialchars($cat['category']) ?></td>
         <td class="center" style="font-weight:600;"><?= number_format($cat['average_score'], 2) ?></td>
@@ -384,7 +387,7 @@ function sectionAccent(): string {
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($data['questions']['highest'] as $q): ?>
+          <?php foreach ($data['questions']['highest'] ?? [] as $q): ?>
           <tr>
             <td style="font-size:10px;"><?= htmlspecialchars($q['question_text']) ?></td>
             <td class="center" style="font-weight:600;color:#27500A;"><?= number_format($q['average_score'], 2) ?></td>
@@ -407,7 +410,7 @@ function sectionAccent(): string {
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($data['questions']['lowest'] as $q): ?>
+          <?php foreach ($data['questions']['lowest'] ?? [] as $q): ?>
           <tr>
             <td style="font-size:10px;"><?= htmlspecialchars($q['question_text']) ?></td>
             <td class="center" style="font-weight:600;color:#791F1F;"><?= number_format($q['average_score'], 2) ?></td>
@@ -434,7 +437,7 @@ function sectionAccent(): string {
       </tr>
     </thead>
     <tbody>
-      <?php foreach ($data['teachers'] as $i => $row):
+      <?php foreach ($data['teachers'] ?? [] as $i => $row):
         $n  = $i + 1;
         $rs = rankStyle($n);
         $rc = ratingColor($row['adjective_rating']);

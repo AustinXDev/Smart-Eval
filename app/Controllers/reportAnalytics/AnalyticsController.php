@@ -60,9 +60,15 @@ class AnalyticsController
         } else {
             $period = $model->getActivePeriod($dept);
             $isActive = true;
+
+            if(!$period) {
+                $history = $model->getEvaluationHistory();
+                $period = !empty($history) ? $history[0] : null;
+                $isActive = false;
+            }
         }
 
-        if (!$period) return ['error' => 'No period found'];
+        if (!$period) return ['error' => 'System contains no evaluation data yet.'];
 
         $targetId = $period['period_id'];
         $data = $model->getAnalyticsBundle($targetId, $dept, $isActive) ?? [];
