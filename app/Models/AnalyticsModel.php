@@ -398,7 +398,7 @@ class AnalyticsModel
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 
-  public function getEvaluationHistory() {
+  public function getEvaluationHistory($dept) {
     global $pdo;
 
     $sql = "
@@ -409,9 +409,12 @@ class AnalyticsModel
         final_average
       FROM evaluation_periods
       WHERE is_active = 0
+      AND target_dept = :dept
       ORDER BY start_date DESC  
     ";
-    $stmt = $pdo->query($sql);
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(['dept' => $dept]);
+
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 

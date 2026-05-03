@@ -9,9 +9,7 @@
     </div>
 
     <button
-      class="addProgram flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white 
-             px-5 py-2.5 rounded-xl shadow-md
-             hover:scale-[1.03] active:scale-[0.97] transition-all duration-200">
+      class="addProgram bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-md shadow hover:opacity-90 transition">
 
       <i class="fa-solid fa-plus"></i>
       Add New Program

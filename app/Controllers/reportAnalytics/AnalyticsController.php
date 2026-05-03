@@ -9,9 +9,17 @@ $action = $_GET['action'] ?? 'index';
 
 if ($action === 'downloadPDF') {
   $controller->downloadPDF();
-} elseif ($action === 'teacherReport') {
+}
+
+elseif ($action === 'getHistoryList') {
+    $controller->getHistoryList();
+}
+
+elseif ($action === 'teacherReport') {
     $controller->downloadTeacherPDF();
-} elseif ($action === 'exportExcel') {
+} 
+
+elseif ($action === 'exportExcel') {
   $controller->exportExcel();
 }
 else {
@@ -62,7 +70,7 @@ class AnalyticsController
             $isActive = true;
 
             if(!$period) {
-                $history = $model->getEvaluationHistory();
+                $history = $model->getEvaluationHistory($dept);
                 $period = !empty($history) ? $history[0] : null;
                 $isActive = false;
             }
@@ -81,6 +89,21 @@ class AnalyticsController
         ];
 
         return $data;
+    }
+
+    public function getHistoryList() {
+        header('Content-Type: application/json');
+        global $pdo;
+        $dept = $_GET['dept'] ?? '';
+        $model = new AnalyticsModel($pdo);
+
+        $history = $model->getEvaluationHistory($dept);
+        
+        echo json_encode([
+            'status' => 'success',
+            'data' => $history
+        ]);
+        exit;
     }
 
   public function exportExcel() {

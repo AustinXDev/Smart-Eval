@@ -474,3 +474,86 @@
   </div>
 
 </div>
+
+<!-- Histroical Banner -->
+<div id="historical-banner" class="hidden fixed bottom-0 left-0 right-0 z-40 pb-4 px-4">
+  <div class="max-w-5xl mx-auto">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 sm:px-5 py-3.5
+                bg-[#0F172A] border border-indigo-500/30 rounded-xl shadow-2xl">
+
+      <!-- Left: icon + text -->
+      <div class="flex items-start sm:items-center gap-3">
+
+        <div class="w-8 h-8 rounded-lg bg-indigo-500/15 border border-indigo-500/20
+                    flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-0">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#818CF8"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <p class="text-white text-xs font-semibold">Viewing Historical Period</p>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full
+                         bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs">
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse inline-block"></span>
+              Read-only
+            </span>
+          </div>
+          <p class="text-slate-400 text-xs mt-0.5 leading-relaxed">
+            You are viewing a past evaluation — data shown is not live.
+          </p>
+
+          <!-- Period label visible on mobile only (below description) -->
+          <div class="flex items-center gap-1.5 mt-2 sm:hidden">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#94A3B8"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span class="text-slate-400 text-xs" id="banner-period-label-mobile">—</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right: period pill + return button -->
+      <div class="flex items-center justify-between sm:justify-end gap-2 flex-shrink-0">
+
+        <!-- Period label hidden on mobile (shown inline above instead) -->
+        <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+                    bg-slate-800 border border-slate-700">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94A3B8"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span class="text-slate-300 text-xs" id="banner-period-label">—</span>
+        </div>
+
+        <!-- Return button — full width on mobile -->
+        <button
+          id="btn-return-current"
+          class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5
+                 px-3 py-1.5 rounded-lg text-xs font-semibold
+                 bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-400/50
+                 transition-all duration-150 whitespace-nowrap cursor-pointer">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1 4 1 10 7 10"/>
+            <path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
+          </svg>
+          Return to Current
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+</div>

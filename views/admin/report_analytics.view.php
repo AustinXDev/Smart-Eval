@@ -25,7 +25,7 @@ $department = $_GET['dept'] ?? '';
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard <?php echo strtoupper($department); ?></title>
+  <title>Reports & Analytics <?php echo strtoupper($department); ?></title>
 
   <?php include_once __DIR__ . '../../../public/assets/includes/head.php'?>
 
@@ -59,6 +59,7 @@ $department = $_GET['dept'] ?? '';
 
   <?php require __DIR__ . '/../../app/modals/shared/confirmation_modal.php';?>
   <?php require __DIR__ . '/../../app/modals/analytics_modal/progressModal.php';?>
+  <?php require __DIR__ . '/../../app/modals/analytics_modal/viewHistoryModal.php'; ?>
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

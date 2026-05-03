@@ -290,15 +290,15 @@ table.dataTable tbody tr.even {
   cursor: pointer;
 }
 .dataTables_paginate .paginate_button:hover {
-  background: var(--bg-secondary) !important;
-  color: var(--text) !important;
-  border-color: var(--border-md) !important;
+  background: #eef2ff !important;
+  color: #4f46e5 !important;
+  border-color: #c7d2fe !important;
 }
 .dataTables_paginate .paginate_button.current,
 .dataTables_paginate .paginate_button.current:hover {
-  background: var(--text) !important;
-  color: var(--bg) !important;
-  border-color: var(--text) !important;
+  background: #ffffff !important;
+  color: #ffffff !important;
+  border-color: #4338ca !important;
   font-weight: 500 !important;
 }
 .dataTables_paginate .paginate_button.disabled,

@@ -9,6 +9,7 @@ import {
   initNotEvaluatedTable,
   initAbandonedTable,
   initTableButtonEvents,
+  initHistoryTable,
 } from "../shared/table-config.js";
 
 import { openModal, closeModal, showConfirmation } from "../../modal/modal.js";
@@ -19,6 +20,7 @@ const periodId = urlParams.get("period_id");
 
 let isFetching = false;
 let isActive = false;
+let historyTable = null;
 
 const POLL_INTERVAL = 30000;
 let pollTimer = null;
@@ -40,8 +42,13 @@ const tableInstances = {
 function startLivePolling() {
   stopPolling();
   pollTimer = setInterval(async () => {
-    if (isVisible) await fetchAnalytics(dept, periodId);
-    console.log("refreshed");
+    if (isVisible) {
+      const currentPeriodId = new URLSearchParams(window.location.search).get(
+        "period_id",
+      );
+      await fetchAnalytics(dept, currentPeriodId);
+      console.log("refreshed");
+    }
   }, POLL_INTERVAL);
 }
 
@@ -74,7 +81,7 @@ function destroyChart(key) {
   }
 }
 
-async function fetchAnalytics(deptParam, pidParam) {
+export async function fetchAnalytics(deptParam, pidParam) {
   if (isFetching) return;
 
   isFetching = true;
@@ -149,8 +156,10 @@ async function fetchAnalytics(deptParam, pidParam) {
 
     if (data.isActive && hasChanged(data, "isActive")) {
       isActive = data.isActive;
+      updateNotifyButtonState();
     }
 
+    renderHistoricalBanner();
     lastData = data;
   } catch (error) {
     console.error("Error fetching analytics:", error);
@@ -272,6 +281,7 @@ function renderCharts(data) {
     destroyChart("trend");
     meanScoreContainer.innerHTML = `<div class="text-center text-gray-400 text-sm">No data availbale.</div>`;
     trendChartContainer.innerHTML = `<div class="text-center text-gray-400 text-sm">No trend data available.</div>`;
+    document.querySelector(".adjectiveRating").innerText = "--";
     document.getElementById("trendGrowth").innerText = `0%`;
   } else {
     const trendCtx = document
@@ -610,8 +620,21 @@ async function processNotificationBatches($dept) {
       if (data.status === "finished") {
         finished = true;
         alert(`All emails sent successfully!`);
-        btn.disabled = false;
-        btn.innerHTML = "Notify All Non-participants";
+
+        let secondsLeft = 60;
+        btn.innerHTML = `Wait ${secondsLeft}s to re-notify`;
+        btn.classList.add("opacity-50", "cursor-not-allowed");
+        const cooldown = setInterval(() => {
+          secondsLeft--;
+          btn.innerHTML = `Wait ${secondsLeft}s to re-notify`;
+
+          if (secondsLeft <= 0) {
+            clearInterval(cooldown);
+            btn.disabled = false;
+            btn.innerHTML = "Notify All Non-participants";
+            btn.classList.remove("opacity-50", "cursor-not-allowed");
+          }
+        }, 1000);
       } else if (data.status === "processing") {
         console.log(`Sent batch... Total so far: ${data.sent}`);
       } else {
@@ -629,10 +652,84 @@ async function processNotificationBatches($dept) {
   }
 }
 
+//notification button
+function updateNotifyButtonState() {
+  const notifyButton = document.getElementById("btn-notify-all");
+  if (!notifyButton) return;
+
+  if (isActive === true) {
+    notifyButton.disabled = false;
+    notifyButton.classList.remove(
+      "opacity-50",
+      "cursor-not-allowed",
+      "pointer-events-none",
+    );
+    notifyButton.classList.add("cursor-pointer");
+  } else {
+    notifyButton.disabled = true;
+    notifyButton.classList.add(
+      "opacity-50",
+      "cursor-not-allowed",
+      "pointer-events-none",
+    );
+    notifyButton.classList.remove("cursor-pointer");
+  }
+}
+
+export function renderHistoricalBanner() {
+  const params = new URLSearchParams(window.location.search);
+  const periodId = params.get("period_id");
+  const banner = document.getElementById("historical-banner");
+
+  if (!periodId || periodId === "null") {
+    banner?.classList.add("hidden");
+    return;
+  }
+
+  const label = document.getElementById("banner-period-label");
+  const labelMobile = document.getElementById("banner-period-label-mobile");
+  const text = lastData?.meta
+    ? `${lastData.meta.academic_year} — ${lastData.meta.semester}`
+    : "Historical Period";
+
+  if (label) label.textContent = text;
+  if (labelMobile) labelMobile.textContent = text;
+
+  banner?.classList.remove("hidden");
+}
+
+//Load History List
+async function populateHistoryModal() {
+  try {
+    const response = await fetch(
+      `/Smart-Eval/app/Controllers/reportAnalytics/AnalyticsController.php?action=getHistoryList&dept=${dept}`,
+    );
+    const result = await response.json();
+    console.log("History result:", result);
+
+    if (result.status === "success") {
+      if ($.fn.DataTable.isDataTable("#tbl-history")) {
+        $("#tbl-history").DataTable().destroy();
+      }
+
+      historyTable = initHistoryTable();
+
+      historyTable.clear().rows.add(result.data).draw();
+
+      setTimeout(() => {
+        historyTable.columns.adjust().draw(false);
+      }, 100);
+    }
+  } catch (error) {
+    console.error("History data error:", error);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   tableInstances.ranking = initRankingTable();
   tableInstances.not_evaluated = initNotEvaluatedTable();
   tableInstances.abandoned = initAbandonedTable();
+  historyTable = initHistoryTable(periodId);
   initTableButtonEvents(dept, periodId);
 
   const searchMap = [
@@ -721,51 +818,59 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const notifyButton = document.getElementById("btn-notify-all");
 
-  if (isActive === false) {
-    notifyButton.disabled = true;
-    notifyButton.classList.remove("cursor-pointer");
-    notifyButton.classList.add(
-      "cursor-not-allowed",
-      "pointer-events-none",
-      "opacity-50",
-    );
-  } else {
-    notifyButton
-      .getElementById("btn-notify-all")
-      .addEventListener("click", (e) => {
-        e.preventDefault();
+  notifyButton.addEventListener("click", (e) => {
+    e.preventDefault();
 
-        if (!dept) {
-          alert("Missing department parameter. Please try Again.");
-          return;
+    if (!dept) {
+      alert("Missing department parameter. Please try Again.");
+      return;
+    }
+
+    showConfirmation({
+      title: "Notify All Non-participants",
+      message: `Are you sure you want to notify all non-participants for ${dept}?`,
+      onConfirm: async () => {
+        try {
+          const prepareUrl = `/Smart-Eval/app/Controllers/notification/NotificationController.php?action=prepare&dept=${dept}`;
+
+          let prepResponse = await fetch(prepareUrl);
+          let prepData = await prepResponse.json();
+
+          if (prepData.status === "success") {
+            await processNotificationBatches(dept);
+          } else {
+            alert(prepData.message);
+          }
+        } catch (err) {
+          console.error("Initialization Error:", err);
+          alert("An error occurred while initializing notifications.");
         }
+      },
+    });
+  });
 
-        showConfirmation({
-          title: "Notify All Non-participants",
-          message: `Are you sure you want to notify all non-participants for ${dept}?`,
-          onConfirm: async () => {
-            try {
-              const prepareUrl = `/Smart-Eval/app/Controllers/notification/NotificationController.php?action=prepare&dept=${dept}`;
+  document.getElementById("viewHistoryBtn").addEventListener("click", () => {
+    openModal("viewHistoryModal");
+    document.getElementById("closeModal").addEventListener("click", () => {
+      closeModal("viewHistoryModal");
+    });
+    setTimeout(() => {
+      populateHistoryModal();
+    }, 200);
+  });
+  updateNotifyButtonState();
 
-              let prepResponse = await fetch(prepareUrl);
-              let prepData = await prepResponse.json();
-
-              if (prepData.status === "success") {
-                await processNotificationBatches(dept);
-              } else {
-                alert(prepData.message);
-              }
-            } catch (err) {
-              console.error("Initialization Error:", err);
-              alert("An error occurred while initializing notifications.");
-            }
-          },
-        });
-      });
-  }
+  document
+    .getElementById("btn-return-current")
+    .addEventListener("click", () => {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("period_id");
+      window.location.href = url.toString();
+    });
 
   await fetchAnalytics(dept, periodId);
   startLivePolling();
+  renderHistoricalBanner();
 
   console.log(isActive);
 });

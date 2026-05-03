@@ -12,6 +12,8 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../Models/AnalyticsModel.php';
 require_once __DIR__ . '/../../Controllers/reports/utils/PdfRenderer.php';
 
+date_default_timezone_set('Asia/Manila');
+
 class NotificationController {
 
     private function getActivePeriodId($dept) {
@@ -31,6 +33,28 @@ class NotificationController {
             return;
         }
 
+        $cooldownMinutes = 10;
+        $checkStmt = $pdo->prepare("SELECT last_notified_at FROM evaluation_periods WHERE period_id = ?");
+        $checkStmt->execute([$periodId]);
+        $lastNotified = $checkStmt->fetchColumn();
+
+        if ($lastNotified) {
+            $secondsSince = time() - strtotime($lastNotified);
+            $secondsRequired = $cooldownMinutes * 60;
+
+            if ($secondsSince < $secondsRequired) {
+                $remaining = ceil(($secondsRequired - $secondsSince) / 60);
+                echo json_encode([
+                    'status' => 'error', 
+                    'message' => "Spam Protection: Please wait $remaining more minute(s) before notifying again."
+                ]);
+                return;
+            }
+        }
+
+        $clearSql = "DELETE FROM notification_batches WHERE period_id = ? AND (status = 'sent' OR status = 'failed')";
+        $pdo->prepare($clearSql)->execute([$periodId]);
+
         $sql = "INSERT IGNORE INTO notification_batches (period_id, student_id, status)
                 SELECT ?, s.student_id, 'pending'
                 FROM students s
@@ -42,6 +66,9 @@ class NotificationController {
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$periodId, $periodId, $dept]);
+
+        $pdo->prepare("UPDATE evaluation_periods SET last_notified_at = NOW() WHERE period_id = ?")
+        ->execute([$periodId]);
 
         $countStmt = $pdo->prepare(
           "SELECT COUNT(*) FROM notification_batches WHERE period_id = ? AND status = 'pending'"
