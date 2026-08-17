@@ -4,6 +4,7 @@ body {
   font-family: "Roboto", sans-serif;
 }
 
+/* Authentication Page Styles */
 .animate-fade-slide {
   animation: fade-slide 0.8s ease-out forwards;
 }
@@ -18,6 +19,147 @@ body {
     transform: translateY(0);
   }
 }
+
+.shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 35%;
+  transform: translateX(-200%) skewX(-25deg);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.7),
+    transparent
+  );
+  animation: shine 2.5s linear infinite;
+}
+
+@keyframes shine {
+  to {
+    transform: translateX(400%) skewX(-25deg);
+  }
+}
+
+.slide-right {
+  animation: none;
+}
+
+@keyframes slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-left {
+  animation: none;
+}
+
+@keyframes slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (min-width: 1024px) {
+  .slide-right {
+    animation: slide-right 1.2s ease-out forwards;
+  }
+
+  .slide-left {
+    animation: slide-left 1.2s ease-out forwards;
+  }
+}
+
+.fade-slide-out {
+  animation: fade-slide-out 1.2s ease-in forwards;
+}
+
+@keyframes fade-slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+.slide-left-out {
+  animation: slide-left-out 0.8s ease-in forwards;
+}
+
+@keyframes slide-left-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+
+.slide-right-out {
+  animation: slide-right-out 0.8s ease-in forwards;
+}
+
+@keyframes slide-right-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes mobileHeaderIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mobileHeaderOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+@keyframes animate-fade-slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+
+/* -------------------------------------- */
 
 #notification {
   opacity: 0;

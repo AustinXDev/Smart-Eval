@@ -53,7 +53,14 @@ export function loadTeachers() {
 
         let rowNode = table.row
           .add([
-            `<img class="rounded-full max-w-[35px] h-auto object-cover" src="/Smart-Eval/public/uploads/teachers/${teacher.image_path}">`,
+            `<div class="flex-shrink-0 w-9 h-9">
+                  <img 
+                      class="w-9 h-9 rounded-full object-cover object-center"
+                      src="/Smart-Eval/public/uploads/teachers/${teacher.image_path}"
+                      onerror="this.src='/Smart-Eval/public/uploads/teachers/default_teacher.png'; this.onerror=null;"
+                      alt="${teacher.full_name}"
+                  >
+              </div>`,
             teacher.employee_id,
             teacher.full_name,
             teacher.department.toUpperCase(),

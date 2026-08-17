@@ -20,12 +20,12 @@ if(!$employee_id || !$full_name || !$email || !$department) {
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    json_encode(['status' => 'error', 'message' => "Invalid email format."]);
+    echo json_encode(['status' => 'error', 'message' => "Invalid email format."]);
     exit;
 }
 
 if (strlen($full_name) > 100) {
-    json_encode(['status' => 'error', 'message' => "Faculty Name must not exceed 100 characters."]);
+    echo json_encode(['status' => 'error', 'message' => "Faculty Name must not exceed 100 characters."]);
     exit;
 }
 
@@ -88,7 +88,7 @@ try {
 
     // Upload image
     if (!empty($_FILES['photo']['name'])) {
-        $uploadDir = __DIR__ . '/../../public/uploads/teachers/';
+        $uploadDir = __DIR__ . '/../../../public/uploads/teachers/';
 
         if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
@@ -102,8 +102,8 @@ try {
 
     // Insert teacher
     $stmt = $pdo->prepare("
-        INSERT INTO teachers (employee_id, full_name, email, department, image_path) 
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO teachers (employee_id, full_name, email, department, image_path, is_active) 
+        VALUES (?, ?, ?, ?, ?, 1)
     ");
     $stmt->execute([$employee_id, $full_name, $email, $department, $image_path]);
 

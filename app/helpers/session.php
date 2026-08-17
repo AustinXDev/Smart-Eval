@@ -33,7 +33,7 @@ function getAdmin(){
   startSession();
   return [
     'admin_id' => $_SESSION['admin_id'] ?? null,
-    'username' => $_SESSION['username'] ?? null,
+    'username' => $_SESSION['admin_username'] ?? null,
     'role' => $_SESSION['role'] ?? null,
   ];
 }

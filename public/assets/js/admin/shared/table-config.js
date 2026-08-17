@@ -4,6 +4,7 @@ import {
   fetchAnalytics,
   renderHistoricalBanner,
 } from "../report_analytics/report_analytics.js";
+import { nameToInitials } from "./utils.js";
 
 export function initRankingTable() {
   return $("#tbl-ranking").DataTable({
@@ -79,7 +80,8 @@ export function initRankingTable() {
         className: "text-center",
         render: (data, type, row) => `
           <div class="flex items-center justify-center gap-1.5">
-            <button class="btn-act btn-act--blue btn-view" data-id="${row.teacher_id}" title="View Comments">
+            <button class="comment-btn btn-act btn-act--blue btn-view" data-id="${row.teacher_id}" 
+            data-mean="${row.mean_score}" data-name="${row.full_name}" title="View Comments">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V5a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
               </svg>
@@ -325,8 +327,86 @@ export function initHistoryTable(periodId) {
   });
 }
 
-export function initTableButtonEvents(dept, periodId) {
+export function initTableButtonEvents(dept) {
   document.addEventListener("click", function (e) {
+    const commentBtn = e.target.closest(".comment-btn");
+    if (commentBtn) {
+      const teacherId = commentBtn.dataset.id;
+      const name = commentBtn.dataset.name;
+      const mean = commentBtn.dataset.mean;
+      const commentContainer = document.getElementById("comment-container");
+      const initialEl = document.getElementById("initial");
+      const nameEl = document.getElementById("tName");
+      const meanEl = document.getElementById("mean");
+      const exportEl = document.querySelector(".btn-export-comment");
+
+      if (initialEl) {
+        initialEl.textContent = nameToInitials(name);
+      }
+
+      if (nameEl) {
+        nameEl.textContent = name;
+      }
+
+      if (meanEl) {
+        meanEl.textContent = mean;
+      }
+
+      exportEl.dataset.id = teacherId;
+      exportEl.dataset.name = name;
+
+      if (commentContainer) {
+        const currentPeriodId = new URLSearchParams(window.location.search).get(
+          "period_id",
+        );
+
+        fetch(
+          `/Smart-Eval/app/Controllers/reportAnalytics/AnalyticsController.php?action=teacherComments&teacher_id=${teacherId}&dept=${dept}&period_id=${currentPeriodId || ""}`,
+        )
+          .then((res) => res.json())
+          .then((res) => {
+            if (res.status === "success") {
+              console.log(res.data);
+              commentContainer.innerHTML = res.data
+                .map(
+                  (c) => `
+                  <div class="bg-white hover:bg-gray-100 transition border border-gray-200 rounded-lg p-4" id="comment-card">
+                    <p style="font-size:11px;color:#94A3B8;margin:0 0 8px;">Evaluator's comment</p>
+                    <p id="comment" style="font-size:13px;color:#334155;line-height:1.65;margin:0;">${c}</p>
+                    </div>
+                  </div>`,
+                )
+                .join("");
+            }
+          });
+      }
+
+      openModal("commentModal");
+
+      document.getElementById("closeComment").addEventListener("click", () => {
+        closeModal("commentModal");
+      });
+    }
+
+    const exportCommentBtn = e.target.closest(".btn-export-comment");
+    if (exportCommentBtn) {
+      const teacherId = exportCommentBtn.dataset.id;
+      const name = exportCommentBtn.dataset.name;
+      const currentPeriodId = new URLSearchParams(window.location.search).get(
+        "period_id",
+      );
+
+      const url =
+        `/Smart-Eval/app/Controllers/reportAnalytics/AnalyticsController.php?` +
+        `action=exportComments` +
+        `&teacher_id=${teacherId}` +
+        `&period_id=${currentPeriodId || ""}` +
+        `&dept=${dept}` +
+        `&name=${encodeURIComponent(name)}`;
+
+      window.location.href = url;
+    }
+
     const viewBtn = e.target.closest(".btn-view");
     if (viewBtn) {
       const teacherId = viewBtn.dataset.id;
@@ -338,7 +418,11 @@ export function initTableButtonEvents(dept, periodId) {
       const teacherId = downloadBtn.dataset.id;
       const name = downloadBtn.dataset.name;
 
-      const url = `/Smart-Eval/app/Controllers/reportAnalytics/AnalyticsController.php?action=teacherReport&teacher_id=${teacherId}&dept=${dept}&period_id=${periodId || ""}`;
+      const currentPeriodId = new URLSearchParams(window.location.search).get(
+        "period_id",
+      );
+
+      const url = `/Smart-Eval/app/Controllers/reportAnalytics/AnalyticsController.php?action=teacherReport&teacher_id=${teacherId}&dept=${dept}&period_id=${currentPeriodId || ""}`;
 
       showConfirmation({
         title: "Download Report ",
@@ -347,13 +431,6 @@ export function initTableButtonEvents(dept, periodId) {
           window.open(url, "_blank");
         },
       });
-      return;
-    }
-
-    const mailBtn = e.target.closest(".btn-mail");
-    if (mailBtn) {
-      const teacherId = mailBtn.dataset.id;
-      const teacherName = mailBtn.dataset.name;
       return;
     }
 

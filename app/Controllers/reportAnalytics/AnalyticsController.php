@@ -1,4 +1,5 @@
 <?php 
+
 require_once __DIR__ . '/../../Models/AnalyticsModel.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
@@ -18,9 +19,12 @@ elseif ($action === 'getHistoryList') {
 elseif ($action === 'teacherReport') {
     $controller->downloadTeacherPDF();
 } 
-
 elseif ($action === 'exportExcel') {
   $controller->exportExcel();
+} elseif ($action === 'teacherComments'){
+    $controller->getTeacherComments();
+} elseif ($action === 'exportComments') {
+    $controller->exportComments();
 }
 else {
   header('Content-Type: application/json');
@@ -60,6 +64,8 @@ class AnalyticsController
         $dept = $_GET['dept'] ?? null;
         $requestedPeriodId = $_GET['period_id'] ?? null;
 
+        error_log("dept: $dept | period_id: $requestedPeriodId");
+
         if (!$dept) return ['error' => 'Department is required.'];
 
         if ($requestedPeriodId && $requestedPeriodId !== 'null') {
@@ -80,6 +86,8 @@ class AnalyticsController
 
         $targetId = $period['period_id'];
         $data = $model->getAnalyticsBundle($targetId, $dept, $isActive) ?? [];
+        
+        error_log("teachers returned: " . count($data['teachers'] ?? []));
 
         $data['meta'] = [
             'academic_year' => $period['academic_year'],
@@ -183,6 +191,100 @@ class AnalyticsController
             'generated_at' => date('F j, Y')
         ]
     ]);
+    exit;
+  }
+
+  public function getTeacherComments(){
+    header('Content-Type: application/json');
+    global $pdo;
+    $model = new AnalyticsModel($pdo);
+
+    $teacherId = $_GET['teacher_id'] ?? null;
+    $dept = $_GET['dept'] ?? null;
+    $requestedPeriodId = $_GET['period_id'] ?? null;
+
+    if (!$teacherId) {
+        echo json_encode(['status' => 'error', 'message' => 'Teacher ID is required']);
+        exit;
+    }
+
+    if ($requestedPeriodId && $requestedPeriodId !== 'null' && $requestedPeriodId !== '') {
+        $periodId = $requestedPeriodId;
+    } else {
+        $period = $model->getActivePeriod($dept);
+        if (!$period) {
+            echo json_encode(['status' => 'error', 'message' => 'No active evaluation period found']);
+            exit;
+        }
+        $periodId = $period['period_id'];
+    }
+
+    $data = $model->getVerifiedTeacherComments($periodId, $teacherId);
+
+    if ($data === false || empty($data)) {
+        echo json_encode(['status' => 'success', 'data' => [], 'message' => 'No verified comments found for this student load']);
+        exit;
+    }
+
+    echo json_encode([
+        'status' => 'success',
+        'period_id' => $periodId,
+        'data' => $data
+    ]);
+    exit;
+  }
+
+  public function exportComments(){
+    global $pdo;
+    $model = new AnalyticsModel($pdo);
+
+    $teacherId = $_GET['teacher_id'] ?? null;
+    $requestedPeriodId = $_GET['period_id'] ?? null;
+    $dept = $_GET['dept'] ?? null;
+    $teacherName = $_GET['name'] ?? 'Teacher';
+
+    if (!$teacherId) {
+        echo json_encode(['status' => 'error', 'message' => 'Teacher ID is required']);
+        exit;
+    }
+
+    if ($requestedPeriodId && $requestedPeriodId !== 'null' && $requestedPeriodId !== '') {
+        $periodId = $requestedPeriodId;
+    } else {
+        $period = $model->getActivePeriod($dept);
+        if (!$period) {
+            echo json_encode(['status' => 'error', 'message' => 'No active evaluation period found']);
+            exit;
+        }
+        $periodId = $period['period_id'];
+    }
+
+    $comments = $model->getVerifiedTeacherComments($periodId, $teacherId);
+
+    if (ob_get_length()) ob_end_clean();
+
+    $filename = "Comments_" . str_replace(' ', '_', $teacherName) . "_" . date('Ymd') . ".csv";
+
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+    $output = fopen('php://output', 'w');
+    fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+
+    fputcsv($output, ['#', 'Student Feedback/Comments']);
+
+    if (!empty($comments)) {
+        foreach ($comments as $index => $c) {
+            fputcsv($output, [
+                $index + 1,
+                $c['comment'] ?? $c
+            ]);
+        }
+    } else {
+        fputcsv($output, ['-', 'No verified comments found for this period.']);
+    }
+
+    fclose($output);
     exit;
   }
 }

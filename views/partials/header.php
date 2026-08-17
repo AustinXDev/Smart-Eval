@@ -3,13 +3,18 @@ require_once __DIR__ . '/../../app/helpers/session.php';
 $admin = getAdmin();
 ?>
 
-<header class="fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-5 lg:px-10 shadow-md" style="background: linear-gradient(135deg, #1E0F4E 0%, #2D1B69 40%, #4C1D95 70%, #6D28D9 100%);">
+<header class="absolute top-0 left-0  right-0 z-50 h-16 flex items-center px-5 lg:px-10 lg:left-70 bg-white" 
+style="
+  box-shadow: 
+  -12px 0px 32px -8px rgba(108, 92, 231, 0.08), 
+  -4px 0px 12px -4px rgba(0, 0, 0, 0.04);
+">
   
-  <!-- Hamburger (mobile) & Logo -->
-  <div class="flex items-center gap-3 flex-1">
+    <!-- Hamburger (mobile) & Logo -->
+    <div class="flex items-center gap-3 flex-1">
     
     <!-- Hamburger Button (mobile only) -->
-    <button id="hamburger-btn" class="lg:hidden text-white focus:outline-none" aria-label="Toggle menu">
+    <button id="hamburger-btn" class="lg:hidden text-[#2D3748] focus:outline-none" aria-label="Toggle menu">
       <svg id="hamburger-icon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
       </svg>
@@ -18,21 +23,45 @@ $admin = getAdmin();
       </svg>
     </button>
 
-    <!-- Logo & Title -->
-    <img src="../../public/assets/images/aite-logo.png" alt="AITE Logo" width="38">
-    <h1 class="text-white drop-shadow-sm text-sm md:text-base font-bold tracking-wider">Smart-Eval</h1>
+    <div class="flex items-center gap-2 lg:hidden">
+
+      <!-- Logo & Title -->
+      <img src="<?= BASE_URL ?>assets/images/aite-logo.png" alt="AITE Logo" width="38">
+      <h1 class="text-[#2D3748] drop-shadow-sm text-sm md:text-base font-bold tracking-wider">Smart-Eval</h1>
+
+    </div>
+
+    <div class="hidden lg:flex flex-col leading-tight border-l-2 border-[#6C5CE7] pl-2">
+      <h2 class="text-[15px] font-semibold text-[#2D3748]">
+        <?= htmlspecialchars($pageTitle ?? 'Dashboard') ?>
+      </h2>
+      <p class="text-xs text-gray-400">
+        <?= date('l, F j, Y') ?>
+      </p>
+    </div>
+
   </div>
 
   <!-- Role & Avatar -->
   <div class="flex items-center gap-3">
     <div class="hidden lg:flex flex-col items-end">
-      <!-- White with drop shadow for contrast on gradient -->
-      <p class="text-white drop-shadow-sm text-sm font-semibold"><?= htmlspecialchars($admin['username'] ?? $student['full_name'] ?? 'Unknown') ?></p>
-      <!-- Slightly transparent white for role subtitle -->
-      <p class="text-white/70 text-xs font-medium"><?= htmlspecialchars(ucwords(str_replace('_', ' ', $admin['role']))) ?></p>
+      <p class="text-[#2D3748] text-sm font-semibold leading-tight">
+        <?= htmlspecialchars($admin['username'] ?? $student['full_name'] ?? 'Unknown') ?>
+      </p>
+      <p class="text-[#2D3748]/60 text-xs font-medium leading-tight">
+        <?= htmlspecialchars(ucwords($role ?? '')) ?>
+      </p>
     </div>
-    <!-- Avatar with white ring that pops on gradient -->
-    <img src="../../public/assets/icons/profile.png" alt="Profile" width="35" class="rounded-full border-2 border-white/60 shadow-sm">
+
+    <!-- Avatar -->
+    <div class="relative">
+      <div class="w-10 h-10 rounded-full bg-[#2D1B69] flex items-center justify-center
+                  ring-2 ring-white shadow-sm hover:ring-[#6010ff]/30 transition-all duration-200 cursor-pointer">
+        <i class="fas fa-user text-white text-sm"></i>
+      </div>
+      <!-- Online status dot -->
+      <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full"></span>
+    </div>
   </div>
 
 </header>
@@ -41,25 +70,44 @@ $admin = getAdmin();
 <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
 
 <!-- Mobile Sidebar Drawer -->
-<div id="mobile-drawer" class="fixed top-0 left-0 h-full w-75 bg-[#F5F0FF] z-50 transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden">
+<div id="mobile-drawer" class="fixed top-0 left-0 h-full w-75 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out bg-[#F8F9FA] lg:hidden">
   
   <!-- Drawer Header matches main header gradient -->
-  <div class="flex items-center gap-3 px-6 py-5 border-b border-[#DDD5F5] bg-gradient-to-r from-[#8B5CF6] via-[#A98FD4] to-[#C4B5FD]">
-    <img src="../../public/assets/images/aite-logo.png" alt="AITE Logo" width="35">
-    <span class="text-white font-bold text-sm tracking-wide drop-shadow-sm">Smart-Eval System</span>
-  </div>
+  <header class="h-18 z-50 bg-white/90 backdrop-blur-md
+               border-b border-gray-100 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      <div class="h-full flex items-center px-6 lg:px-8">
+
+          <!-- Branding -->
+          <div class="flex items-center gap-3">
+          <img src="<?= BASE_URL ?>/assets/images/aite-logo.png" alt="AITE Logo" class="w-10 h-10 object-contain">
+
+          <div class="flex flex-col leading-tight border-l border-gray-200 pl-3">
+              <span class="text-[17px] font-semibold text-[#2D1B69] tracking-tight" style="font-family: 'Poppins', sans-serif;">
+              Smart-Eval
+              </span>
+              <span class="text-[11px] font-medium text-gray-400 tracking-wide">
+              Teacher Evaluation System
+              </span>
+          </div>
+          </div>
+
+      </div>
+  </header>
   
   <div id="mobile-nav" class="flex-1 px-4 py-4 space-y-4 overflow-y-auto">
+
     <?php require __DIR__ . '/sidebar_nav.php';?>
 
-    <div class="px-4 py-4 border-t border-[#DDD5F5]">
+    <div class="py-4">
         <a href="<?= $logout ?>"
            class="flex items-center gap-3 px-4 py-2 rounded-lg text-red-400
-                  hover:bg-red-500 hover:text-white transition-colors duration-200">
-            🚪 Logout
+                  hover:bg-red-600 hover:text-white transition-colors duration-200">
+            <i class="fas fa-sign-out-alt"></i> Logout
         </a>
     </div>
+
   </div>
+
 </div>
 
 

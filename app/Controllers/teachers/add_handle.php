@@ -54,8 +54,8 @@ if($stmtDuplicate){
 
 //insert handle
 $stmt = $pdo->prepare("
-    INSERT INTO teacher_load (teacher_id, program_id, year_level)
-    VALUES (?, ?, ?)
+    INSERT INTO teacher_load (teacher_id, program_id, year_level, is_active)
+    VALUES (?, ?, ?, 1)
 ");
 
 $stmt->execute([$teacher_id, $program, $level]);

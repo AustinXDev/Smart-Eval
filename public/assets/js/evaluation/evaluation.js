@@ -110,7 +110,7 @@ const studentEvaluation = {
 
     const imgEl = document.querySelector("[data-teacher-image]");
     if (imgEl) {
-      imgEl.src = `/Smart-Eval/uploads/teachers/${t.image_path || "default.png"}`;
+      imgEl.src = `/Smart-Eval/public/uploads/teachers/${t.image_path || "default.png"}`;
       imgEl.alt = t.full_name;
     }
 
@@ -166,14 +166,6 @@ const studentEvaluation = {
     let globalIndex = 0;
 
     Object.entries(grouped).forEach(([category, questions]) => {
-      const catHeader = document.createElement("div");
-      catHeader.className = "mb-2 mt-6 first:mt-0";
-      catHeader.innerHTML = `
-        <h3 class="text-sm font-semibold text-purple-700 uppercase tracking-wide border-b border-purple-200 pb-1">
-          ${this._escapeHtml(category)}
-        </h3>`;
-      container.appendChild(catHeader);
-
       questions.forEach((q) => {
         globalIndex++;
         const prevScore = previousAnswers[q.question_id]?.score ?? null;
@@ -375,8 +367,9 @@ const studentEvaluation = {
       }
 
       this.isSubmitted = true;
-      await this.checkCompletion();
+
       await this.nextTeacher();
+      await this.checkCompletion();
     } catch (err) {
       console.error("submitEvaluation:", err);
       alert("Failed to submit evaluation. Please try again.");

@@ -83,6 +83,7 @@ try {
         INNER JOIN teachers t ON tl.teacher_id = t.teacher_id
         WHERE tl.load_id IN ($placeholders)
           AND t.is_active = 1
+          AND tl.is_active = 1
         ORDER BY t.full_name ASC
     ");
     $teacher_stmt->execute($selected_load_ids);
@@ -96,6 +97,7 @@ try {
         WHERE tl.program_id = ?
           AND tl.year_level = ?
           AND t.is_active = 1
+          AND tl.is_active = 1
         ORDER BY t.full_name ASC
     ");
     $teacher_stmt->execute([$student['program_id'], $student['year_level']]);

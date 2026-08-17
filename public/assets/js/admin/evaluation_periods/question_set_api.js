@@ -13,3 +13,23 @@ export async function fetchAllQuestionSets() {
     return [];
   }
 }
+
+//get created period
+export async function fetchCreatedPeriod(periodId) {
+  try {
+    const res = await fetch(
+      `/Smart-Eval/app/Controllers/periods/get_specific_period.php?period_id=${periodId}`,
+    );
+
+    const data = await res.json();
+
+    if (data.status !== "success") {
+      throw new Error(data.message || "Failed to fetch period");
+    }
+
+    return data;
+  } catch (err) {
+    console.error("Error fetching all question sets", err);
+    return null;
+  }
+}

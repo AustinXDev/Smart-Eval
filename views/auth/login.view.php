@@ -12,10 +12,10 @@ header('Expires: 0');
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmartEval Login</title>
 
-  <?php include_once '../../public/assets/includes/head.php'; ?>
-
+  <?php include_once __DIR__ . '/../../public/assets/includes/head.php'; ?>
+  
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="../../public/assets/css/custom.css">
+  <link rel="stylesheet" href="/Smart-Eval/public/assets/css/custom.css">
 
   <link
   rel="stylesheet"
@@ -24,98 +24,168 @@ header('Expires: 0');
 
 </head>
 
-<body class="min-h-screen w-screen overflow-hidden relative flex items-center justify-center" style="background: linear-gradient(135deg, #1E0F4E 0%, #2D1B69 40%, #4C1D95 70%, #6D28D9 100%);">
-
-  <!-- Background orbs for depth -->
-    <div class="absolute top-[-80px] left-[-80px] w-72 h-72 rounded-full opacity-20" style="background:#A78BFA;"></div>
-    <div class="absolute bottom-[-60px] right-[-60px] w-56 h-56 rounded-full opacity-15" style="background:#C4B5FD;"></div>
-    <div class="absolute top-1/2 right-[8%] w-28 h-28 rounded-full opacity-10" style="background:#EDE9FE;"></div>
+<body class="bg-[#F8F6F0]">
 
   <!-- Toast Notification -->
-    <?php include '../../public/assets/includes/toast.php'; ?> 
+    <?php include __DIR__ . '/../../public/assets/includes/toast.php'; ?> 
 
   <!-- Wrapper -->
-    <div class="overflow-hidden h-screen flex justify-center items-center relative">  
+    <div class="overflow-hidden mx-w-screen-2xl h-dvh mx-auto flex justify-center items-center relative">  
     
     <!-- Login Wrapper -->
-      <div class="animate-fade-slide h-full w-full bg-white  shadow-lg/20 overflow-hidden px-6 pb-12 pt-2 md:h-auto md:w-auto  md:rounded-lg md:px-12 md:pb-6 md:w-lg"> 
+      <div class="
+        animate-fade-slide 
+        h-full 
+        w-full 
+        bg-white 
+        shadow-xl 
+        shadow-[#8c52ff]/15 
+        overflow-hidden 
+        p-6
+        lg:mx-10 
+        lg:p-0
+        lg:max-w-screen-xl 
+        lg:h-[650px] 
+        lg:rounded-lg
+        lg:grid
+        lg:grid-cols-2
+        lg:gap-6
+      " id="login-wrapper"> 
 
-          <form id="login-form" method="POST"> 
+          <!-- left panel -->
+          <div class="hidden lg:flex overflow-hidden relative slide-right" id="left-panel">
 
-            <!-- Login Header Container -->
-              <div class="flex-col shadow-[0_1px_5px_rgba(0,0,0,0.1)] flex justify-center items-center md:gap-3 border-b-2 pt-2 -mx-6 -my-2 border-gray-200 -mx-2 md:shadow-[0] md:-mx-10 pb-2"> 
-                
-                <!-- Logo wrapper -->
-                <div> 
-                  <img class="h-12 w-12 md:h-18 md:w-18 drop-shadow-xl" src="../../public/assets/images/aite-logo.png" alt="aite-logo.png">
+            <!-- Overlay -->
+            <div class="absolute inset-0">
+
+              <img  class="absolute inset-0 w-full h-full object-cover opacity-50 select-none scale-125" src="/Smart-Eval/public/assets/images/school-img.jpeg" alt="school-img" loading="lazy" > 
+
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0B1120]/90 via-[#1E1B4B]/75 to-[#4338CA]/25 backdrop-blur-[1px]"></div>
+
+              <img class="absolute -bottom-[50px] w-full z-10 select-none" src="/Smart-Eval/public/assets/images/overlay.png" alt="overlay" loading="lazy"></img>
+
+              <img class="absolute right-3 bottom-3 z-20 w-12 h-12 select-none sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24"
+                src="/Smart-Eval/public/assets/images/aite-logo.png"
+                alt="AITE Logo"
+                loading="lazy">
+
+            </div>
+
+            <div class="z-10 flex items-center gap-2.5 absolute top-8 left-10 bg-white/12 backdrop-blur-md border border-white/25 rounded-full pl-1.5 pr-4 py-1.5">
+
+              <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center overflow-hidden shrink-0">
+                <img src="/Smart-Eval/public/assets/images/aite-logo.png" alt="AITE" class="w-5 h-5 object-contain" />
+              </div>
+
+              <p class="text-xs font-semibold text-white leading-tight">
+                Asian Institute of Technology<br>and Education
+              </p>
+
+            </div>
+
+            <div class="z-10 absolute left-10 bottom-25 flex flex-col gap-6 animate-[fadeInUp_0.8s_ease-out]">
+
+              <div class="flex items-center gap-4">
+              
+                <div class="flex relative items-center text-sm gap-2 bg-white/20 backdrop-blur-md px-4 py-1 rounded-2xl text-white shine overflow-hidden">
+
+                  <i class="fa-solid fa-graduation-cap"></i>
+                  <span>Students</span>
+
                 </div>
 
-                <!-- System name wrapper -->
-                <div class="select-none flex flex-col justify-center items-center">
+                <div class="flex items-center text-sm gap-2 bg-white/20 backdrop-blur-md px-4 py-1 rounded-2xl text-white shine overflow-hidden">
 
-                  <span class="text-lg font-bold text-purple-900 tracking-wider uppercase">
-                    Smart-<span class="text-green-600">Eval</span>
-                  </span>
-                  <span class="font-roboto text-gray-400 text-center text-xs font-regular w-5  md:text-sm w-full">Your feedback helps improve teaching quality</span>
+                  <i class="fa-solid fa-user"></i>
+                  <span>Administrators</span>
 
                 </div>
 
               </div>
 
-            <!-- Greetings Wrapper -->
-              <div class="my-7"> 
-                <h1 class="font-roboto text-2xl font-bold text-[#1E0F4E] mb-1">Hi, AITEans!</h1>
-                <p class="font-roboto text-gray-400 text-sm">Sign in to get started with your evaluation.</p>
+              <div>
+
+                <div class="w-9 h-[3px] bg-purple-300 rounded-full mb-3"></div>
+                <p class="text-xs tracking-widest text-purple-200 font-medium mb-1.5">TEACHER EVALUATION SYSTEM</p>
+                <h1 class="text-5xl font-medium text-white tracking-tight">Smart-Eval</h1>
+
               </div>
 
-            <!-- Inputs Wrapper -->
-              <div class="flex flex-col gap-7 md:gap-6"> 
+              <p class="max-w-[360px] text-sm leading-relaxed">
+                <span class="text-white font-medium">Secure teacher evaluation, simplified. </span>
+                <span class="text-purple-200">Built for students, faculty, and administrators. Sign in to continue.</span>
+              </p>
 
-              <!-- Student ID -->
-                <div>
+            </div>
 
-                  <label class="block text-[10px] font-semibold text-purple-700 uppercase    tracking-widest mb-2">
-                    Student ID
-                  </label>
+          </div>
 
-                  <div class="relative">
+          <!-- right panel -->
+          <div class="flex justify-center items-center slide-left" id="right-panel">
 
-                    <span class="absolute left-4 top-2 md:left-4 md:top-2">
-                      <i class="absolute top-1 left-2 fa-solid fa-user text-purple-900 text-lg md:text-xl"></i>
-                    </span>
+            <form id="login-form" method="POST"> 
 
-                    <input class="bg-gray-100 w-full font-roboto py-3 pl-15 text-sm shadow-md rounded-sm focus:border-purple-900 focus:outline-2 focus:outline-purple-900 md:py-3 md:text-md" type="text" name="student_id" id="inputStudentID" placeholder="Student ID Number (ex. 00-0000)" required>
+              <!-- Greetings Wrapper -->
+                <div class="my-7 border-l-[3px] border-[#5e17eb] pl-4">
+
+                  <p class="text-xs tracking-wide text-[#5e17eb] font-semibold mb-1.5">WELCOME BACK, AITEANS</p>
+                  <h1 class="text-2xl font-semibold text-gray-900 mb-1.5">Sign in to your account</h1>
+                  <p class="text-xs text-gray-400 leading-relaxed max-w-md">
+                    Access the Teacher Evaluation System with the features available to your assigned role.
+                  </p>
+
+                </div>
+
+              <!-- Inputs Wrapper -->
+                <div class="flex flex-col gap-7 md:gap-10"> 
+
+                <!-- Student ID -->
+                  <div>
+
+                    <label class="block text-[10px] font-semibold text-[#5e17eb] uppercase tracking-widest mb-2">
+                      Student ID
+                    </label>
+
+                    <div class="relative">
+
+                      <span class="absolute left-4 top-2 md:left-4 md:top-2">
+                        <i class="absolute top-1 left-2 fa-solid fa-user text-[#5e17eb] text-lg md:text-xl"></i>
+                      </span>
+
+                      <input class="bg-gray-100 w-full font-roboto py-3 pl-15 text-sm shadow-md rounded-sm focus:border-purple-900 focus:outline-2 focus:outline-purple-900 md:py-3 md:text-md" type="text" name="student_id" id="inputStudentID" placeholder="Student ID Number (ex. 00-0000)" required>
+
+                    </div>
 
                   </div>
 
-                </div>
+                <!-- Password -->
+                  <div>
 
-              <!-- Password -->
-                <div>
+                    <label class="block text-[10px] font-semibold text-[#5e17eb] uppercase tracking-widest mb-2">
+                      Password
+                    </label>
 
-                  <label class="block text-[10px] font-semibold text-purple-700 uppercase tracking-widest mb-2">
-                    Password
-                  </label>
+                    <div class="relative">
 
-                  <div class="relative">
+                      <span class="absolute left-4 top-2 md:left-4 md:top-2">
+                        <i class="absolute top-1 left-2 fas fa-key text-[#5e17eb] text-lg md:text-xl"></i>
+                      </span>
 
-                    <span class="absolute left-4 top-2 md:left-4 md:top-2">
-                      <i class="absolute top-1 left-2 fas fa-key text-purple-900 text-lg md:text-xl"></i>
-                    </span>
+                      <input class="bg-gray-100 w-full font-roboto py-3 px-15 text-sm shadow-md rounded-sm focus:border-purple-900 focus:outline-2 focus:outline-purple-900 md:py-3 md:text-md" type="password" name="password" id="inputPassword" placeholder="Enter your password" required>
 
-                    <input class="bg-gray-100 w-full font-roboto py-3 pl-15 text-sm shadow-md rounded-sm focus:border-purple-900 focus:outline-2 focus:outline-purple-900 md:py-3 md:text-md" type="password" name="password" id="inputPassword" placeholder="Enter your password" required>
+                      <div class="absolute right-12 top-4">
 
-                    <div class="absolute right-12 top-4">
+                        <div class="relative">
 
-                      <div class="relative">
+                          <span class="absolute -top-1 w-6 h-6 cursor-pointer" id="hidden">
+                            <img src="/Smart-Eval/public/assets/icons/show.png" alt="hidden.png">
+                          </span>
 
-                        <span class="absolute -top-1 w-6 h-6 cursor-pointer" id="hidden">
-                          <img src="../../public/assets/icons/show.png" alt="hidden.png">
-                        </span>
+                          <span class="absolute w-6 h-6 -top-1 hidden cursor-pointer" id="show">
+                            <img src="/Smart-Eval/public/assets/icons/view.png" alt="show.png">
+                          </span>
 
-                        <span class="absolute w-6 h-6 -top-1 hidden cursor-pointer" id="show">
-                          <img src="../../public/assets/icons/view.png" alt="show.png">
-                        </span>
+                        </div>
 
                       </div>
 
@@ -125,58 +195,63 @@ header('Expires: 0');
 
                 </div>
 
+              <div class="flex justify-between mt-5">
+                
+                <div class="flex items-center gap-2 md:gap-3">
+
+                  <input class="accent-purple-700 h-3.5 w-3.5" type="checkbox" name="remember_me" id="inputCheckbox">
+                  <span class="font-roboto text-gray-400 text-sm">Remember me</span>
+
+                </div>
+
+                <div>
+                  <a class="font-roboto text-[#6010ff] text-sm font-medium hover:text-purple-800 transition-colors"
+                  href="<?= BASE_URL ?>forgot-password">Forgot Password?</a>
+                </div>
+
               </div>
 
-            <div class="flex justify-between mt-5">
-              
-              <div class="flex items-center gap-2 md:gap-3">
+              <div class="my-6">
 
-                <input class="accent-purple-700 h-3.5 w-3.5" type="checkbox" name="remember_me" id="inputCheckbox">
-                <span class="font-roboto text-gray-400 text-sm">Remember me</span>
+                <input class="w-full bg-[#6010ff] text-white font-semibold text-sm py-3.5 rounded-2xl cursor-pointer hover:opacity-75" type="submit" name="signin-btn" value="Sign In" id="signin-btn">
 
               </div>
 
-              <div>
-                <a class="font-roboto text-purple-600 text-sm font-medium hover:text-purple-800 transition-colors"
-                href="forgot_password.view.php">Forgot Password?</a>
+              <!-- Divider -->
+              <div class="flex items-center gap-3 mb-5">
+                <div class="flex-1 h-px bg-purple-50"></div>
+                <span class="text-xs text-[#6010ff]/50">New to Smart-Eval?</span>
+                <div class="flex-1 h-px bg-purple-50"></div>
               </div>
 
-            </div>
+              <!-- Sign up -->
+              <p class="text-center text-sm text-gray-500">
+                Don't have an account?
+                <button class="text-[#6010ff] font-semibold hover:text-purple-900 transition-colors" id="signup-link"
+                  href="">Create one for teacher evaluation.</button>
+              </p>
 
-            <div class="my-6">
+              <!-- Security note -->
+              <div class="flex items-center justify-center gap-2 mt-6 pt-5 border-t border-purple-50">
 
-              <input class="w-full bg-purple-900 text-white font-semibold text-sm py-3.5 rounded-xl cursor-pointer hover:opacity-75" type="submit" name="signin-btn" value="Sign In" id="signin-btn">
+                <svg class="w-3 h-3 text-[#6010ff]/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/>
+                </svg>
+                <span class="text-[10px] text-[#6010ff]/50 tracking-wide">Secured & encrypted — AITE Smart-Eval System</span>
 
-            </div>
+              </div>
 
-            <!-- Divider -->
-            <div class="flex items-center gap-3 mb-5">
-              <div class="flex-1 h-px bg-purple-50"></div>
-              <span class="text-xs text-purple-400">New to Smart-Eval?</span>
-              <div class="flex-1 h-px bg-purple-50"></div>
-            </div>
+            </form>
 
-            <!-- Sign up -->
-            <p class="text-center text-sm text-gray-500">
-              Don't have an account?
-              <a class="text-purple-700 font-semibold hover:text-purple-900 transition-colors"
-                href="register.view.php">Create one for teacher evaluation.</a>
-            </p>
-
-            <!-- Security note -->
-            <div class="flex items-center justify-center gap-2 mt-6 pt-5 border-t border-purple-50">
-
-              <svg class="w-3 h-3 text-purple-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/>
-              </svg>
-              <span class="text-[10px] text-purple-400 tracking-wide">Secured & encrypted — AITE Smart-Eval System</span>
-
-            </div>
-
-          </form>
+          </div>
 
       </div>
 
-    <script src="../../public/assets/js/auth/login.js" type="module"></script>
+    <script>
+      window.BASE_URL = "<?= BASE_URL ?>";
+    </script>
+
+    <script src="<?= BASE_URL ?>assets/js/auth/login/main.js" type="module"></script>
+    <script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>
 </body>
 </html>

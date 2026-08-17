@@ -1,10 +1,13 @@
 import { openModal, closeModal, showConfirmation } from "../../modal/modal.js";
-import { fetchAllQuestionSets } from "../evaluation_periods/question_set_api.js";
+import {
+  fetchAllQuestionSets,
+  fetchCreatedPeriod,
+} from "../evaluation_periods/question_set_api.js";
 import { loadEvaluationPeriods, loadPeriodCard } from "./table.js";
 
 // Populate question set option in the create evaluation periods modal
-async function populateQuestionsSet() {
-  const questionSetSelect = document.getElementById("questionSetSelect");
+async function populateQuestionsSet(selectId = "questionSetSelect") {
+  const questionSetSelect = document.getElementById(selectId);
   if (!questionSetSelect) return;
 
   questionSetSelect.innerHTML =
@@ -14,21 +17,21 @@ async function populateQuestionsSet() {
   //console.log(questionSets);
   questionSets.forEach((qs) => {
     const option = document.createElement("option");
-    option.value = qs.set_id;
+    option.value = String(qs.set_id);
     option.textContent = qs.set_name;
     questionSetSelect.appendChild(option);
   });
 }
 
 // Event trigger
-document.addEventListener("click", (e) => {
+document.addEventListener("click", async (e) => {
   const createBtn = e.target.closest(".createPeriodBtn");
   const activeBtn = e.target.closest(".ActiveBtn");
   const deleteBtn = e.target.closest(".deleteBtn");
   const closeBtn = e.target.closest(".closeBtn");
   const viewBtn = e.target.closest(".viewBtn");
   const downloadBtn = e.target.closest(".downloadBtn");
-
+  const editBtn = e.target.closest(".editBtn");
   if (createBtn) {
     openModal("createPeriodModal");
     populateQuestionsSet();
@@ -124,6 +127,41 @@ document.addEventListener("click", (e) => {
     // trigger download
     window.location.href = url;
   }
+
+  if (editBtn) {
+    const periodId = editBtn.dataset.id;
+    const data = await fetchCreatedPeriod(periodId);
+
+    openModal("updatePeriodModal");
+
+    await populateQuestionsSet("updateQuestionSetSelect");
+
+    document.getElementById("update_period_id").value = periodId;
+
+    document.getElementById("update_academic_year").value =
+      data.period.academic_year;
+
+    document
+      .querySelectorAll('input[name="update_semester"]')
+      .forEach((radio) => {
+        radio.checked = radio.value === data.period.semester;
+      });
+
+    document
+      .querySelectorAll('input[name="update_department"]')
+      .forEach((radio) => {
+        radio.checked =
+          radio.value.toLowerCase() === data.period.target_dept.toLowerCase();
+      });
+
+    document.querySelector('input[name="update_start_date"]').value =
+      data.period.start_date;
+    document.querySelector('input[name="update_end_date"]').value =
+      data.period.end_date;
+
+    const select = document.getElementById("updateQuestionSetSelect");
+    if (select) select.value = String(data.period.set_id);
+  }
 });
 
 document.addEventListener("click", (e) => {
@@ -161,6 +199,41 @@ createPeriodForm.addEventListener("submit", (e) => {
         })
         .catch((err) => {
           console.error("Error while creating evaluation period", err);
+          alert("An error occured. Please try again later.");
+        });
+    },
+  });
+});
+
+const updatePeriodForm = document.getElementById("updatePeriodForm");
+
+updatePeriodForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(updatePeriodForm);
+
+  showConfirmation({
+    title: "Update Evaluation Period",
+    message: "Are you sure you want to update?",
+    onConfirm: () => {
+      fetch("/Smart-Eval/app/Controllers/periods/update_period.php", {
+        method: "POST",
+        body: formData,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          if (data.status === "success") {
+            alert(data.message);
+            loadEvaluationPeriods();
+            closeModal("updatePeriodModal");
+            updatePeriodForm.reset();
+          } else {
+            alert(data.message);
+          }
+        })
+        .catch((err) => {
+          console.error("Error while updating evaluation period", err);
           alert("An error occured. Please try again later.");
         });
     },

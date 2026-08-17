@@ -1,0 +1,8 @@
+RewriteEngine On
+
+# If the requested filename is not a real physical file or folder
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Silently route the URI path directly to index.php as a parameter
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]

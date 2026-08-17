@@ -1,4 +1,4 @@
-import { notify } from "../../../../../resources/views/components/notify.js";
+import { notify } from "../../common/notify.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const showConfirmToggle = document.getElementById("showConfirm");
@@ -40,12 +40,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Check if have token
+/*
 const token = new URLSearchParams(window.location.search).get("token");
 
 if (!token) {
   alert("invalid or missing token. Please request a new password reset link.");
-  window.location.href = "../../views/admin/forgot_password.view.php";
+  window.location.href = "/Smart-Eval/admin-forgot-password";
 }
+*/
 
 const form = document.getElementById("forgot-password-form");
 const resetBTN = document.getElementById("reset-btn");

@@ -2,12 +2,11 @@
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 header('Content-Type: application/json');
 session_start();
-require_once '../config/config.php';
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-require '../../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 $input = json_decode(file_get_contents('php://input'), true);
 $admin_username = trim($input['admin_username'] ?? '');

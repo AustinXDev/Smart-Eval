@@ -16,6 +16,7 @@ $question_set_id = $_POST['question_set'] ?? null;
 $start_date = date("Y-m-d H:i:s", strtotime($start_date));
 $end_date   = date("Y-m-d H:i:s", strtotime($end_date));
 
+
 // basic validation empty fields
 if(!$academic_year || !$semester || !$department || !$start_date || !$end_date || !$question_set_id) {
   echo json_encode(['status' => 'error', 'message' => 'All fields are required.']);

@@ -55,7 +55,7 @@ if ($studentCount > 0) {
     if ($stmt->execute([$load_id])) {
         echo json_encode([
             'status' => 'success',
-            'message' => "⚠️ Load contains {$evaluationCount} evaluations. It has been deactivated instead of deleted to preserve data integrity."
+            'message' => "⚠️ Load contains {$studentCount} evaluations. It has been deactivated instead of deleted to preserve data integrity."
         ]);
     }
 } else {

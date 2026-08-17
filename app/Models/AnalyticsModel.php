@@ -288,9 +288,8 @@ class AnalyticsModel
       INNER JOIN evaluation_periods ep ON es.period_id = ep.period_id
       INNER JOIN programs pr ON tl.program_id = pr.program_id
       WHERE ep.period_id = ?
-        AND pr.department = ?
+        AND t.department = ?
         $loadFilter
-        AND tl.is_active = 1
         AND es.is_submitted = 1
         AND es.student_id IN ($studentCondition)
       GROUP BY t.teacher_id, t.employee_id, t.full_name
@@ -396,6 +395,37 @@ class AnalyticsModel
     
     
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function getVerifiedTeacherComments($periodId, $teacherId){
+    $isClosed = $this->isPeriodClosed($periodId);
+
+    if ($isClosed) {
+        $completedStudentsSubquery = "SELECT student_id FROM participation_history WHERE period_id = ? AND status = 'Completed'";
+    } else {
+        $completedStudentsSubquery = "
+            SELECT es_inner.student_id 
+            FROM evaluation_status es_inner 
+            WHERE es_inner.period_id = ? 
+            GROUP BY es_inner.student_id 
+            HAVING SUM(es_inner.is_submitted) = COUNT(es_inner.load_id)";
+    }
+
+    $sql = "
+        SELECT ea.comment 
+        FROM evaluation_answers ea
+        INNER JOIN evaluation_status es ON ea.eval_id = es.eval_id
+        INNER JOIN teacher_load tl ON es.load_id = tl.load_id
+        WHERE tl.teacher_id = ? 
+          AND es.period_id = ? 
+          AND es.is_submitted = 1 
+          AND es.student_id IN ($completedStudentsSubquery)
+          AND ea.comment > ''
+        GROUP BY ea.eval_id -- Fixes the duplication shown in your screenshot
+    ";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$teacherId, $periodId, $periodId]);
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
   }
 
   public function getEvaluationHistory($dept) {
@@ -560,15 +590,25 @@ class AnalyticsModel
 
   //helpers to calculate growth rate between current and previous period
   private function calculateGrowthRate($trend) {
+    /*file_put_contents(
+        __DIR__ . '/debug.log',
+        json_encode($trend) . PHP_EOL,
+        FILE_APPEND
+    );*/
+
     if(count($trend) < 2) return 0;
 
-    $lastIndex = count($trend) - 1;
-    $secondLastIndex = count($trend) - 2;
+    usort($trend, fn($a, $b) => strcmp($a['academic_year'], $b['academic_year']));
 
-    $current  = (float)($trend[$lastIndex]['final_average'] ?? 0);
-    $previous = (float)($trend[$secondLastIndex]['final_average'] ?? 0);
+    $last    = count($trend) - 1;
+    $current  = (float)($trend[$last]['final_average'] ?? 0);
+    $previous = (float)($trend[$last - 1]['final_average'] ?? 0);
 
-    if($previous == 0) return 0;
+    error_log("current: $current, previous: $previous"); 
+
+    if ($previous == 0 && $current == 0) return 0;
+
+    if($previous == 0) return 100;
     
     $change = (($current - $previous) / $previous) * 100;
 

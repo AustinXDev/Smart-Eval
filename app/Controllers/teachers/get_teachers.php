@@ -30,7 +30,7 @@ function get_HandlesByTeacher($teacher_id){
           SELECT tl.year_level, p.program_name
           FROM teacher_load tl
           JOIN programs p ON tl.program_id = p.program_id
-          WHERE tl.teacher_id = ?
+          WHERE tl.teacher_id = ? AND tl.is_active = 1
     ");
     $stmt->execute([$teacher_id]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);

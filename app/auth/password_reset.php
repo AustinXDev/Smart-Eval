@@ -1,28 +1,40 @@
 <?php 
-header('Content-Type: application/json'); // ensures JSON for fetch
-require_once '../config/database.php';
 
-$input = json_decode(file_get_contents('php://input'), true);
-$password = $input['password'] ?? '';
-$token = trim($input['token'] ?? '');
+  require_once __DIR__ . '/../init.php';
 
-$hash = password_hash($password, PASSWORD_DEFAULT);
+  use App\Controllers\ResetPassword\ResetPasswordController;
+  use App\Repositories\ResetPasswordRepository;
+  use App\Repositories\StudentRepository;
+  use App\Services\ResetPasswordServices\ResetPasswordServices;
 
-$stmt = $pdo->prepare("SELECT * FROM password_resets WHERE token = ? AND expires_at > NOW() AND used = 0");
-$stmt->execute([$token]);
-$resetRequest = $stmt->fetch();
+  require_once __DIR__ . '/../config/database.php';
 
-if(!$resetRequest){
-  echo json_encode(['status' => 'error', 'message' => 'Invalid or expired token!']);
-  exit;
-}
+  header('Content-type: application/json');
 
-$updatePassword = $pdo->prepare("UPDATE students SET password_hash = ? WHERE student_id = ?");
-$updatePassword->execute([$hash, $resetRequest['student_id']]);
+  $input = json_decode(
+    file_get_contents('php://input'), 
+    true
+  ) ?? [];
 
-$stmtMarkUsed = $pdo->prepare("UPDATE password_resets SET used = 1 WHERE token = ?");
-$stmtMarkUsed->execute([$token]);
+    $studentRepo = new StudentRepository($pdo);
 
-echo json_encode(['status' => 'success', 'message' => 'Password has been reset successfully!']);
-exit;
+    $resetPasswordRepo = new ResetPasswordRepository($pdo);
+
+    $service = new ResetPasswordServices(
+      $studentRepo,
+      $resetPasswordRepo
+    );
+
+    $controller = new ResetPasswordController($service);
+
+    $response = $controller->handle($input);
+
+    http_response_code(
+      $response['status'] === 'success'
+        ? 200
+        : 400
+    );
+
+    echo json_encode($response);
+
 ?>

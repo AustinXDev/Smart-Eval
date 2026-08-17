@@ -98,11 +98,7 @@ export async function fetchAnalytics(deptParam, pidParam) {
 
     console.log(data);
 
-    if (
-      !data ||
-      Object.keys(data).length === 0 ||
-      data.error === "No period found"
-    ) {
+    if (!data || Object.keys(data).length === 0 || data.error) {
       renderHeaderInfo(null);
       renderParticipationFunnel(null);
       renderCharts(null);
@@ -284,6 +280,10 @@ function renderCharts(data) {
     document.querySelector(".adjectiveRating").innerText = "--";
     document.getElementById("trendGrowth").innerText = `0%`;
   } else {
+    if (!document.getElementById("trendChartCanvas")) {
+      trendChartContainer.innerHTML = `<canvas id="trendChartCanvas"></canvas>`;
+    }
+
     const trendCtx = document
       .getElementById("trendChartCanvas")
       .getContext("2d");
@@ -310,9 +310,12 @@ function renderCharts(data) {
     data.year_participation.length === 0
   ) {
     destroyChart("participation");
-    participationChartContainer.innerHTML = "";
     participationChartContainer.innerHTML = `<div class="text-center text-gray-400 text-sm">No participation data available.</div>`;
   } else {
+    if (!document.getElementById("participationChart")) {
+      participationChartContainer.innerHTML = `<canvas id="participationChart"></canvas>`;
+    }
+
     const partCtx = document
       .getElementById("participationChart")
       .getContext("2d");
@@ -339,12 +342,16 @@ function renderCharts(data) {
 
   if (
     !data ||
+    !data.category ||
     !data.category.category_performance ||
     data.category.category_performance.length === 0
   ) {
     destroyChart("category");
     categoryContainer.innerHTML = `<div class="text-center text-gray-400 text-sm">No data available in this period.</div>`;
   } else {
+    if (!document.getElementById("radarChartCanvas")) {
+      categoryContainer.innerHTML = `<canvas id="radarChartCanvas"></canvas>`;
+    }
     const radarCtx = document
       .getElementById("radarChartCanvas")
       .getContext("2d");
@@ -476,12 +483,12 @@ function growthRateUI(growthRate, id) {
 
   const rate = Number(growthRate);
 
-  const prefix = growthRate > 0 ? "+" : "";
+  const prefix = rate > 0 ? "+" : "";
   growthEl.textContent = `${prefix}${rate}%`;
 
   if (rate > 0) {
     growthEl.className = `text-green-600 font-bold`;
-  } else if (growthRate < 0) {
+  } else if (rate < 0) {
     growthEl.className = "text-red-600 font-bold";
   } else {
     growthEl.className = "text-gray-500";
