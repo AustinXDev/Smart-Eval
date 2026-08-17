@@ -2,7 +2,7 @@ import { post } from "../../services/http.js";
 
 export async function sendReset(studentEmail) {
   try {
-    return await post(`${window.BASE_URL}api/send_reset.php`, { studentEmail });
+    return await post(`student/auth/send_reset.php`, { studentEmail });
   } catch (error) {
     console.error("Activation API Error:", error);
 

@@ -1,5 +1,5 @@
 export async function post(url, data) {
-  const response = await fetch(url, {
+  const response = await fetch(`${window.API_URL}${url}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

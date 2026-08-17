@@ -1,3 +1,9 @@
+<?php 
+
+require_once __DIR__ . '/../../app/init.php';
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -382,7 +388,10 @@
 
     </div>
 
-    <script> window.BASE_URL = <?= json_encode(BASE_URL) ?>; </script> 
+    <script> 
+      window.BASE_URL = <?= json_encode(BASE_URL) ?>; 
+      window.API_URL = <?= json_encode($_ENV['APP_API'] ?? '') ?>
+    </script> 
     
     <script type="module" src="<?= BASE_URL ?>assets/js/admin/auth/Admin_Login/main.js" ></script>
     <script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>

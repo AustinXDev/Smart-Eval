@@ -1,6 +1,6 @@
 <?php 
 
-require_once __DIR__ . '/../../app/init.php';
+require_once __DIR__ . '/../../../app/init.php';
 
 use App\Controllers\Register\RegistrationVerificationController;
 use App\Controllers\TwoFactor\TwoFactorController;
@@ -41,7 +41,7 @@ $code = trim(
 
 $ip = $_SERVER['REMOTE_ADDR'] ?? '';
 
-  require_once __DIR__ . '/../../app/config/database.php';
+  require_once __DIR__ . '/../../../app/config/database.php';
 
   /**
    * Repositories

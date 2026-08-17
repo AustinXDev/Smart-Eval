@@ -2,6 +2,8 @@
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
 header('Expires: 0');
+
+require_once __DIR__ . '/../../app/init.php';
 ?>  
 
 <!DOCTYPE html>
@@ -247,8 +249,9 @@ header('Expires: 0');
 
       </div>
 
-    <script>
-      window.BASE_URL = "<?= BASE_URL ?>";
+    <script> 
+      window.BASE_URL = <?= json_encode(BASE_URL) ?>; 
+      window.API_URL = <?= json_encode($_ENV['APP_API'] ?? '') ?>
     </script>
 
     <script src="<?= BASE_URL ?>assets/js/auth/login/main.js" type="module"></script>

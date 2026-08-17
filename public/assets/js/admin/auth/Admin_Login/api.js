@@ -2,7 +2,7 @@ import { post } from "../../../services/http.js";
 
 export async function login(data) {
   try {
-    return post(`${window.BASE_URL}api/admin/login.php`, data);
+    return post(`admin/auth/login.php`, data);
   } catch (error) {
     console.error("Admin Login API:", error);
 
@@ -15,7 +15,7 @@ export async function login(data) {
 
 export async function verifyLoginCode(code) {
   try {
-    return post(`${window.BASE_URL}api/admin/verify.php`, code);
+    return post(`admin/auth/verify.php`, code);
   } catch (error) {
     console.error("Admin Verify OTP API", error);
 

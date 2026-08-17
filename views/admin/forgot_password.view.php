@@ -1,3 +1,9 @@
+<?php 
+
+require_once __DIR__ . '/../../app/init.php';
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -342,7 +348,11 @@
       </div>
     </div>
 
-  <script> window.BASE_URL = <?= json_encode(BASE_URL) ?>; </script>
+    <script> 
+      window.BASE_URL = <?= json_encode(BASE_URL) ?>; 
+      window.API_URL = <?= json_encode($_ENV['APP_API'] ?? '') ?>
+    </script> 
+  
   <script src="<?= BASE_URL ?>assets/js/admin/auth/forgot-password/main.js" type="module"></script> <!-- Link to forgot password.js -->
   <script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>
 </body>

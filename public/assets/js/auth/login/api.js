@@ -2,7 +2,7 @@ import { post } from "../../services/http.js";
 
 export async function login(credentials) {
   try {
-    return post(`${window.BASE_URL}api/login.php`, credentials);
+    return post(`student/auth/login.php`, credentials);
   } catch (error) {
     console.error("Login API Error:", error);
 
@@ -15,7 +15,7 @@ export async function login(credentials) {
 
 export async function verifyLoginCode(data) {
   try {
-    return await post(`${window.BASE_URL}api/two_factor_verify.php`, data);
+    return await post(`student/auth/two_factor_verify.php`, data);
   } catch (error) {
     console.error("Verify API Error:", error);
 
@@ -28,7 +28,7 @@ export async function verifyLoginCode(data) {
 
 export async function resendLoginCode() {
   try {
-    return await post(`${window.BASE_URL}api/two_factor_resend.php`);
+    return await post(`student/auth/two_factor_resend.php`);
   } catch (error) {
     console.error("Resend API Error", error);
 

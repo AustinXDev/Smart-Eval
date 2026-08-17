@@ -1,3 +1,7 @@
+<?php 
+require_once __DIR__ . '/../../app/init.php';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -212,8 +216,9 @@
 
   </div>
 
-  <script>
-    window.BASE_URL = "<?= BASE_URL ?>";
+  <script> 
+    window.BASE_URL = <?= json_encode(BASE_URL) ?>; 
+    window.API_URL = <?= json_encode($_ENV['APP_API'] ?? '') ?>
   </script>
 
   <script src="<?= BASE_URL ?>assets/js/auth/register/main.js" type="module"></script>

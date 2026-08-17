@@ -2,7 +2,7 @@ import { post } from "../../services/http.js";
 
 export async function activateAccount(token, password) {
   try {
-    return await post(`${window.BASE_URL}api/activate.php`, {
+    return await post(`student/auth/activate.php`, {
       token,
       password,
     });
@@ -20,5 +20,5 @@ export async function activateAccount(token, password) {
 export async function verifyRegistrationCode(data) {
   console.log("VERIFY REQUEST:", data);
 
-  return await post(`${window.BASE_URL}/api/registration_verify.php`, data);
+  return await post(`student/auth/registration_verify.php`, data);
 }

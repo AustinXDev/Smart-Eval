@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../app/init.php';
+require_once __DIR__ . '/../../../app/init.php';
 
 use App\Controllers\TwoFactor\TwoFactorController;
 use App\Repositories\StudentRepository;
@@ -56,7 +56,7 @@ try {
     /*
      * Database
      */
-    require_once __DIR__ . '/../../app/config/database.php';
+    require_once __DIR__ . '/../../../app/config/database.php';
 
     /*
      * Repositories

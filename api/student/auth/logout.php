@@ -1,6 +1,6 @@
 <?php 
 
-require_once __DIR__ . '/../../app/init.php';
+require_once __DIR__ . '/../../../app/init.php';
 
 use App\Controllers\Logout\LogoutController;
 use App\Services\LogoutServices\LogoutService;

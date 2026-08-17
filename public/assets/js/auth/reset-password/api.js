@@ -2,7 +2,7 @@ import { post } from "../../services/http.js";
 
 export async function resetPassword(data) {
   try {
-    return await post(`${window.BASE_URL}/api/password_reset.php`, data);
+    return await post(`student/auth/password_reset.php`, data);
   } catch (error) {
     console.error("Reset Password API Error: ", error);
 
