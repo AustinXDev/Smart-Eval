@@ -4,8 +4,8 @@ require_once __DIR__ . '/../../../app/init.php';
 
 use App\Controllers\Register\RegistrationVerificationController;
 use App\Controllers\TwoFactor\TwoFactorController;
-use App\Repositories\StudentRepository;
-use App\Repositories\TwoFactorRepository;
+use App\Repositories\StudentRepo\StudentRepository;
+use App\Repositories\StudentRepo\TwoFactorRepository;
 use App\Services\RegistrationService\RegistrationVerificationService;
 use App\Services\TwoFactorServices\TwoFactorService;
 use App\providers\EmailProvider;

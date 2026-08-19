@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Repositories\StudentRepo;
 
 use App\Models\Student;
 use PDO;
@@ -283,5 +283,61 @@ class StudentRepository
         ]);
 
         return $stmt->rowCount() > 0;
+    }
+
+
+    /**
+     * Count active student by 
+     * department
+     * 
+     */
+    public function countActiveByDepartment(
+        string $department
+    ): int {
+
+        $stmt = $this->pdo->prepare("
+            SELECT COUNT(*)
+            FROM students s
+            INNER JOIN programs p
+                ON s.program_id = p.program_id
+            WHERE p.department = ?
+              AND s.is_active = 1
+        ");
+
+        $stmt->execute([$department]);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+
+    public function countNotEvaluated(
+        string $department,
+        int $periodId
+    ): int {
+
+        $stmt = $this->pdo->prepare("
+            SELECT COUNT(*)
+            FROM students s
+
+            INNER JOIN programs p
+                ON s.program_id = p.program_id
+
+            WHERE p.department = ?
+            AND s.is_active = 1
+
+            AND NOT EXISTS (
+                SELECT 1
+                FROM evaluation_status es
+                WHERE es.student_id = s.student_id
+                    AND es.period_id = ?
+            )
+        ");
+
+        $stmt->execute([
+            $department,
+            $periodId
+        ]);
+
+        return (int) $stmt->fetchColumn();
     }
 }

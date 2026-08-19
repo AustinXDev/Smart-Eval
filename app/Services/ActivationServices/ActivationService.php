@@ -2,7 +2,7 @@
 
 namespace App\Services\ActivationServices;
 
-use App\Repositories\StudentRepository;
+use App\Repositories\StudentRepo\StudentRepository;
 use App\Services\ActivationServices\ActivationException;
 use App\Services\TwoFactorServices\TwoFactorService;
 use DateTimeImmutable;

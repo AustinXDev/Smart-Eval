@@ -2,7 +2,7 @@
 
 namespace App\Services\Admin;
 
-use App\Repositories\AdminRepository;
+use App\Repositories\AdminRepo\AdminRepository;
 use RuntimeException;
 
 class AdminContext 

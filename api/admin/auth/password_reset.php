@@ -3,8 +3,8 @@
 /**
  * Repositories
  */
-use App\Repositories\AdminRepository;
-use App\Repositories\AdminResetPasswordRepository;
+use App\Repositories\AdminRepo\AdminRepository;
+use App\Repositories\AdminRepo\AdminResetPasswordRepository;
 
 
 /**

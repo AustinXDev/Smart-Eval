@@ -3,16 +3,16 @@
 require_once __DIR__ . '/../../../app/init.php';
 
 use App\Controllers\TwoFactor\TwoFactorController;
-use App\Repositories\StudentRepository;
-use App\Repositories\TwoFactorRepository;
-use App\Repositories\LoginAttemptRepository;
+use App\Repositories\StudentRepo\StudentRepository;
+use App\Repositories\StudentRepo\TwoFactorRepository;
+use App\Repositories\StudentRepo\LoginAttemptRepository;
 use App\Services\TwoFactorServices\TwoFactorService;
 use App\Services\LoginServices\AuthService;
 use App\Services\LoginServices\LoginRateLimiter;
 use App\Services\LoginServices\EvaluationRedirectResolver;
 use App\providers\EmailProvider;
 use App\Session\SessionManager;
-use App\Repositories\EvaluationRepository;
+use App\Repositories\StudentRepo\EvaluationRepository;
 
 header('Content-Type: application/json');
 

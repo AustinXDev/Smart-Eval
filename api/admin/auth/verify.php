@@ -3,8 +3,8 @@
 require_once __DIR__ . '/../../../app/init.php';
 
 use App\Controllers\Admin\AdminAuthController;
-use App\Repositories\AdminRepository;
-use App\Repositories\AdminTwoFactorRepository;
+use App\Repositories\AdminRepo\AdminRepository;
+use App\Repositories\AdminRepo\AdminTwoFactorRepository;
 use App\Services\Admin\AdminAuthService;
 use App\providers\EmailProvider;
 

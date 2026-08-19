@@ -2,8 +2,8 @@
 
 namespace APP\Services\ForgotPasswordServices;
 
-use App\Repositories\StudentRepository;
-use App\Repositories\PasswordResetRepository;
+use App\Repositories\StudentRepo\StudentRepository;
+use App\Repositories\StudentRepo\PasswordResetRepository;
 use App\providers\EmailProvider;
 use App\Services\ForgotPasswordServices\ForgotPasswordEmail;
 use App\Services\ForgotPasswordServices\ForgotPasswordException;

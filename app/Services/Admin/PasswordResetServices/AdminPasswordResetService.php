@@ -2,8 +2,8 @@
 
 namespace APP\Services\Admin\PasswordResetServices;
 
-use App\Repositories\AdminRepository;
-use App\Repositories\AdminPasswordResetRepository;
+use App\Repositories\AdminRepo\AdminRepository;
+use App\Repositories\AdminRepo\AdminPasswordResetRepository;
 use App\Services\Admin\PasswordResetServices\ForgotPasswordEmail;
 use App\providers\EmailProvider;
 use RuntimeException;

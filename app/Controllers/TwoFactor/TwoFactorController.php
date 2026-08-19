@@ -2,7 +2,7 @@
 
 namespace App\Controllers\TwoFactor;
 
-use App\Repositories\StudentRepository;
+use App\Repositories\StudentRepo\StudentRepository;
 use App\Services\LoginServices\AuthService;
 use App\Services\TwoFactorServices\TwoFactorService;
 use App\Session\SessionManager;

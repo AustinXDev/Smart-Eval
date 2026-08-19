@@ -3,8 +3,8 @@
 namespace App\Services\LoginServices;
 
 use App\Models\Student;
-use App\Repositories\EvaluationRepository;
-use App\Repositories\StudentRepository;
+use App\Repositories\StudentRepo\EvaluationRepository;
+use App\Repositories\StudentRepo\StudentRepository;
 
 
 /**

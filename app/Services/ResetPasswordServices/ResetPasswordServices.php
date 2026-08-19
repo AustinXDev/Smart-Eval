@@ -2,8 +2,8 @@
 
 namespace App\Services\ResetPasswordServices;
 
-use App\Repositories\StudentRepository;
-use App\Repositories\ResetPasswordRepository;
+use App\Repositories\StudentRepo\StudentRepository;
+use App\Repositories\StudentRepo\ResetPasswordRepository;
 
 class ResetPasswordServices
 {

@@ -3,8 +3,8 @@
   require_once __DIR__ . '/../../../app/init.php';
 
   use App\Controllers\ResetPassword\ResetPasswordController;
-  use App\Repositories\ResetPasswordRepository;
-  use App\Repositories\StudentRepository;
+  use App\Repositories\StudentRepo\ResetPasswordRepository;
+  use App\Repositories\StudentRepo\StudentRepository;
   use App\Services\ResetPasswordServices\ResetPasswordServices;
 
   require_once __DIR__ . '/../../../config/database.php';

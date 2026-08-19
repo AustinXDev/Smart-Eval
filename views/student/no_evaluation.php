@@ -3,61 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>No Evaluation</title>
 
-  <?php include_once __DIR__ . '../../../public/assets/includes/head.php'?>
+  <title>No Evaluation Available</title>
 
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="../../public/assets/css/custom.css">
+  <?php include_once __DIR__ . '../../../public/assets/includes/head.php' ?>
 
-  <!-- Icons cdn --->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  >
 </head>
-<body class="h-screen flex justify-center items-center">
-  <!-- EMPTY STATE CONTAINER -->
-<div class="h-full flex items-center justify-center px-4">
 
-  <!-- CARD -->
-  <div class="max-w-md w-full bg-white rounded-2xl md:shadow-lg p-8 text-center md:border md:border-gray-100">
-
-    <!-- ICON -->
-    <div class="flex justify-center mb-6">
-      <div class="w-20 h-20 flex items-center justify-center rounded-full bg-purple-100">
-        <svg class="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" stroke-width="1.8"
-          viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M9 5h6m-7 4h8m-8 4h5m-7 7h10a2 2 0 002-2V7a2 2 0 00-2-2h-3.5a1.5 1.5 0 01-3 0H7a2 2 0 00-2 2v11a2 2 0 002 2z" />
+<body class="min-h-screen bg-gray-50 flex items-center justify-center px-4 relative overflow-hidden">
+ 
+  <!-- Subtle decorative blobs -->
+  <div aria-hidden="true" class="pointer-events-none select-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-purple-100 opacity-40 blur-3xl"></div>
+  <div aria-hidden="true" class="pointer-events-none select-none absolute -bottom-24 -right-24 w-80 h-80 rounded-full bg-purple-200 opacity-30 blur-3xl"></div>
+ 
+  <!-- Card -->
+  <main class="relative z-10 w-full max-w-md">
+    <div class="bg-white border border-gray-100 rounded-2xl shadow-sm px-8 py-12 text-center">
+ 
+      <!-- Icon -->
+      <div class="mx-auto mb-6 w-16 h-16 flex items-center justify-center rounded-2xl bg-purple-50" aria-hidden="true">
+        <svg class="w-8 h-8 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+          <rect x="9" y="3" width="6" height="4" rx="1"/>
+          <path d="M9 12h6M9 16h4"/>
         </svg>
       </div>
+ 
+      <!-- Title -->
+      <h1 class="text-xl font-semibold text-gray-900 mb-3 tracking-tight">
+        No Evaluation Available
+      </h1>
+ 
+      <!-- Description -->
+      <p class="text-sm text-gray-500 leading-relaxed mb-8 max-w-xs mx-auto">
+        There are currently no evaluation forms available. Please wait for the evaluation period to open.
+      </p>
+ 
+      <!-- Divider -->
+      <div class="w-10 h-px bg-gray-100 mx-auto mb-8"></div>
+ 
+      <!-- Back to Login -->
+      <a
+        href="login"
+        class="inline-flex items-center justify-center gap-2 w-full px-5 py-2.5
+               bg-purple-600 hover:bg-purple-700 active:bg-purple-800
+               text-white text-sm font-medium
+               rounded-xl shadow-sm
+               transition-all duration-200
+               focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+        aria-label="Back to login page"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+        Back to Login
+      </a>
+ 
+      <!-- Footer note -->
+      <p class="mt-6 text-xs text-gray-400">
+        Contact your administrator if you believe this is an error.
+      </p>
+ 
     </div>
-
-    <!-- TITLE -->
-    <h2 class="text-2xl font-semibold text-gray-800 mb-2">
-      No Evaluation Available
-    </h2>
-
-    <!-- MESSAGE -->
-    <p class="text-gray-500 text-sm leading-relaxed mb-6">
-      There are currently no evaluation forms available.
-      Please wait for the evaluation period to open.
-    </p>
-
-    <!-- LOGIN BUTTON -->
-    <a href="../auth/login.view.php"
-      class="inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition duration-200 shadow-md hover:shadow-lg">
-
-      <!-- ICON -->
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
-        viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M17 16l4-4m0 0l-4-4m4 4H7" />
-      </svg>
-
-      Back to Login
-    </a>
-
-  </div>
-
-</div>
+  </main>
+ 
 </body>
 </html>
+

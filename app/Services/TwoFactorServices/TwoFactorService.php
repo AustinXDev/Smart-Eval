@@ -1,8 +1,8 @@
 <?php 
 namespace App\Services\TwoFactorServices;
 
-use App\Repositories\StudentRepository;
-use App\Repositories\TwoFactorRepository;
+use App\Repositories\StudentRepo\StudentRepository;
+use App\Repositories\StudentRepo\TwoFactorRepository;
 use App\providers\EmailProvider;
 
 class TwoFactorService

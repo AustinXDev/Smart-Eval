@@ -3,7 +3,7 @@
 namespace App\Services\LoginServices;
 
 use App\Models\Student;
-use App\Repositories\StudentRepository;
+use App\Repositories\StudentRepo\StudentRepository;
 use App\Services\TwoFactorServices\TwoFactorService;
 use App\Session\SessionManager;
 

@@ -3,8 +3,8 @@
 require_once __DIR__ . '/../../../app/init.php';
 
 use App\Controllers\TwoFactor\TwoFactorSendController;
-use App\Repositories\StudentRepository;
-use App\Repositories\TwoFactorRepository;
+use App\Repositories\StudentRepo\StudentRepository;
+use App\Repositories\StudentRepo\TwoFactorRepository;
 use App\Services\TwoFactorServices\TwoFactorService;
 use App\providers\EmailProvider;
 use App\Session\SessionManager;
@@ -24,7 +24,7 @@ try {
         );
     }
 
-    require_once __DIR__ . '/../../app/config/database.php';
+    require_once __DIR__ . '/../../../app/config/database.php';
 
     $students = new StudentRepository($pdo);
 

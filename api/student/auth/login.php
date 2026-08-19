@@ -3,10 +3,10 @@
 require_once __DIR__ . '/../../../app/init.php';
 
 use App\Controllers\Login\LoginController;
-use App\Repositories\StudentRepository;
-use App\Repositories\LoginAttemptRepository;
-use App\Repositories\TwoFactorRepository;
-use App\Repositories\EvaluationRepository;
+use App\Repositories\StudentRepo\StudentRepository;
+use App\Repositories\StudentRepo\LoginAttemptRepository;
+use App\Repositories\StudentRepo\TwoFactorRepository;
+use App\Repositories\StudentRepo\EvaluationRepository;
 
 use App\Services\LoginServices\AuthService;
 use App\Services\LoginServices\LoginRateLimiter;

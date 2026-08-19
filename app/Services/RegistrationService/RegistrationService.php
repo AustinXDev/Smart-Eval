@@ -2,7 +2,7 @@
 
 namespace App\Services\RegistrationService;
 
-use App\Repositories\StudentRepository;
+use App\Repositories\StudentRepo\StudentRepository;
 use App\providers\EmailProvider;
 use DateTimeImmutable;
 use DateTimeZone;

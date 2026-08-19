@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../app/init.php';
 
 use App\Controllers\Dashboard\DashboardController;
 use App\Middleware\AdminAuthMiddleware;
-use App\Repositories\AdminRepository;
+use App\Repositories\AdminRepo\AdminRepository;
 use App\Services\Admin\AdminContext;
 
 require_once __DIR__ . '/../../app/config/database.php';
@@ -17,6 +17,7 @@ $adminRepository = new AdminRepository($pdo);
 $adminContext = new AdminContext(
     $adminRepository
 );
+
 
 $controller = new DashboardController(
     $adminContext,
@@ -51,7 +52,7 @@ $pageTitle = "Dashboard";
     >
 
     <title>
-        Dashboard <?= htmlspecialchars($department) ?>
+        Dashboard <?= htmlspecialchars(ucfirst($department)) ?>
     </title>
 
     <?php

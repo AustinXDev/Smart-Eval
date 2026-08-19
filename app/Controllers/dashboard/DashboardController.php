@@ -3,13 +3,15 @@
 namespace App\Controllers\dashboard;
 
 use App\Services\Admin\AdminContext;
+use App\Services\DashboardServices\DashboardService;
+use Throwable;
 
 class DashboardController 
 {
 
   public function __construct(
         private AdminContext $adminContext,
-        private array $navigation
+        private array $navigation 
   ) {}
 
   public function index(): array
@@ -29,7 +31,6 @@ class DashboardController
           'navigation' => $this->navigation[$role] ?? []
       ];
   }
-
 
 }
 

@@ -1,6 +1,6 @@
 <?php 
 
-namespace App\Repositories;
+namespace App\Repositories\AdminRepo;
 
 use App\Models\Admin;
 use PDO;

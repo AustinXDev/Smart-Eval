@@ -2,8 +2,8 @@
 
 namespace App\Services\Admin;
 
-use App\Repositories\AdminRepository;
-use App\Repositories\AdminTwoFactorRepository;
+use App\Repositories\AdminRepo\AdminRepository;
+use App\Repositories\AdminRepo\AdminTwoFactorRepository;
 use App\providers\EmailProvider;
 use App\Services\Admin\AdminTwoFactorEmail;
 use Exception;

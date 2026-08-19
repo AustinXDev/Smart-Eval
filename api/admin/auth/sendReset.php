@@ -1,7 +1,7 @@
 <?php 
 
-use App\Repositories\AdminRepository;
-use App\Repositories\AdminPasswordResetRepository;
+use App\Repositories\AdminRepo\AdminRepository;
+use App\Repositories\AdminRepo\AdminPasswordResetRepository;
 use App\Services\Admin\PasswordResetServices\AdminPasswordResetService;
 use App\Controllers\Admin\AdminForgotPasswordController;
 use App\providers\EmailProvider;

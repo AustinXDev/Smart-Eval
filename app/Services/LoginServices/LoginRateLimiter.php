@@ -2,7 +2,7 @@
 
 namespace App\Services\LoginServices;
 
-use App\Repositories\Loginattemptrepository;
+use App\Repositories\StudentRepo\Loginattemptrepository;
 
 class LoginRateLimiter
 {
