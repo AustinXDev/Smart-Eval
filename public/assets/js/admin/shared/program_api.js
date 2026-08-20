@@ -1,16 +1,18 @@
-const BASE_URL = "/Smart-Eval/app/Controllers/students/";
+import { get } from "../../services/http.js";
 
-//get all programs
+// Get all programs by department
 export async function fetchAllPrograms(department) {
   try {
-    const res = await fetch(
-      `${BASE_URL}get_program.php${department ? `?department=${department}` : ""}`,
+    const data = await get(
+      `program/get_by_department.php${
+        department ? `?department=${encodeURIComponent(department)}` : ""
+      }`,
     );
-    const data = await res.json();
-    //console.log(data.programs);
+
     return data.programs || [];
-  } catch {
-    console.error("Error fetching all programs", err);
+  } catch (error) {
+    console.error("Error fetching all programs:", error);
+
     return [];
   }
 }

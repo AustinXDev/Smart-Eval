@@ -1,115 +1,336 @@
 <!-- Add Student Modal -->
-<div id="addStudentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-  
-  <div class="bg-gray-100 rounded-xl shadow-2xl w-full max-w-2xl mx-2 overflow-hidden">
+<div
+  id="addStudentModal"
+  class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-950/50 px-3 py-6 backdrop-blur-sm sm:px-5"
+>
+  <div
+    class="flex max-h-[95vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/20"
+  >
 
-    <!-- Header -->
-    <div class="bg-[#0F172A] px-6 py-4 border-b-2 border-purple-500">
-      <h2 class="text-white text-lg font-semibold">Add New Student</h2>
-      <p class="text-gray-400 text-xs">Authorize a student to access the evaluation system</p>
+    <!-- ================= HEADER ================= -->
+    <div class="relative border-b border-slate-200 bg-white px-6 py-5 sm:px-7">
+
+      <!-- Accent -->
+      <div class="absolute left-0 top-0 h-full w-1 bg-violet-600"></div>
+
+      <div class="flex items-start justify-between gap-4">
+
+        <div class="flex items-center gap-4">
+
+          <!-- Icon -->
+          <div
+            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600"
+          >
+            <i class="fas fa-user-plus text-lg"></i>
+          </div>
+
+          <!-- Title -->
+          <div>
+            <h2 class="text-lg font-semibold tracking-tight text-slate-900">
+              Add New Student
+            </h2>
+
+            <p class="mt-0.5 text-sm text-slate-500">
+              Add a student to the evaluation system
+            </p>
+          </div>
+
+        </div>
+
+      </div>
     </div>
 
-    <!-- Form -->
-    <form id="addStudentForm" class="p-6 flex flex-col gap-6" method="POST">
 
-      <!-- BASIC INFO -->
-      <div class="bg-white p-5 rounded-lg shadow">
-        <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <i class="fas fa-user text-purple-600"></i>
-          Basic Information
-        </h3>
+    <!-- ================= FORM ================= -->
+    <form
+      id="addStudentForm"
+      class="flex flex-1 flex-col overflow-y-auto"
+      method="POST"
+    >
 
-        <div class="flex flex-col gap-4">
+      <div class="space-y-5 p-5 sm:p-7">
 
-          <div>
-            <label class="text-gray-600 text-sm">Student ID <span class="text-red-500">*</span></label>
-            <input type="text" name="student_id" placeholder="e.g., 00-0000"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none transition"
-              required>
+
+        <!-- ================= BASIC INFORMATION ================= -->
+        <section
+          class="rounded-xl border border-slate-200 bg-slate-50/50 p-5"
+        >
+
+          <!-- Section Header -->
+          <div class="mb-5 flex items-center gap-3">
+
+            <div
+              class="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 text-violet-600"
+            >
+              <i class="fas fa-user text-sm"></i>
+            </div>
+
+            <div>
+              <h3 class="text-sm font-semibold text-slate-900">
+                Basic Information
+              </h3>
+
+              <p class="text-xs text-slate-500">
+                Enter the student's personal information
+              </p>
+            </div>
+
           </div>
 
-          <div>
-            <label class="text-gray-600 text-sm">Full Name <span class="text-red-500">*</span></label>
-            <input type="text" name="full_name" placeholder="First name, Middle initials, Last name"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none transition"
-              required>
+
+          <!-- Fields -->
+          <div class="space-y-4">
+
+            <!-- Student ID -->
+            <div>
+
+              <label
+                for="student_id"
+                class="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Student ID
+                <span class="text-red-500">*</span>
+              </label>
+
+              <div class="relative">
+
+                <div
+                  class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"
+                >
+                  <i class="fas fa-id-card text-sm"></i>
+                </div>
+
+                <input
+                  id="student_id"
+                  type="text"
+                  name="student_id"
+                  placeholder="e.g., 00-0000"
+                  class="h-11 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+                  required
+                />
+
+              </div>
+
+            </div>
+
+
+            <!-- Full Name -->
+            <div>
+
+              <label
+                for="full_name"
+                class="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Full Name
+                <span class="text-red-500">*</span>
+              </label>
+
+              <div class="relative">
+
+                <div
+                  class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"
+                >
+                  <i class="fas fa-user text-sm"></i>
+                </div>
+
+                <input
+                  id="full_name"
+                  type="text"
+                  name="full_name"
+                  placeholder="First name, Middle initials, Last name"
+                  class="h-11 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+                  required
+                />
+
+              </div>
+
+            </div>
+
+
+            <!-- Email -->
+            <div>
+
+              <label
+                for="email"
+                class="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Email Address
+                <span class="text-red-500">*</span>
+              </label>
+
+              <div class="relative">
+
+                <div
+                  class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"
+                >
+                  <i class="fas fa-envelope text-sm"></i>
+                </div>
+
+                <input
+                  id="email"
+                  type="email"
+                  name="email"
+                  placeholder="example@gmail.com"
+                  class="h-11 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+                  required
+                />
+
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+
+        <!-- ================= ACADEMIC PLACEMENT ================= -->
+        <section
+          class="rounded-xl border border-slate-200 bg-slate-50/50 p-5"
+        >
+
+          <!-- Section Header -->
+          <div class="mb-5 flex items-center gap-3">
+
+            <div
+              class="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 text-violet-600"
+            >
+              <i class="fas fa-graduation-cap text-sm"></i>
+            </div>
+
+            <div>
+              <h3 class="text-sm font-semibold text-slate-900">
+                Academic Placement
+              </h3>
+
+              <p class="text-xs text-slate-500">
+                Assign the student's academic information
+              </p>
+            </div>
+
           </div>
 
-          <div>
-            <label class="text-gray-600 text-sm">Email Address <span class="text-red-500">*</span></label>
-            <input type="email" name="email" placeholder="example@gmail.com"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none transition"
-              required>
+
+          <!-- Academic Fields -->
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+            <!-- Year / Grade -->
+            <div>
+
+              <label
+                for="year"
+                class="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                <?php echo ($department === 'college') ? 'Year Level' : 'Grade Level'; ?>
+
+                <span class="text-red-500">*</span>
+              </label>
+
+              <select
+                id="year"
+                name="year"
+                class="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition hover:border-slate-300 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+                required
+              >
+
+                <?php if ($department === 'college') { ?>
+
+                  <option disabled selected>
+                    Select Year Level
+                  </option>
+
+                  <option value="1">1st Year</option>
+                  <option value="2">2nd Year</option>
+                  <option value="3">3rd Year</option>
+                  <option value="4">4th Year</option>
+
+                <?php } else { ?>
+
+                  <option disabled selected>
+                    Select Grade Level
+                  </option>
+
+                  <option value="11">Grade 11</option>
+                  <option value="12">Grade 12</option>
+
+                <?php } ?>
+
+              </select>
+
+            </div>
+
+
+            <!-- Program -->
+            <div>
+
+              <label
+                for="programSelect"
+                class="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+
+                <?php echo ($department === 'college') ? 'Course' : 'Program'; ?>
+
+                <span class="text-red-500">*</span>
+
+              </label>
+
+              <select
+                name="program"
+                id="programSelect"
+                class="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition hover:border-slate-300 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+                required
+              >
+
+                <option disabled selected>
+                  Select Program
+                </option>
+
+                <!-- JS fill -->
+
+              </select>
+
+            </div>
+
           </div>
 
-        </div>
+        </section>
+
       </div>
 
-      <!-- ACADEMIC -->
-      <div class="bg-white p-5 rounded-lg shadow">
-        <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <i class="fas fa-graduation-cap text-purple-600"></i>
-          Academic Placement
-        </h3>
 
-        <div class="flex flex-col md:flex-row gap-4">
+      <!-- ================= FOOTER ================= -->
+      <div
+        class="border-t border-slate-200 bg-white px-5 py-4 sm:px-7"
+      >
 
-          <div class="w-full">
-            <label class="text-gray-600 text-sm">
-              <?php echo ($department === 'college') ? 'Year Level' : 'Grade Level'; ?>
-              <span class="text-red-500">*</span>
-            </label>
+        <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
 
-            <select name="year"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
-              required>
-              <?php if ($department === 'college') { ?>
-                <option disabled selected>Select Year Level</option>
-                <option value="1">1st Year</option>
-                <option value="2">2nd Year</option>
-                <option value="3">3rd Year</option>
-                <option value="4">4th Year</option>
-              <?php } else { ?>
-                <option disabled selected>Select Grade Level</option>
-                <option value="11">Grade 11</option>
-                <option value="12">Grade 12</option>
-              <?php } ?>
-            </select>
-          </div>
+          <!-- Cancel -->
+          <button
+            type="button"
+            data-close-modal="addStudentModal"
+            class="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-4 focus:ring-slate-200 active:scale-[0.98]"
+          >
+            Cancel
+          </button>
 
-          <div class="w-full">
-            <label class="text-gray-600 text-sm">
-              <?php echo ($department === 'college') ? 'Course' : 'Program'; ?>
-              <span class="text-red-500">*</span>
-            </label>
 
-            <select name="program" id="programSelect"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
-              required>
-              <option disabled selected>Select Program</option>
-              <!-- JS fill -->
-            </select>
-          </div>
+          <!-- Add Student -->
+          <button
+            type="submit"
+            class="cursor-pointer inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-violet-600 px-5 text-sm font-semibold text-white shadow-sm shadow-violet-600/20 transition hover:bg-violet-700 hover:shadow-md hover:shadow-violet-600/20 focus:outline-none focus:ring-4 focus:ring-violet-500/20 active:scale-[0.98]"
+          >
+
+            <i class="fas fa-user-plus text-xs"></i>
+
+            <span>Add Student</span>
+
+          </button>
 
         </div>
-      </div>
-
-      <!-- ACTIONS -->
-      <div class="flex justify-end gap-3">
-
-        <button type="button" data-close-modal="addStudentModal"
-          class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md transition">
-          Cancel
-        </button>
-
-        <button type="submit"
-          class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md shadow transition flex items-center gap-2">
-          <i class="fas fa-user-plus"></i>
-          Add Student
-        </button>
 
       </div>
 
     </form>
+
   </div>
 </div>

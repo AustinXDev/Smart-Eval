@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../app/init.php';
 
 use App\Controllers\Dashboard\DashboardController;
 use App\middleware\AdminAuthMiddleware;
-use App\Repositories\AdminRepository;
+use App\Repositories\AdminRepo\AdminRepository;
 use App\Services\Admin\AdminContext;
 
 require_once __DIR__ . '/../../app/config/database.php';
@@ -81,7 +81,7 @@ $pageTitle = "Manage Students";
       
       
       <!-- Header --->
-      <div class="flex flex-col  sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+      <div class="flex flex-col md:flex-row sm:items-center sm:justify-between gap-3 mb-4">
 
         <div class="flex items-center gap-3">
           <div class="bg-[#6010ff] p-2.5 rounded-xl flex-shrink-0">
@@ -97,15 +97,22 @@ $pageTitle = "Manage Students";
           </div>
         </div>
 
-        <div class="flex justify-center items-center flex-wrap gap-2">
+        <div class="flex flex-col mt-4 md:mt-0 md:flex-row justify-center items-center gap-4">
 
-          <button class="add-btn bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-md shadow hover:opacity-90 transition">
-            <i class="fas fa-plus"></i>
-            <span>Add Student</span>
+          <!-- Add Student -->
+          <button
+            class="add-btn w-full inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-semibold text-white shadow-sm shadow-violet-600/20 transition hover:bg-violet-700 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-violet-500/20 active:scale-[0.98]"
+          >
+            <i class="fas fa-plus text-xs"></i>
+            <span class="whitespace-nowrap">Add Student</span>
           </button>
 
-          <button class="csv-btn flex items-center gap-2 bg-green-600 px-4 py-2 rounded-md text-white text-sm hover:opacity-90 transition">
-            <i class="fas fa-file-csv"></i>
+
+          <!-- Import CSV -->
+          <button
+            class="csv-btn w-full inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-4 focus:ring-slate-200 active:scale-[0.98]"
+          >
+            <i class="fas fa-file-csv text-emerald-600"></i>
             <span>Import CSV</span>
           </button>
 
@@ -113,12 +120,12 @@ $pageTitle = "Manage Students";
       </div>
 
       <!-- Card info container -->
-      <div class="mt-6 overflow-x-auto pt-2" id="card-container">
+      <div class="mt-6 pt-2" id="card-container">
 
-        <div class="flex gap-4 min-w-max">
+        <div class="grid grid-cols-1 gap-2 sm:grid-cols-1 md:grid-cols-3">
 
           <!-- Total Students -->
-          <div class="group flex flex-shrink-0 items-center gap-4 w-72 sm:w-80 lg:flex-1 px-6 py-5
+          <div class="w-full group flex flex-shrink-0 items-center gap-4 px-6 py-5
                       bg-white border border-indigo-100 rounded-xl
                       hover:-translate-y-1 hover:bg-[#16213E] hover:shadow-lg hover:shadow-indigo-200
                       transition-all duration-300 cursor-pointer">
@@ -135,7 +142,7 @@ $pageTitle = "Manage Students";
           </div>
 
           <!-- Active Students -->
-          <div class="group flex flex-shrink-0 items-center gap-4 w-72 sm:w-80 lg:flex-1 px-6 py-5
+          <div class="w-full group flex flex-shrink-0 items-center gap-4  px-6 py-5
                       bg-white border border-green-100 rounded-xl
                       hover:-translate-y-1 hover:bg-green-600 hover:shadow-lg hover:shadow-green-200
                       transition-all duration-300 cursor-pointer">
@@ -152,7 +159,7 @@ $pageTitle = "Manage Students";
           </div>
 
           <!-- Inactive Students -->
-          <div class="group flex flex-shrink-0 items-center gap-4 w-72 sm:w-80 lg:flex-1 px-6 py-5
+          <div class="w-full group flex flex-shrink-0 items-center gap-4 px-6 py-5
                       bg-white border border-red-100 rounded-xl
                       hover:-translate-y-1 hover:bg-red-500 hover:shadow-lg hover:shadow-red-200
                       transition-all duration-300 cursor-pointer">
@@ -173,20 +180,76 @@ $pageTitle = "Manage Students";
       </div>
 
       <!-- Student List Table--->
+      <section
+       class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm mt-6">
+          
+          <!-- Table Header -->
+          <div 
+            class="border-b border-slate-200 px-5 py-5 sm:px-6"
+          >
+            
+            <div
+              class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+            >
+            
+              <!-- Title -->
+               <div>
 
-      <div class="p-5 [box-shadow:rgba(0,0,0,0.02)_0px_1px_3px_0px,rgba(27,31,35,0.15)_0px_0px_0px_1px] rounded-md mt-7 ">
+                <div class="flex items-center gap-2">
 
-        <div id="tableWrapper" class="overflow-x-auto w-full" data-department="<?php echo htmlspecialchars($department); ?>">
-          <table id="studentsTable" class="w-full text-left text-sm sm:text-base" >
+                  <div
+                     class="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-violet-600"
+                  >
 
-            <div class="flex flex-col gap-4 md:flex-row md:gap-8  mb-4 mt-2">
-              <div class="flex items-center gap-2">
-                <label class="text-gray-900 text-sm whitespace-nowrap"><?php echo ($department === 'college') ? 'Filter Course:': 'Filter Program:';?></label>
-                <select id="courseFilter" class="border border-gray-200 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-300 focus:outline-none bg-white cursor-pointer w-[200px]">
-                  <option value="All">All </option>
-                </select>
-              </div>
+                    <i class="fas fa-list text-xs"></i>
+
+                  </div>
+
+                  <div>
+                    <h2 class="text-sm font-semibold text-slate-900">
+                      Student Directory
+                    </h2>
+
+                    <p class="text-xs text-slate-400"> 
+                      View and manage registered students
+                    </p>
+
+                  </div>
+
+                </div>
+
+               </div>
+
+               <!-- Filter -->
+                <div class="flex w-full items-center gap-2 md:w-auto">
+
+                  <label
+                    for="courseFilter"
+                    class="whitespace-nowrap text-xs font-medium text-slate-500"
+                  >
+                    <?php echo ($department === 'college')
+                      ? 'Filter Course:'
+                      : 'Filter Program:'; ?>
+                  </label>
+
+                  <select
+                    id="courseFilter"
+                    class="h-9 w-full min-w-[180px] cursor-pointer rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-500/10 md:w-[200px]"
+                  >
+                    <option value="All">All</option>
+                  </select>
+
+                </div>
+                
+
             </div>
+
+          </div>
+
+          <div 
+            id="tableWrapper" 
+            class="overflow-x-auto w-full p-6" data-department="<?php echo htmlspecialchars($department); ?>">
+          <table id="studentsTable" class="w-full text-left text-sm sm:text-base" >
 
             <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
               <tr>
@@ -206,7 +269,8 @@ $pageTitle = "Manage Students";
           </table>
         </div>
 
-      </div>
+
+      </section>
 
     </main>
 
@@ -221,8 +285,14 @@ $pageTitle = "Manage Students";
 
   </div>
 
+<script> 
+window.BASE_URL = <?= json_encode(BASE_URL) ?>; 
+window.API_URL = <?= json_encode($_ENV['APP_API'] ?? '') ?>
+</script> 
 
 <script src="<?= BASE_URL ?>assets/js/admin/students/table.js" type="module"></script>
-<script src="<?= BASE_URL ?>assets/js/admin/students/actions.js" type="module"></script> 
+<script src="<?= BASE_URL ?>assets/js/admin/students/index.js" type="module"></script> 
+<script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>
+
 </body>
 </html>

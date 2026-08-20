@@ -88,6 +88,46 @@ class ProgramRepository
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   }
+
+
+    public function getByDepartment(
+        string $department
+    ): array {
+
+        $stmt = $this->pdo->prepare("
+            SELECT
+                program_id,
+                program_name
+            FROM programs
+            WHERE department = ?
+            ORDER BY program_id ASC
+        ");
+
+        $stmt->execute([$department]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
+    public function getProgramByDepartment(
+        string $department
+    ): array {
+
+       $stmt = $this->pdo->prepare("
+        SELECT * 
+        FROM programs
+            WHERE department = ?
+            AND is_active = 1
+        ORDER BY program_name ASC
+       ");
+       
+       $stmt->execute([
+        $department
+       ]);
+
+       return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    }
 }
 
 ?>

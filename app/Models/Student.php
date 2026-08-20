@@ -9,11 +9,17 @@ class Student
   public string $studentId;
   public string $fullName;
   public string $email;
+
   public ?int $programId;
+  public ?string $programName;
+  public ?string $department;
+
   public ?string $yearLevel;
   public ?string $enrollmentType;
+
   public ?string $accountStatus;
   public bool $isActive;
+
   public ?string $tokenExpires;
   public bool $isFinishedAll;
   public ?string $passwordHash;
@@ -35,6 +41,12 @@ class Student
       isset($row['program_id']) 
         ? (int)$row['program_id'] 
         : null;
+    
+    $student->programName = 
+      $row['program_name'] ?? null;
+
+    $student->department = 
+      $row['department'] ?? null;
 
     $student->yearLevel      = 
       $row['year_level'] ?? null;
@@ -59,6 +71,23 @@ class Student
 
     return $student;
 
+  }
+
+  public function toArray(): array
+  {
+      return [
+          'student_id'      => $this->studentId,
+          'full_name'       => $this->fullName,
+          'email'           => $this->email,
+          'program_id'      => $this->programId,
+          'program_name'    => $this->programName,
+          'department'      => $this->department,
+          'year_level'      => $this->yearLevel,
+          'enrollment_type' => $this->enrollmentType,
+          'is_active'       => $this->isActive,
+          'account_status'  => $this->accountStatus,
+          'is_finished_all' => $this->isFinishedAll,
+      ];
   }
 
   /**
