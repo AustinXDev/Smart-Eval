@@ -94,6 +94,7 @@ function renderParticipationChart(data) {
 }
 
 function renderCategoryChart(data) {
+  console.log(data);
   const container = document.getElementById("categoryContainer");
 
   if (!data?.category_performance?.length) {
@@ -116,14 +117,23 @@ function renderCategoryChart(data) {
 
   chartInstances.category = createRadarChart(ctx, labels, scores);
 
-  document.getElementById("highestCategory").innerText =
-    data.category_highlights.highest.category;
-  document.getElementById("highestScore").innerText =
-    data.category_highlights.highest.score;
-  document.getElementById("lowestCategory").innerText =
-    data.category_highlights.lowest.category;
-  document.getElementById("lowestScore").innerText =
-    data.category_highlights.lowest.score;
+  document.getElementById("highestCategory").innerText = data
+    .category_highlights.highest
+    ? data.category_highlights.highest.category
+    : "No highest-performing category identified";
+
+  document.getElementById("highestScore").innerText = data.category_highlights
+    .highest
+    ? data.category_highlights.highest.score
+    : "—";
+  document.getElementById("lowestCategory").innerText = data.category_highlights
+    .lowest
+    ? data.category_highlights.lowest.category
+    : "No lower-performing category identified";
+  document.getElementById("lowestScore").innerText = data.category_highlights
+    .lowest
+    ? data.category_highlights.lowest.score
+    : "—";
 }
 
 export function renderCharts(data) {

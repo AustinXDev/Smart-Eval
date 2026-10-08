@@ -78,7 +78,7 @@ class AnalyticsHelpers
                 ];
             }
 
-            if ($lowest === null || $score < $lowest['score']) {
+            if ($score < 3 && ($lowest === null || $score < $lowest['score'])) {
                 $lowest = [
                     'category' => $item['category'] ?? '',
                     'score' => $score,
