@@ -133,8 +133,18 @@ export function renderQuestionBreakDown(data) {
   if (!data?.question_breakdown) {
     if (parentContainer) {
       parentContainer.innerHTML = `
-        <div class="col-span-full text-center py-10 w-full h-full flex justify-center items-center">
-          <p class="text-gray-400 text-sm">No performance highlights available for this period.</p>
+        <div class="col-span-full flex flex-1 flex-col items-center justify-center h-full gap-3 px-6 py-12 text-center rounded-xl border border-dashed border-gray-200 bg-gray-50">
+          <div class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18M7 15l4-4 3 3 5-6" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-600">No question insights yet</p>
+            <p class="text-xs text-gray-400 mt-1">
+              Once question results are available, performance highlights will appear here.
+            </p>
+          </div>
         </div>
       `;
     }
@@ -147,12 +157,32 @@ export function renderQuestionBreakDown(data) {
   if (strengthsEl) {
     strengthsEl.innerHTML = strengths.length
       ? strengths.map((item, i) => buildRow(item, i + 1, true)).join("")
-      : `<p class="text-xs text-gray-400 italic py-2">No strengths identified for this period.</p>`;
+      : `
+        <div class="flex min-h-32 flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-white/70 px-4 py-6 text-center">
+          <span class="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+            <i class="fas fa-arrow-trend-up text-xs" aria-hidden="true"></i>
+          </span>
+          <p class="text-xs font-medium text-slate-600">No standout questions yet</p>
+          <p class="mt-1 text-[11px] leading-relaxed text-slate-400">
+            No questions met the strength criteria for this period.
+          </p>
+        </div>
+      `;
   }
 
   if (weaknessesEl) {
     weaknessesEl.innerHTML = weaknesses.length
       ? weaknesses.map((item, i) => buildRow(item, i + 1, false)).join("")
-      : `<p class="text-xs text-gray-400 italic py-2">No areas for improvement identified for this period.</p>`;
+      : `
+        <div class="flex min-h-32 flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-white/70 px-4 py-6 text-center">
+          <span class="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+            <i class="fas fa-check text-xs" aria-hidden="true"></i>
+          </span>
+          <p class="text-xs font-medium text-slate-600">No priority areas identified</p>
+          <p class="mt-1 text-[11px] leading-relaxed text-slate-400">
+            No questions fell within the lower-performance range this period.
+          </p>
+        </div>
+      `;
   }
 }

@@ -1554,7 +1554,7 @@ $pageTitle = "Reports & Analytics";
 
                     <i class="fas fa-circle-exclamation text-[11px]"></i>
 
-                    <span>Abandoned</span>
+                    <span>In Complete</span>
 
                     <span
                       class="badge badge-red"
@@ -1943,25 +1943,47 @@ $pageTitle = "Reports & Analytics";
                 >
 
                   <!-- Search -->
-                  <div class="toolbar-search w-full sm:w-64">
+                  <div class="relative w-full sm:w-64">
 
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
+                    <div
+                      class="
+                        pointer-events-none
+                        absolute
+                        inset-y-0
+                        left-0
+                        flex
+                        items-center
+                        pl-3
+                        text-slate-400
+                      "
                     >
-                      <circle cx="11" cy="11" r="8"/>
-                      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
+                      <i class="fas fa-search text-[11px]"></i>
+                    </div>
 
                     <input
                       type="text"
                       id="search-not-evaluated"
-                      placeholder="Search student…"
+                      placeholder="Search student..."
+                      class="
+                        h-10
+                        w-full
+                        rounded-xl
+                        border
+                        border-slate-200
+                        bg-slate-50
+                        pl-9
+                        pr-3
+                        text-xs
+                        font-medium
+                        text-slate-700
+                        outline-none
+                        transition
+                        placeholder:text-slate-400
+                        focus:border-violet-400
+                        focus:bg-white
+                        focus:ring-4
+                        focus:ring-violet-500/10
+                      "
                     />
 
                   </div>
@@ -2173,25 +2195,47 @@ $pageTitle = "Reports & Analytics";
 
 
                 <!-- Search -->
-                <div class="toolbar-search w-full sm:w-64">
+                <div class="relative w-full sm:w-64">
 
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
+                  <div
+                    class="
+                      pointer-events-none
+                      absolute
+                      inset-y-0
+                      left-0
+                      flex
+                      items-center
+                      pl-3
+                      text-slate-400
+                    "
                   >
-                    <circle cx="11" cy="11" r="8"/>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                  </svg>
+                    <i class="fas fa-search text-[11px]"></i>
+                  </div>
 
                   <input
                     type="text"
                     id="search-abandoned"
-                    placeholder="Search student…"
+                    placeholder="Search student..."
+                    class="
+                      h-10
+                      w-full
+                      rounded-xl
+                      border
+                      border-slate-200
+                      bg-slate-50
+                      pl-9
+                      pr-3
+                      text-xs
+                      font-medium
+                      text-slate-700
+                      outline-none
+                      transition
+                      placeholder:text-slate-400
+                      focus:border-violet-400
+                      focus:bg-white
+                      focus:ring-4
+                      focus:ring-violet-500/10
+                    "
                   />
 
                 </div>
@@ -2250,7 +2294,7 @@ $pageTitle = "Reports & Analytics";
                     <div class="min-w-0">
 
                       <p class="truncate text-xs font-bold text-slate-800">
-                        Abandoned Evaluations
+                        In complete Evaluations
                       </p>
 
                       <p class="mt-0.5 hidden text-[10px] font-medium text-slate-400 sm:block">

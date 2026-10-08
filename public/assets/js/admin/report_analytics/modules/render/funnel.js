@@ -12,7 +12,23 @@ export function renderParticipationFunnel(data) {
   const funnelContainer = document.getElementById("funnel-container");
 
   if (!data) {
-    funnelContainer.innerHTML = `<p class="text-center text-gray-500 text-sm">No data available for this department</p>`;
+    if (funnelContainer) {
+      funnelContainer.innerHTML = `
+        <div class="flex h-full min-h-48 w-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-gray-200 bg-gray-50 px-6 py-10 text-center">
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 19V5m0 14h16M8 15l3-3 3 2 5-6" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-600">No participation data yet</p>
+            <p class="mt-1 text-xs text-gray-400">
+              Participation statistics will appear here when evaluation data is available.
+            </p>
+          </div>
+        </div>
+      `;
+    }
 
     setText("totalEnrolled", "0");
     setText("totalStudents", "0");

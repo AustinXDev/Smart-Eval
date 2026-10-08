@@ -6,17 +6,31 @@ function renderDataTable(tableKey, countElId, data, isClosed = false) {
   if (!table) return;
 
   const cnt = document.getElementById(countElId);
+  const rows = Array.isArray(data) ? data : [];
 
-  if (!data || data.length === 0) {
+  if (rows.length === 0) {
     if (cnt) cnt.innerText = 0;
+    const searchInputId = {
+      ranking: "search-ranking",
+      not_evaluated: "search-not-evaluated",
+      abandoned: "search-abandoned",
+    }[tableKey];
+    const searchInput = searchInputId
+      ? document.getElementById(searchInputId)
+      : null;
+
+    if (searchInput) searchInput.value = "";
+
+    table.search("");
+    table.columns().search("");
     table.clear().draw();
     return;
   }
 
-  if (cnt) cnt.innerText = data.length;
+  if (cnt) cnt.innerText = rows.length;
 
   setTimeout(() => {
-    table.clear().rows.add(data).draw();
+    table.clear().rows.add(rows).draw();
     table.columns.adjust().draw(false);
   }, 50);
 }

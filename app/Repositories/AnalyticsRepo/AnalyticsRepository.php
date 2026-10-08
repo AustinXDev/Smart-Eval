@@ -829,9 +829,4 @@ class AnalyticsRepository
     }
 
 
-    /**
-     * Get Individual Teacher Anlytic Results
-     */
-
-
 }

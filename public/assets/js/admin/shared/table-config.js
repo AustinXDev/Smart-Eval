@@ -1,10 +1,24 @@
 import { getRatingBadge } from "./utils.js";
-import { periodId, state } from "../report_analytics/modules/state.js";
+import { state } from "../report_analytics/modules/state.js";
 import { openModal, closeModal, showConfirmation } from "../../modal/modal.js";
 import { fetchAnalytics } from "../report_analytics/api/api.js";
 import { renderHistoricalBanner } from "../report_analytics/modules/render/historical_banner.js";
 import { nameToInitials } from "./utils.js";
 import { getAdjectiveRating } from "../report_analytics/modules/helpers/formatters.js";
+
+function tableEmptyState(title, description, icon) {
+  return `
+    <div class="flex min-h-48 flex-col items-center justify-center gap-3 px-6 py-8 text-center">
+      <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+        <i class="fa-solid ${icon} text-lg" aria-hidden="true"></i>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-gray-600">${title}</p>
+        <p class="mt-1 text-xs text-gray-400">${description}</p>
+      </div>
+    </div>
+  `;
+}
 
 export function initRankingTable() {
   const tableEl = "#tbl-ranking";
@@ -18,6 +32,18 @@ export function initRankingTable() {
     lengthChange: false,
     searching: true,
     dom: "tip",
+    language: {
+      emptyTable: tableEmptyState(
+        "No teacher rankings yet",
+        "Ranked results will appear when evaluation data is available.",
+        "fa-chart-column",
+      ),
+      zeroRecords: tableEmptyState(
+        "No matching teachers",
+        "Try adjusting your search to find a teacher.",
+        "fa-magnifying-glass",
+      ),
+    },
 
     // ============================================================
     // HEADER CONTAINER STYLING
@@ -385,8 +411,6 @@ export function initRankingTable() {
     createdRow: function (row) {
       row.classList.add(
         "group",
-        "border-b",
-        "border-slate-100",
         "transition-colors",
         "duration-150",
         "hover:bg-slate-50/70",
@@ -419,10 +443,22 @@ export function initNotEvaluatedTable() {
     lengthChange: false,
     searching: true,
     dom: "tip",
+    language: {
+      emptyTable: tableEmptyState(
+        "No students awaiting evaluation",
+        "All students have not yet completed their evaluation for this department and period.",
+        "fa-clipboard-check",
+      ),
+      zeroRecords: tableEmptyState(
+        "No matching students",
+        "The current search does not match any students awaiting evaluation.",
+        "fa-magnifying-glass",
+      ),
+    },
     columns: [
       {
         data: null,
-        title: "#",
+        title: "Student ID",
         render: (v, type, row, meta) => `
           <div class="flex justify-center">
             <span class="rank-pill rank-n">${meta.row + 1}</span>
@@ -430,7 +466,7 @@ export function initNotEvaluatedTable() {
       },
       {
         data: "full_name",
-        title: "Teacher", // ✅ fixed from "Student"
+        title: "Student Name", // ✅ fixed from "Student"
         render: (v, _, row) => {
           const initials = v
             .split(" ")
@@ -494,12 +530,21 @@ export function initAbandonedTable() {
     searching: true,
     dom: "tip",
     language: {
-      emptyTable: "No abandoned evaluations at this time.",
+      emptyTable: tableEmptyState(
+        "No incomplete students",
+        "Incomplete evaluation students will appear here when available.",
+        "fa-clipboard-check",
+      ),
+      zeroRecords: tableEmptyState(
+        "No matching records",
+        "Try adjusting your search to find a record.",
+        "fa-magnifying-glass",
+      ),
     },
     columns: [
       {
         data: null,
-        title: "#",
+        title: "Student ID",
         render: (v, type, row, meta) => `
           <div class="flex justify-center">
             <span class="rank-pill rank-n">${meta.row + 1}</span>
@@ -507,7 +552,7 @@ export function initAbandonedTable() {
       },
       {
         data: "full_name",
-        title: "Teacher",
+        title: "Student Name",
         render: (v, _, row) => {
           const initials = v
             .split(" ")
