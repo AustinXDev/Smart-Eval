@@ -1,0 +1,31 @@
+/* =========================================================
+   TEACHER LIST — SCROLLBAR
+========================================================= */
+
+.teacher-list-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #d8d1ff transparent;
+  scroll-behavior: smooth;
+}
+
+/* Chrome / Edge / Safari */
+.teacher-list-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.teacher-list-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 9999px;
+  margin: 6px 0;
+}
+
+.teacher-list-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #ddd6fe, #c4b5fd);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+.teacher-list-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #8b5cf6;
+}

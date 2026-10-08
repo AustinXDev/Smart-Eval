@@ -1,0 +1,145 @@
+<?php
+
+namespace App\Models;
+
+use DateTime;
+
+class Student
+{
+    public string $studentId;
+    public string $fullName;
+    public string $email;
+
+    public ?int $programId;
+    public ?string $programCode;
+    public ?string $programName;
+    public ?string $department;
+
+    public ?string $yearLevel;
+    public ?string $enrollmentType;
+
+    public ?string $accountStatus;
+    public bool $isActive;
+
+    public bool $isFinishedAll;
+
+    public ?string $tokenExpires;
+    private ?string $passwordHash;
+
+
+    public static function fromArray(array $row): self
+    {
+        $student = new self();
+
+        $student->studentId      =
+          (string)($row['student_id'] ?? '');
+
+        $student->fullName       =
+          (string)($row['full_name'] ?? '');
+
+        $student->email          =
+          (string)($row['email'] ?? '');
+
+        $student->programId      =
+          isset($row['program_id'])
+            ? (int)$row['program_id']
+            : null;
+
+        $student->programCode    =
+          $row['program_code'] ?? null;
+
+        $student->programName =
+          $row['program_name'] ?? null;
+
+        $student->department =
+          $row['department'] ?? null;
+
+        $student->yearLevel      =
+          $row['year_level'] ?? null;
+
+        $student->enrollmentType =
+          $row['enrollment_type'] ?? null;
+
+        $student->accountStatus  =
+          $row['account_status'] ?? null;
+
+        $student->isActive       =
+          !empty($row['is_active']);
+
+        $student->tokenExpires   =
+          $row['token_expires'] ?? null;
+
+        $student->isFinishedAll  =
+          !empty($row['is_finished_all']);
+
+        $student->passwordHash   =
+          $row['password_hash'] ?? null;
+
+        return $student;
+
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'student_id'      => $this->studentId,
+            'full_name'       => $this->fullName,
+            'email'           => $this->email,
+            'program_id'      => $this->programId,
+            'program_name'    => $this->programName,
+            'department'      => $this->department,
+            'year_level'      => $this->yearLevel,
+            'enrollment_type' => $this->enrollmentType,
+            'is_active'       => $this->isActive,
+            'account_status'  => $this->accountStatus,
+            'is_finished_all' => $this->isFinishedAll,
+        ];
+    }
+
+    /**
+     * Only the fields that are safe/useful to keep in the session.
+     */
+
+    public function toSessionArray(): array
+    {
+        return [
+            'student_id'      => $this->studentId,
+            'full_name'       => $this->fullName,
+            'program_id'      => $this->programId,
+            'program_code'    => $this->programCode,
+            'department'      => $this->department,
+            'program_name'    => $this->programName,
+            'year_level'      => $this->yearLevel,
+            'enrollment_type' => $this->enrollmentType,
+            'is_finished_all' => $this->isFinishedAll ? 1 : 0,
+        ];
+    }
+
+    /**
+     * Check if the provided password matches the stored hash.
+     */
+    public function verifyPassword(string $password): bool
+    {
+
+        return $this->passwordHash !== null &&
+                password_verify($password, $this->passwordHash);
+
+    }
+
+    public function hasPassword(): bool
+    {
+
+        return $this->passwordHash !== null;
+
+    }
+
+
+    /**
+     * Activate account
+     */
+    public function activate(): void
+    {
+        $this->isActive = true;
+    }
+
+}

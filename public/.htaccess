@@ -1,0 +1,20 @@
+RewriteEngine On
+
+# ==========================================
+# CACHE STATIC IMAGES
+# ==========================================
+
+<IfModule mod_headers.c>
+
+    <FilesMatch "\.(jpg|jpeg|png|webp|gif|svg)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+
+</IfModule>
+
+# If the requested filename is not a real physical file or folder
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Silently route the URI path directly to index.php as a parameter
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]

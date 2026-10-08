@@ -1,0 +1,1125 @@
+import { nameToInitials } from "../shared/utils.js";
+import {
+  createPieChart,
+  createScoreDoughnutChart,
+  createProgramBarChart,
+} from "../../charts/chart-config.js";
+import { get } from "../../services/http.js";
+import { logout } from "../shared/logout.js";
+
+const queryString = new URL(window.location.href);
+const department = queryString.searchParams.get("dept");
+
+const POLL_INTERVAL = 30000;
+
+let isFetching = false;
+let pollTimer = null;
+let isVisible = true;
+let lastData = null;
+
+const chartInstances = {
+  score: null,
+  participation: null,
+  program: null,
+};
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function convertDateStr(date) {
+  if (!date) return "--";
+
+  const dateObj = new Date(date);
+
+  if (Number.isNaN(dateObj.getTime())) {
+    return "--";
+  }
+
+  return dateObj.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function safeNumber(value, fallback = 0) {
+  const number = Number(value);
+
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function safeString(value, fallback = "--") {
+  if (value === null || value === undefined || value === "") {
+    return fallback;
+  }
+
+  return String(value);
+}
+
+function safeArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function safeObject(value) {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value
+    : {};
+}
+
+function destroyChart(key) {
+  if (chartInstances[key]) {
+    chartInstances[key].destroy();
+    chartInstances[key] = null;
+  }
+}
+
+function hasChanged(newData, key) {
+  if (!lastData) return true;
+
+  return (
+    JSON.stringify(lastData?.[key] ?? null) !==
+    JSON.stringify(newData?.[key] ?? null)
+  );
+}
+
+function showConnectionError() {
+  const el = document.getElementById("connection-error");
+
+  if (!el) return;
+
+  el.classList.remove("hidden");
+
+  setTimeout(() => {
+    el.classList.add("hidden");
+  }, 4000);
+}
+
+/* =========================================================
+   POLLING
+========================================================= */
+
+function startPolling() {
+  stopPolling();
+
+  pollTimer = setInterval(async () => {
+    if (isVisible) {
+      await fetchDashboardBundle();
+      console.log("Dashboard refreshed");
+    }
+  }, POLL_INTERVAL);
+}
+
+function stopPolling() {
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  isVisible = !document.hidden;
+
+  if (isVisible) {
+    fetchDashboardBundle();
+    startPolling();
+  } else {
+    stopPolling();
+  }
+});
+
+/* =========================================================
+   FETCH DASHBOARD
+========================================================= */
+
+async function fetchDashboardBundle() {
+  if (isFetching) return;
+
+  if (!department) {
+    console.error("Department not found.");
+    return;
+  }
+
+  isFetching = true;
+
+  try {
+    /*const url =
+    `/Smart-Eval/api/admin/dashboard/dashboard.php` +
+      `?req=dashboard_bundle` +
+      `&department=${encodeURIComponent(department)}`;*/
+
+    /*const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });*/
+
+    const response = await get(
+      `admin/dashboard/dashboard.php?department=${encodeURIComponent(department)}`,
+    );
+
+    if (response.status !== "success") {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    /*if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }*/
+
+    //const response = await res.json();
+
+    console.log("API Response:", response);
+
+    /*
+     * API RESPONSE SHOULD LOOK LIKE:
+     *
+     * {
+     *   status: "success",
+     *   data: {
+     *      cards: {...},
+     *      teacher_ranking: [],
+     *      participation_chart: null,
+     *      score_chart: null,
+     *      program_chart: null,
+     *      categorical_breakdown: []
+     *   }
+     * }
+     */
+
+    if (!response || typeof response !== "object") {
+      throw new Error("Invalid API response.");
+    }
+
+    if (response.status !== "success") {
+      console.warn("API did not return success.");
+
+      renderCards(null);
+      renderParticipationCards(null);
+      renderTeacherRanking([]);
+      renderCharts(null);
+      renderCategoricalBreakdown([]);
+
+      lastData = null;
+
+      return;
+    }
+
+    const data = safeObject(response.data);
+
+    /*
+     * No dashboard data
+     */
+    if (Object.keys(data).length === 0) {
+      console.warn("Dashboard data is empty.");
+
+      renderCards(null);
+      renderParticipationCards(null);
+      renderTeacherRanking([]);
+      renderCharts(null);
+      renderCategoricalBreakdown([]);
+
+      lastData = null;
+
+      return;
+    }
+
+    console.log("Dashboard Data:", data);
+
+    /* -------------------------------------------------------
+       CARDS
+    ------------------------------------------------------- */
+
+    if (hasChanged(data, "cards")) {
+      renderCards(data.cards);
+    }
+
+    /* -------------------------------------------------------
+       PARTICIPATION
+    ------------------------------------------------------- */
+
+    if (hasChanged(data, "participation_chart")) {
+      const participation = safeObject(data.participation_chart);
+      const cards = safeObject(data.cards);
+
+      renderParticipationCards({
+        ...participation,
+
+        total_submitted: safeNumber(cards.total_submitted, 0),
+
+        not_evaluated: safeNumber(cards.not_evaluated, 0),
+      });
+    }
+
+    /* -------------------------------------------------------
+       TEACHER RANKING
+    ------------------------------------------------------- */
+
+    if (hasChanged(data, "teacher_ranking")) {
+      renderTeacherRanking(data.teacher_ranking);
+    }
+
+    /* -------------------------------------------------------
+       CHARTS
+    ------------------------------------------------------- */
+
+    if (
+      hasChanged(data, "score_chart") ||
+      hasChanged(data, "participation_chart") ||
+      hasChanged(data, "program_chart")
+    ) {
+      setTimeout(() => {
+        renderCharts(data);
+      }, 50);
+    }
+
+    /* -------------------------------------------------------
+       CATEGORICAL BREAKDOWN
+    ------------------------------------------------------- */
+
+    if (hasChanged(data, "categorical_breakdown")) {
+      renderCategoricalBreakdown(data.categorical_breakdown);
+    }
+
+    lastData = data;
+  } catch (error) {
+    console.error("Dashboard bundle fetch failed:", error);
+
+    showConnectionError();
+  } finally {
+    isFetching = false;
+  }
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+function renderCards(cards) {
+  console.log(cards);
+  const set = (id, value) => {
+    const el = document.getElementById(id);
+
+    if (el) {
+      el.textContent = value;
+    }
+  };
+
+  /*
+   * No cards
+   */
+  if (!cards || typeof cards !== "object") {
+    set("totalStudents", "0");
+    set("totalTeachers", "0");
+    set("academic_year", "No active period");
+    set("semester", "--");
+    set("start-date", "--");
+    set("end-date", "--");
+    set("percentage", "0%");
+
+    const fill = document.getElementById("progress-fill");
+
+    if (fill) {
+      fill.style.width = "0%";
+    }
+
+    return;
+  }
+
+  const studentsTotal = safeNumber(cards.students_total, 0);
+
+  const teachersTotal = safeNumber(cards.teacher_total, 0);
+
+  const completedStudent = safeNumber(cards.completed_student, 0);
+
+  set("totalStudents", studentsTotal);
+  set("totalTeachers", teachersTotal);
+
+  /* -------------------------------------------------------
+     Evaluation Period
+  ------------------------------------------------------- */
+
+  const period = safeObject(cards.evaluation_period);
+
+  console.log(cards.evaluation_period);
+
+  if (Object.keys(period).length > 0) {
+    set("academic_year", safeString(period.academic_year, "--"));
+
+    set("semester", safeString(period.semester, "--"));
+
+    set("start-date", convertDateStr(period.start_date));
+
+    set("end-date", convertDateStr(period.end_date));
+  } else {
+    set("academic_year", "No active period");
+    set("semester", "--");
+    set("start-date", "--");
+    set("end-date", "--");
+  }
+
+  /* -------------------------------------------------------
+     Completion Percentage
+  ------------------------------------------------------- */
+
+  const pct =
+    studentsTotal > 0
+      ? Math.round((completedStudent * 100) / studentsTotal)
+      : 0;
+
+  set("percentage", `${pct}%`);
+
+  const fill = document.getElementById("progress-fill");
+
+  if (fill) {
+    setTimeout(() => {
+      fill.style.width = `${pct}%`;
+    }, 200);
+  }
+}
+
+/* =========================================================
+   PARTICIPATION
+========================================================= */
+
+function renderParticipationCards(participation) {
+  const set = (id, value) => {
+    const el = document.getElementById(id);
+
+    if (el) {
+      el.textContent = value;
+    }
+  };
+
+  const arrow = document.getElementById("evaluated-arrow");
+
+  /*
+   * No participation object
+   */
+  if (!participation || typeof participation !== "object") {
+    set("evaluated-total", "0");
+    set("not-evaluated-total", "0");
+    set("submitted-total", "0");
+
+    if (arrow) {
+      arrow.className =
+        "flex items-center gap-1 bg-gray-100 text-gray-400 text-xs font-medium px-3 py-1.5 rounded-full";
+
+      arrow.textContent = "N/A";
+    }
+
+    return;
+  }
+
+  const finished = safeNumber(participation.finished, 0);
+
+  const notEvaluated = safeNumber(participation.not_evaluated, 0);
+
+  const totalSubmitted = safeNumber(participation.total_submitted, 0);
+
+  set("evaluated-total", finished);
+
+  set("not-evaluated-total", notEvaluated);
+
+  set("submitted-total", totalSubmitted);
+
+  /*
+   * Change percentage
+   */
+
+  const finishedChange = participation.finished_change;
+
+  const percent =
+    finishedChange !== null &&
+    finishedChange !== undefined &&
+    finishedChange !== ""
+      ? `${finishedChange}%`
+      : "N/A";
+
+  if (!arrow) return;
+
+  const isUp = participation.is_up === true;
+
+  if (isUp) {
+    arrow.className =
+      "flex items-center gap-1 bg-green-100 text-green-700 text-xs font-medium px-3 py-1.5 rounded-full";
+
+    arrow.innerHTML = `
+      <svg
+        class="w-3.5 h-3.5"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"
+        />
+      </svg>
+
+      ${percent}
+    `;
+  } else {
+    arrow.className =
+      "flex items-center gap-1 bg-red-100 text-red-700 text-xs font-medium px-3 py-1.5 rounded-full";
+
+    arrow.innerHTML = `
+      <svg
+        class="w-3.5 h-3.5"
+        fill="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M12 2.25a.75.75 0 0 1 .75.75v16.19l6.22-6.22a.75.75 0 1 1 1.06 1.06l-7.5 7.5a.75.75 0 0 1-1.06 0l-7.5-7.5a.75.75 0 1 1 1.06-1.06l6.22 6.22V3a.75.75 0 0 1 .75-.75Z"
+          clip-rule="evenodd"
+        />
+      </svg>
+
+      ${percent}
+    `;
+  }
+}
+
+/* =========================================================
+   TEACHER RANKING
+========================================================= */
+
+function renderTeacherRanking(data) {
+  const topInitials = document.getElementById("top_initials");
+  const topName = document.getElementById("highest-teacher-name");
+  const topScore = document.getElementById("avg-score");
+  const tbody = document.getElementById("tbody-ranking");
+
+  const ranking = safeArray(data);
+
+  // ============================================================
+  // FALLBACK
+  // ============================================================
+
+  const showFallback = () => {
+    if (topInitials) {
+      topInitials.textContent = "--";
+    }
+
+    if (topName) {
+      topName.textContent = "No ranking data available";
+    }
+
+    if (topScore) {
+      topScore.textContent = "--";
+    }
+
+    if (tbody) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="px-6 py-12">
+
+            <div class="flex flex-col items-center justify-center">
+
+              <div
+                class="flex h-12 w-12 items-center justify-center
+                       rounded-2xl bg-slate-100 text-slate-400"
+              >
+                <i class="fas fa-chart-column"></i>
+              </div>
+
+              <p
+                class="mt-3 text-sm font-semibold text-slate-700"
+              >
+                No ranking data available
+              </p>
+
+              <p
+                class="mt-1 text-xs text-slate-400"
+              >
+                Teacher evaluation results will appear here.
+              </p>
+
+            </div>
+
+          </td>
+        </tr>
+      `;
+    }
+  };
+
+  // ============================================================
+  // EMPTY DATA
+  // ============================================================
+
+  if (ranking.length === 0) {
+    showFallback();
+
+    return;
+  }
+
+  // ============================================================
+  // TOP TEACHER
+  // ============================================================
+
+  const top = safeObject(ranking[0]);
+
+  const teacherName = safeString(top.teacher_name, "");
+
+  if (!teacherName) {
+    showFallback();
+
+    return;
+  }
+
+  if (topInitials) {
+    topInitials.textContent = nameToInitials(teacherName);
+  }
+
+  if (topName) {
+    topName.textContent = teacherName;
+  }
+
+  if (topScore) {
+    topScore.textContent = safeString(top.overall_mean_score, "--");
+  }
+
+  if (!tbody) return;
+
+  // ============================================================
+  // RENDER RANKING
+  // ============================================================
+
+  tbody.innerHTML = ranking
+    .map((item, i) => {
+      const d = safeObject(item);
+
+      const name = safeString(d.teacher_name, "Unknown Teacher");
+
+      const expected = safeNumber(d.total_expected_students, 0);
+
+      const evaluated = safeNumber(d.total_evaluated_students, 0);
+
+      const score = safeString(d.overall_mean_score, "--");
+
+      // --------------------------------------------------------
+      // COMPLETION
+      // --------------------------------------------------------
+
+      const completion =
+        expected > 0
+          ? Math.min(100, Math.round((evaluated / expected) * 100))
+          : 0;
+
+      // --------------------------------------------------------
+      // RANK STYLE
+      // --------------------------------------------------------
+
+      let rankMarkup = "";
+
+      if (i === 0) {
+        rankMarkup = `
+          <div
+            class="flex h-8 w-8 items-center justify-center
+                   rounded-xl bg-violet-600
+                   text-xs font-bold text-white
+                   shadow-sm shadow-violet-600/20"
+          >
+            1
+          </div>
+        `;
+      } else if (i === 1) {
+        rankMarkup = `
+          <div
+            class="flex h-8 w-8 items-center justify-center
+                   rounded-xl bg-slate-200
+                   text-xs font-bold text-slate-600"
+          >
+            2
+          </div>
+        `;
+      } else if (i === 2) {
+        rankMarkup = `
+          <div
+            class="flex h-8 w-8 items-center justify-center
+                   rounded-xl bg-slate-100
+                   text-xs font-bold text-slate-500"
+          >
+            3
+          </div>
+        `;
+      } else {
+        rankMarkup = `
+          <div
+            class="flex h-8 w-8 items-center justify-center
+                   rounded-xl
+                   text-xs font-semibold text-slate-400"
+          >
+            ${i + 1}
+          </div>
+        `;
+      }
+
+      // --------------------------------------------------------
+      // TOP TEACHER BADGE
+      // --------------------------------------------------------
+
+      const topBadge =
+        i === 0
+          ? `
+            <span
+              class="inline-flex items-center gap-1
+                     rounded-full bg-violet-50
+                     px-2 py-0.5 text-[9px]
+                     font-bold uppercase tracking-wide
+                     text-violet-600"
+            >
+              <i class="fas fa-crown text-[8px]"></i>
+              Top
+            </span>
+          `
+          : "";
+
+      // --------------------------------------------------------
+      // SCORE
+      // --------------------------------------------------------
+
+      let scoreClass = "bg-emerald-50 text-emerald-700 ring-emerald-100";
+
+      const numericScore = parseFloat(score);
+
+      if (!isNaN(numericScore)) {
+        if (numericScore < 3) {
+          scoreClass = "bg-rose-50 text-rose-700 ring-rose-100";
+        } else if (numericScore < 4) {
+          scoreClass = "bg-amber-50 text-amber-700 ring-amber-100";
+        }
+      }
+
+      // ========================================================
+      // ROW
+      // ========================================================
+
+      return `
+        <tr
+          class="
+            group border-b border-slate-100
+            last:border-0
+            transition-colors duration-150
+            hover:bg-violet-50/30
+            ${i === 0 ? "bg-violet-50/20" : "bg-white"}
+          "
+        >
+
+          <!-- ==================================================
+               RANK
+          =================================================== -->
+          <td class="w-16 px-4 py-4">
+
+            ${rankMarkup}
+
+          </td>
+
+
+          <!-- ==================================================
+               TEACHER
+          =================================================== -->
+          <td class="px-4 py-4">
+
+            <div class="flex min-w-0 items-center gap-3">
+
+              <!-- Avatar -->
+              <div
+                class="
+                  flex h-10 w-10 shrink-0
+                  items-center justify-center
+                  rounded-xl
+                  bg-gradient-to-br
+                  from-violet-100 to-indigo-100
+                  text-xs font-bold
+                  text-violet-700
+                  ring-1 ring-violet-100
+                  transition-transform duration-150
+                  group-hover:scale-105
+                "
+              >
+                ${nameToInitials(name)}
+              </div>
+
+
+              <!-- Name -->
+              <div class="min-w-0">
+
+                <div
+                  class="flex flex-wrap items-center gap-2"
+                >
+
+                  <span
+                    class="
+                      truncate
+                      text-sm font-semibold
+                      text-slate-800
+                    "
+                  >
+                    ${name}
+                  </span>
+
+                  ${topBadge}
+
+                </div>
+
+
+                <p
+                  class="mt-0.5 text-[11px] text-slate-400"
+                >
+                  Faculty evaluation
+                </p>
+
+              </div>
+
+            </div>
+
+          </td>
+
+
+          <!-- ==================================================
+               EVALUATED
+          =================================================== -->
+          <td class="px-4 py-4">
+
+            <div class="min-w-[100px]">
+
+              <div
+                class="
+                  mb-1.5 flex items-center
+                  justify-between gap-2
+                "
+              >
+
+                <span
+                  class="
+                    text-sm font-semibold
+                    text-slate-700
+                  "
+                >
+                  ${evaluated}
+                </span>
+
+                <span
+                  class="
+                    text-[10px] font-semibold
+                    text-slate-400
+                  "
+                >
+                  ${completion}%
+                </span>
+
+              </div>
+
+
+              <!-- Progress -->
+              <div
+                class="
+                  h-1.5 w-full overflow-hidden
+                  rounded-full bg-slate-100
+                "
+              >
+
+                <div
+                  class="
+                    h-full rounded-full
+                    bg-violet-500
+                    transition-all duration-500
+                  "
+                  style="width: ${completion}%"
+                ></div>
+
+              </div>
+
+            </div>
+
+          </td>
+
+
+          <!-- ==================================================
+               SCORE
+          =================================================== -->
+          <td class="px-4 py-4 text-right">
+
+            <div class="flex justify-center">
+
+              <span
+                class="
+                  inline-flex min-w-[58px]
+                  items-center justify-center
+                  rounded-xl px-2.5 py-1.5
+                  text-xs font-bold
+                  ring-1 ring-inset
+                  ${scoreClass}
+                "
+              >
+                ${score}
+              </span>
+
+            </div>
+
+          </td>
+
+        </tr>
+      `;
+    })
+    .join("");
+}
+
+/* =========================================================
+   CHARTS
+========================================================= */
+
+function renderCharts(data) {
+  const scoreCanvas = document.getElementById("scoreChart");
+
+  const participationCanvas = document.getElementById("participationChart");
+
+  const programCanvas = document.getElementById("programChart");
+
+  /*
+   * Destroy existing charts first
+   */
+  destroyChart("score");
+  destroyChart("participation");
+  destroyChart("program");
+
+  /*
+   * No data
+   */
+  if (!data || typeof data !== "object") {
+    return;
+  }
+
+  /* -------------------------------------------------------
+     SCORE CHART
+  ------------------------------------------------------- */
+
+  const scoreChart = safeObject(data.score_chart);
+
+  const scoreLabels = safeArray(scoreChart.labels);
+
+  const scoreData = safeArray(scoreChart.data).map((value) =>
+    safeNumber(value, 0),
+  );
+
+  if (scoreCanvas && scoreLabels.length > 0 && scoreData.length > 0) {
+    const ctx = scoreCanvas.getContext("2d");
+
+    if (ctx) {
+      chartInstances.score = createScoreDoughnutChart(
+        ctx,
+        scoreLabels,
+        scoreData,
+      );
+    }
+  }
+
+  /* -------------------------------------------------------
+     PARTICIPATION CHART
+  ------------------------------------------------------- */
+
+  const participationChart = safeObject(data.participation_chart);
+
+  const participationLabels = safeArray(participationChart.labels);
+
+  const participationData = safeArray(participationChart.data).map((value) =>
+    safeNumber(value, 0),
+  );
+
+  if (
+    participationCanvas &&
+    participationLabels.length > 0 &&
+    participationData.length > 0
+  ) {
+    const ctx = participationCanvas.getContext("2d");
+
+    if (ctx) {
+      chartInstances.participation = createPieChart(
+        ctx,
+        participationLabels,
+        participationData,
+      );
+    }
+  }
+
+  /* -------------------------------------------------------
+     PROGRAM CHART
+  ------------------------------------------------------- */
+
+  const programChart = safeObject(data.program_chart);
+
+  const programLabels = safeArray(programChart.labels);
+
+  const programFinished = safeArray(programChart.finished).map((value) =>
+    safeNumber(value, 0),
+  );
+
+  const programNotFinished = safeArray(programChart.not_finished).map((value) =>
+    safeNumber(value, 0),
+  );
+
+  const programTotals = safeArray(programChart.totals).map((value) =>
+    safeNumber(value, 0),
+  );
+
+  if (programCanvas && programLabels.length > 0) {
+    const ctx = programCanvas.getContext("2d");
+
+    if (ctx) {
+      chartInstances.program = createProgramBarChart(
+        ctx,
+        programLabels,
+        programFinished,
+        programNotFinished,
+        programTotals,
+      );
+    }
+  }
+}
+
+/* =========================================================
+   CATEGORICAL BREAKDOWN
+========================================================= */
+
+function renderCategoricalBreakdown(data) {
+  const container = document.getElementById("categorical-breakdown");
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const categories = safeArray(data);
+
+  if (categories.length === 0) {
+    container.innerHTML = `
+      <div
+        class="px-4 py-6 text-center
+        text-gray-400 text-sm"
+      >
+        No categorical breakdown data available.
+      </div>
+    `;
+
+    return;
+  }
+
+  const COLORS = [
+    "#6366f1",
+    "#0ea5e9",
+    "#10b981",
+    "#f59e0b",
+    "#ec4899",
+    "#8b5cf6",
+  ];
+
+  const MAX_SCORE = 5;
+
+  categories.forEach((item, i) => {
+    const cat = safeObject(item);
+
+    const category = safeString(cat.category, "Unknown Category");
+
+    const avg = safeNumber(cat.cat_avg, 0);
+
+    const barPct = Math.min(
+      100,
+      Math.max(0, Math.round((avg / MAX_SCORE) * 100)),
+    );
+
+    const color = COLORS[i % COLORS.length];
+
+    const row = document.createElement("div");
+
+    row.innerHTML = `
+      <div
+        class="flex items-center
+        justify-between mb-1.5"
+      >
+        <span
+          class="text-xs font-medium
+          text-gray-700"
+        >
+          ${category}
+        </span>
+
+        <span
+          class="text-[11px] font-semibold
+          tabular-nums"
+          style="color:${color}"
+        >
+          ${avg.toFixed(2)}
+
+          <span
+            class="text-gray-300
+            font-normal"
+          >
+            / ${MAX_SCORE}.00
+          </span>
+        </span>
+      </div>
+
+      <div
+        class="w-full h-2 bg-gray-100
+        rounded-full overflow-hidden mb-4"
+      >
+        <div
+          class="h-full rounded-full"
+          style="
+            width:0%;
+            background-color:${color};
+            transition:
+              width 700ms
+              cubic-bezier(
+                0.34,
+                1.56,
+                0.64,
+                1
+              ) ${i * 80}ms;
+          "
+          data-width="${barPct}"
+        >
+        </div>
+      </div>
+    `;
+
+    container.appendChild(row);
+
+    const bar = row.querySelector("[data-width]");
+
+    if (bar) {
+      setTimeout(
+        () => {
+          bar.style.width = `${barPct}%`;
+        },
+        i * 80 + 100,
+      );
+    }
+  });
+}
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", async () => {
+  if (!department) {
+    console.error("Department not found in URL.");
+
+    renderCards(null);
+    renderParticipationCards(null);
+    renderTeacherRanking([]);
+    renderCharts(null);
+    renderCategoricalBreakdown([]);
+
+    return;
+  }
+
+  await fetchDashboardBundle();
+
+  startPolling();
+  logout();
+});

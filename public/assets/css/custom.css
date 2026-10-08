@@ -1,0 +1,523 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+
+body {
+  font-family: "Roboto", sans-serif;
+}
+
+/* Main card */
+.animate-page-enter {
+  animation: pageEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Success icon */
+.animate-success-pop {
+  animation: successPop 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-success-check {
+  animation: successCheck 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+}
+
+/* General content */
+.animate-fade-up {
+  animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out both;
+}
+
+.animate-soft-scale {
+  animation: softScale 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Authentication Page Styles */
+.animate-fade-slide {
+  animation: fade-slide 0.8s ease-out forwards;
+}
+
+/* ============================================================
+   SMART-EVAL PAGE ENTRANCE ANIMATIONS
+============================================================ */
+
+@keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes successPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.65);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes successCheck {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-25deg);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1.15) rotate(6deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes softScale {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============================================================
+   REDUCE MOTION FOR ACCESSIBILITY
+============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes fade-slide {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 35%;
+  transform: translateX(-200%) skewX(-25deg);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.7),
+    transparent
+  );
+  animation: shine 2.5s linear infinite;
+}
+
+@keyframes shine {
+  to {
+    transform: translateX(400%) skewX(-25deg);
+  }
+}
+
+.slide-right {
+  animation: none;
+}
+
+@keyframes slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-left {
+  animation: none;
+}
+
+@keyframes slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (min-width: 1024px) {
+  .slide-right {
+    animation: slide-right 1.2s ease-out forwards;
+  }
+
+  .slide-left {
+    animation: slide-left 1.2s ease-out forwards;
+  }
+}
+
+.fade-slide-out {
+  animation: fade-slide-out 1.2s ease-in forwards;
+}
+
+@keyframes fade-slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+.slide-left-out {
+  animation: slide-left-out 0.8s ease-in forwards;
+}
+
+@keyframes slide-left-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+
+.slide-right-out {
+  animation: slide-right-out 0.8s ease-in forwards;
+}
+
+@keyframes slide-right-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes mobileHeaderIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mobileHeaderOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+@keyframes animate-fade-slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+
+/* -------------------------------------- */
+
+#notification {
+  opacity: 0;
+  transform: translateX(20px);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+  pointer-events: none;
+}
+
+#notification.show {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto; /* allow clicks when visible */
+}
+
+.wrapper {
+  font-family: "Outfit", sans-serif;
+}
+
+.header-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.btn-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.teacher-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.teacher-item {
+  transition: all 0.3s ease;
+}
+
+.teacher-item:hover {
+  transform: translateX(8px);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-animate {
+  animation: slideUp 0.6s ease-out;
+}
+
+.stagger-1 {
+  animation-delay: 0.1s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+.stagger-2 {
+  animation-delay: 0.2s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+.stagger-3 {
+  animation-delay: 0.3s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+.stagger-4 {
+  animation-delay: 0.4s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+.stagger-5 {
+  animation-delay: 0.5s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+.stagger-6 {
+  animation-delay: 0.6s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+.stagger-7 {
+  animation-delay: 0.7s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+.stagger-8 {
+  animation-delay: 0.8s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+.stagger-9 {
+  animation-delay: 0.9s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+.stagger-10 {
+  animation-delay: 1s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.teacher-item {
+  animation: slideUp 0.5s ease-out;
+}
+
+/* Modern Custom Scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #c4b5fd transparent;
+}
+
+/* Chrome, Edge, Safari */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #c4b5fd;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #8b5cf6;
+  background-clip: content-box;
+}
+
+/* =========================================
+   Smart-Eval Loading Animation
+========================================= */
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* =========================================================
+   DATA LOADING EFFECTS
+========================================================= */
+
+.data-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.data-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.7),
+    transparent
+  );
+  animation: loading-shimmer 1.4s infinite;
+}
+
+@keyframes loading-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Table loading spinner */
+.table-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 50px 20px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.table-loader-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e2e8f0;
+  border-top-color: #7c3aed;
+  border-radius: 50%;
+  animation: table-spin 0.7s linear infinite;
+}
+
+@keyframes table-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

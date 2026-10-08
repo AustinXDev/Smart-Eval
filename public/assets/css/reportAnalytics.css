@@ -1,0 +1,104 @@
+.section-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e8e4dc;
+  padding: 20px 24px;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.section-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.07);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  letter-spacing: 0.01em;
+}
+
+.funnel-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.funnel-label {
+  width: 110px;
+  font-size: 12px;
+  color: #6b6860;
+  font-weight: 500;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.funnel-track {
+  flex: 1;
+  height: 28px;
+  background: #f0ede7;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.funnel-fill {
+  height: 100%;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  transition: width 1s ease;
+}
+
+.funnel-count {
+  width: 60px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2a2623;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+#highestQuestions,
+#lowestQuestions {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+#highestQuestions::-webkit-scrollbar,
+#lowestQuestions::-webkit-scrollbar {
+  width: 5px;
+}
+
+#highestQuestions::-webkit-scrollbar-track,
+#lowestQuestions::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#highestQuestions::-webkit-scrollbar-thumb,
+#lowestQuestions::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+#highestQuestions::-webkit-scrollbar-thumb:hover,
+#lowestQuestions::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

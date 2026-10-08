@@ -1,0 +1,9 @@
+/vendor/
+/bin/
+/storage/
+/public/uploads/*
+
+# Environment configuration
+.env
+.env.*
+!.env.example
