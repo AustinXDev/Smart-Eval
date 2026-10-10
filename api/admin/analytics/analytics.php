@@ -51,7 +51,8 @@ try {
       'status'  => 'error',
       'message' => $e->getMessage(),
       'line' => $e->getLine(),
-      'file' => $e->getFile()
+      'file' => $e->getFile(),
+      'code' => $e->getCode()
     ]);
 
 }
