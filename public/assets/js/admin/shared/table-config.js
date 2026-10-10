@@ -501,16 +501,60 @@ export function initNotEvaluatedTable() {
           </div>`,
       },
       {
-        data: null,
-        title: "Status",
-        orderable: false,
-        render: () => `
+        data: "notification_status",
+        title: "Notification Status",
+        orderable: true,
+        render: (value, type) => {
+          const statuses = {
+            pending: {
+              label: "Pending",
+              classes: "bg-amber-50 text-amber-700 ring-amber-600/20",
+              dot: "bg-amber-500",
+            },
+            processing: {
+              label: "Processing",
+              classes: "bg-blue-50 text-blue-700 ring-blue-600/20",
+              dot: "bg-blue-500",
+            },
+            sent: {
+              label: "Sent",
+              classes: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
+              dot: "bg-emerald-500",
+            },
+            failed: {
+              label: "Failed",
+              classes: "bg-red-50 text-red-700 ring-red-600/20",
+              dot: "bg-red-500",
+            },
+            skipped: {
+              label: "Skipped",
+              classes: "bg-purple-50 text-purple-700 ring-purple-600/20",
+              dot: "bg-purple-500",
+            },
+          };
+
+          const key = String(value ?? "").toLowerCase();
+          const status = statuses[key] ?? {
+            label: "Not Notified",
+            classes: "bg-slate-50 text-slate-600 ring-slate-500/20",
+            dot: "bg-slate-400",
+          };
+
+          // Return plain text for sorting and filtering.
+          if (type !== "display") {
+            return status.label;
+          }
+
+          return `
           <div class="flex justify-center">
-            <span class="badge-pill" style="background:#FCEBEB;border:0.5px solid #F09595;color:#791F1F;">
-              <span style="width:5px;height:5px;border-radius:50%;background:#E24B4A;flex-shrink:0;display:inline-block;margin-right:4px;"></span>
-              Not Evaluated
+            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1
+                        text-xs font-medium ring-1 ring-inset ${status.classes}">
+              <span class="h-1.5 w-1.5 rounded-full ${status.dot}"></span>
+              ${status.label}
             </span>
-          </div>`,
+          </div>
+        `;
+        },
       },
     ],
     order: [[1, "asc"]],

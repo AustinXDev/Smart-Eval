@@ -4,12 +4,12 @@ import {
   showConfirmation,
 } from "../../../modal/modal.js";
 import { initTableButtonEvents } from "../../shared/table-config.js";
+import { state } from "./state.js";
 import { dept, periodId, tableInstances } from "./state.js";
-import {
-  processNotificationBatches,
-  updateNotifyButtonState,
-} from "./notification.js";
+import { refreshNotEvaluatedTable } from "./render/table.js";
 import { populateHistoryModal } from "./history_modal.js";
+import { setLoading } from "../../shared/Loader.js";
+import { notifyAll } from "../api/api.js";
 
 function bindSearchInputs() {
   const searchMap = [
@@ -99,6 +99,14 @@ function bindExportRankingExcel() {
 function bindNotifyAll() {
   const notifyButton = document.getElementById("btn-notify-all");
 
+  // Prevent duplicate event listeners when polling refreshes analytics.
+  if (notifyButton.dataset.bound === "true") {
+    updateNotifyAllButtonState();
+    return;
+  }
+
+  notifyButton.dataset.bound = "true";
+
   notifyButton.addEventListener("click", (e) => {
     e.preventDefault();
 
@@ -107,26 +115,49 @@ function bindNotifyAll() {
       return;
     }
 
-    showConfirmation({
-      title: "Notify All Non-participants",
-      message: `Are you sure you want to notify all non-participants for ${dept}?`,
-      onConfirm: async () => {
-        try {
-          const prepareUrl = `/Smart-Eval/app/Controllers/notification/NotificationController.php?action=prepare&dept=${dept}`;
-          const prepResponse = await fetch(prepareUrl);
-          const prepData = await prepResponse.json();
+    StatusModal.confirm(
+      "Notify All Non-participants",
+      `Are you sure you want to notify all non-participants for ${dept}?`,
+      async () => {
+        setLoading();
 
-          if (prepData.status === "success") {
-            await processNotificationBatches(dept);
-          } else {
-            alert(prepData.message);
+        try {
+          const response = await notifyAll(dept);
+
+          if (response.code === 405) {
+            window.location.href = `${window.BASE_URL}admin-login`;
+            throw new Error("Your session has expired. Please log in again.");
           }
-        } catch (err) {
-          console.error("Initialization Error:", err);
-          alert("An error occurred while initializing notifications.");
+
+          if (response.status === "error") {
+            StatusModal.show(
+              "Failed",
+              response.message || "Failed to queue reminders.",
+              "error",
+            );
+            return;
+          }
+
+          refreshNotEvaluatedTable();
+
+          StatusModal.show(
+            "Success",
+            response.message || "Notification reminders have been queued.",
+            "success",
+          );
+        } catch (error) {
+          console.error("Failed to queue reminders:", error);
+
+          StatusModal.show(
+            "Failed",
+            error.message || "Unable to process notification reminders.",
+            "error",
+          );
+        } finally {
+          setLoading("", false);
         }
       },
-    });
+    );
   });
 }
 
@@ -159,5 +190,27 @@ export function initDashboardBindings() {
   bindNotifyAll();
   bindHistoryModal();
   bindReturnToCurrent();
-  updateNotifyButtonState();
+  //updateNotifyButtonState();
+}
+
+/**
+ * Helpers
+ */
+export function updateNotifyAllButtonState() {
+  const notifyButton = document.getElementById("btn-notify-all");
+  if (!notifyButton) return;
+
+  const lastData = [
+    ...(state.lastData?.not_evaluated ?? []),
+    ...(state.lastData?.abandoned ?? []),
+  ];
+
+  // Enable only when at least one student has not been queued.
+  const canNotify = lastData.some(
+    ({ notification_status }) => notification_status == null,
+  );
+
+  notifyButton.disabled = !canNotify;
+  notifyButton.classList.toggle("opacity-50", !canNotify);
+  notifyButton.classList.toggle("cursor-not-allowed", !canNotify);
 }

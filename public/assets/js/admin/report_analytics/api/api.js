@@ -1,4 +1,4 @@
-import { get } from "../../../services/http.js";
+import { get, post } from "../../../services/http.js";
 import { state, hasChanged } from "../modules/state.js";
 import { renderHeaderInfo } from "../modules/render/header.js";
 import { renderParticipationFunnel } from "../modules/render/funnel.js";
@@ -10,7 +10,7 @@ import {
   renderAbandoned,
 } from "../modules/render/table.js";
 import { renderHistoricalBanner } from "../modules/render/historical_banner.js";
-import { updateNotifyButtonState } from "../modules/notification.js";
+import { updateNotifyAllButtonState } from "../modules/binding.js";
 
 function renderEmptyState() {
   renderHeaderInfo(null);
@@ -94,11 +94,11 @@ export async function fetchAnalytics(deptParam, pidParam, renderTables = true) {
       }
     }
 
-    updateNotifyButtonState();
-
     renderHistoricalBanner();
 
     state.lastData = data;
+
+    updateNotifyAllButtonState();
 
     return data;
   } catch (error) {
@@ -106,5 +106,18 @@ export async function fetchAnalytics(deptParam, pidParam, renderTables = true) {
     return null;
   } finally {
     state.isFetching = false;
+  }
+}
+
+export async function notifyAll(department) {
+  try {
+    return await post("notification/notification.php", {
+      department: department,
+    });
+  } catch (error) {
+    return {
+      status: "error",
+      message: error.message,
+    };
   }
 }

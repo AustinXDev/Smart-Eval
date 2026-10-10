@@ -133,6 +133,29 @@ class EvaluationRepository
     }
 
 
+    //Verifies if period is open.
+    public function isPeriodOpen(
+        int $periodId
+    ): bool {
+
+        $stmt = $this->pdo->prepare("
+            SELECT EXISTS (
+                SELECT 1
+                FROM evaluation_periods
+                WHERE period_id = ?
+                AND is_active = 1
+                AND is_closed = 0
+                AND start_date <= NOW()
+                AND end_date >= NOW()
+            )
+        ");
+
+        $stmt->execute([$periodId]);
+
+        return (bool) $stmt->fetchColumn();
+    }
+
+
     //Find active period with student stastics
     public function findActivePeriodsWithStats(): array
     {
@@ -1085,6 +1108,61 @@ class EvaluationRepository
         $stmt->execute([$studentId, $periodId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    }
+
+
+    /**
+     * Check if the students still need evaluation
+     */
+    public function stillNeedsEvaluation(
+        string $studentId,
+        int $periodId,
+        string $department
+    ): bool {
+
+        $stmt = $this->pdo->prepare("
+        SELECT EXISTS (
+            SELECT 1
+            FROM students s
+
+            INNER JOIN programs p
+                ON p.program_id = s.program_id
+
+            WHERE s.student_id = ?
+              AND p.department = ?
+              AND s.is_active = 1
+
+              AND (
+                  -- Student has not started evaluating.
+                  NOT EXISTS (
+                      SELECT 1
+                      FROM evaluation_status es
+                      WHERE es.student_id = s.student_id
+                        AND es.period_id = ?
+                  )
+
+                  OR
+
+                  -- Student still has an unfinished evaluation.
+                  EXISTS (
+                      SELECT 1
+                      FROM evaluation_status es
+                      WHERE es.student_id = s.student_id
+                        AND es.period_id = ?
+                        AND COALESCE(es.is_submitted, 0) = 0
+                  )
+              )
+        )
+    ");
+
+        $stmt->execute([
+            $studentId,
+            $department,
+            $periodId,
+            $periodId,
+        ]);
+
+        return (bool) $stmt->fetchColumn();
     }
 
 

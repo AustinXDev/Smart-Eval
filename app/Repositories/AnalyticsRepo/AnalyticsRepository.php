@@ -686,12 +686,17 @@ class AnalyticsRepository
             s.student_id,
             s.full_name,
             s.email,
-            p.program_name
+            p.program_name,
+            nq.status AS notification_status
           
           FROM students s
 
           INNER JOIN programs p
             ON p.program_id = s.program_id
+
+          LEFT JOIN notification_queue nq
+            ON nq.student_id = s.student_id
+            AND nq.period_id = ?
           
           WHERE p.department = ?
             AND s.is_active = 1
@@ -707,6 +712,7 @@ class AnalyticsRepository
       ");
 
         $stmt->execute([
+          $periodId,
           $department,
           $periodId
         ]);

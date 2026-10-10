@@ -42,3 +42,17 @@ export const renderNotEvaluated = (data) =>
   renderDataTable("not_evaluated", "cnt-not-evaluated", data);
 export const renderAbandoned = (data) =>
   renderDataTable("abandoned", "cnt-abandoned", data);
+
+export function refreshNotEvaluatedTable() {
+  const table = tableInstances.not_evaluated;
+
+  if (!table) {
+    console.warn("Not Evaluated DataTable has not been initialized.");
+    return;
+  }
+
+  // Reload only if this DataTable uses an AJAX data source.
+  if (table.settings()[0]?.oFeatures?.bServerSide) {
+    table.ajax.reload(null, false);
+  }
+}

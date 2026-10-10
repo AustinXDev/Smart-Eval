@@ -2487,4 +2487,5 @@ window.API_URL = <?= json_encode($_ENV['APP_API'] ?? '') ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="<?= BASE_URL ?>assets/js/admin/report_analytics/index.js" type="module"></script>
+<script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>
 </html>
