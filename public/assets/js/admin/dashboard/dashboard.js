@@ -1121,5 +1121,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   await fetchDashboardBundle();
 
   startPolling();
-  logout();
+  window.logout = logout;
 });

@@ -24,7 +24,7 @@ initAddTeacherForm();
 initEditTeacherForm();
 initAddHandleForm();
 initDeleteHandleButtons();
-logout();
+window.logout = logout;
 
 initImagePreview("fileInput", "teacherPhotoPreview", {
   maxSizeMB: 5,

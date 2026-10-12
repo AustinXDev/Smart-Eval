@@ -19,7 +19,7 @@ initCreateSetForm();
 initEditSetForm();
 initAddQuestionForm();
 initEditQuestionForm();
-logout();
+window.logout = logout;
 
 document.addEventListener("click", (e) => {
   const addSetBtn = e.target.closest(".addSet");

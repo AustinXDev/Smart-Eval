@@ -155,6 +155,7 @@
                 hover:bg-red-50
                 hover:text-red-600
             "
+            onclick="logout()"
         >
 
             <!-- Icon -->

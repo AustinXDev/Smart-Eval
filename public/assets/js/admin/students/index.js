@@ -21,7 +21,7 @@ initCsvUpload(department);
 initAddForm();
 initEditForm();
 initResetPasswordButton();
-logout();
+window.logout = logout;
 
 document.addEventListener("click", (e) => {
   const addBtn = e.target.closest(".add-btn");

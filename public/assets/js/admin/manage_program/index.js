@@ -8,7 +8,7 @@ import { logout } from "../shared/logout.js";
 
 initAddProgramForm();
 initEditProgramForm();
-logout();
+window.logout = logout;
 
 document.addEventListener("click", (e) => {
   const addBtn = e.target.closest(".addProgram");

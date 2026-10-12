@@ -11,6 +11,7 @@ import {
 } from "./components/periodForm.js";
 import { initEvaluationTable } from "./table.js";
 import { initAutoRefresh, stopAutoRefresh } from "./components/autoRefresh.js";
+import { logout } from "../shared/logout.js";
 
 initCreatePeriodForm();
 initUpdatePeriodForm();
@@ -64,3 +65,5 @@ async function handleEditClick(editBtn) {
 
   renderUpdateForm(periodId, data.period);
 }
+
+window.logout = logout;

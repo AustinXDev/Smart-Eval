@@ -16,6 +16,7 @@ import { fetchAnalytics } from "./api/api.js";
 import { startLivePolling, initVisibilityHandling } from "./modules/polling.js";
 import { renderHistoricalBanner } from "./modules/render/historical_banner.js";
 import { initDashboardBindings } from "./modules/binding.js";
+import { logout } from "../shared/logout.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const data = await fetchAnalytics(dept, periodId, false);
@@ -38,3 +39,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   startLivePolling();
   renderHistoricalBanner();
 });
+
+window.logout = logout;
