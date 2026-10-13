@@ -1,0 +1,17 @@
+# Keep PHP includes available while denying HTTP access to internal files.
+
+Options -Indexes
+LimitRequestBody 3145728
+<FilesMatch "^(\.env(?:\..\*)?|composer\.(?:json|lock)|temp_logout\.php)$">
+    Require all denied
+</FilesMatch>
+<FilesMatch "\.(?:sql|bak|backup|log|ini)$">
+Require all denied
+</FilesMatch>
+RewriteEngine On
+
+# Open the application when visiting the project root.
+
+RewriteCond %{REQUEST_URI} ^(.*/)$
+RewriteRule ^$ %1public/ [R=302,L]
+RewriteRule ^(?:app|vendor|storage|logs|cron|scripts|resources|views|\.git|\.vscode)(?:/|$) - [F,L,NC]

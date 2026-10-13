@@ -1,4 +1,8 @@
-<?php 
+<?php
+
+
+
+require_once dirname(__DIR__, 2) . '/app/api_bootstrap.php';
 
 require_once __DIR__ . '/../../app/init.php';
 
@@ -31,6 +35,10 @@ try {
       "No file uploaded or upload error."
     );
 
+  }
+
+  if ((int) ($_FILES['csv']['size'] ?? 0) > 2 * 1024 * 1024) {
+    throw new RuntimeException('CSV must be less than 2MB.');
   }
 
   $file = $_FILES['csv']['tmp_name'];
@@ -102,7 +110,7 @@ try {
     fclose($handle);
 
     throw new RuntimeException(
-      "Invalid template. CSV columns must be " . 
+      "Invalid template. CSV columns must be " .
       implode(', ', $expectedHeaders)
     );
 
@@ -126,6 +134,10 @@ try {
 
     }
 
+    if (count($rows) >= 5000) {
+      fclose($handle);
+      throw new RuntimeException('CSV must contain no more than 5000 student rows.');
+    }
     $rows[] = $row;
 
   }
@@ -162,7 +174,7 @@ try {
 
   echo json_encode([
     'status' => 'error',
-    'message' => $e->getMessage()
+    'message' => \App\middleware\ApiSecurity::publicMessage($e)
   ]);
 
 }

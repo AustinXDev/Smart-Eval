@@ -114,10 +114,20 @@ switch ($request) {
         break;
 
     case 'report/evaluation-summary':
+        \App\middleware\ApiSecurity::admin($pdo);
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'GET') {
+            header('Allow: GET');
+            \App\middleware\ApiSecurity::fail(405, 'Method not allowed.');
+        }
         $container->reportController()->downloadEvaluationSummary();
         break;
 
     case 'report/teacher-report':
+        \App\middleware\ApiSecurity::admin($pdo);
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'GET') {
+            header('Allow: GET');
+            \App\middleware\ApiSecurity::fail(405, 'Method not allowed.');
+        }
         $container->reportController()->downloadTeacherReport();
         break;
 

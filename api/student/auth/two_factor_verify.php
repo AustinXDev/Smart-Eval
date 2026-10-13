@@ -1,5 +1,9 @@
 <?php
 
+
+
+require_once dirname(__DIR__, 3) . '/app/api_bootstrap.php';
+
 require_once __DIR__ . '/../../../app/init.php';
 
 use App\Controllers\TwoFactor\TwoFactorController;
@@ -31,12 +35,11 @@ try {
      */
     $session = new SessionManager();
 
-    error_log('VERIFY SESSION ID: ' . session_id());
-    error_log('VERIFY SESSION: ' . print_r($_SESSION, true));
-    error_log('===== 2FA VERIFY REQUEST =====');
-    error_log('TIME: ' . date('Y-m-d H:i:s'));
-    error_log('SESSION ID: ' . session_id());
-    error_log('CODE: ' . $code);
+
+
+
+
+
 
     $pending = $session->get('2fa_pending');
     $studentId = $session->get('2fa_student_id');
@@ -142,6 +145,6 @@ try {
 
     echo json_encode([
         'status' => 'error',
-        'message' => $e->getMessage()
+        'message' => \App\middleware\ApiSecurity::publicMessage($e)
     ]);
 }

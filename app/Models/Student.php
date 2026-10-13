@@ -104,6 +104,7 @@ class Student
     {
         return [
             'student_id'      => $this->studentId,
+            'auth_version'    => $this->sessionVersion(),
             'full_name'       => $this->fullName,
             'program_id'      => $this->programId,
             'program_code'    => $this->programCode,
@@ -118,6 +119,11 @@ class Student
     /**
      * Check if the provided password matches the stored hash.
      */
+    public function sessionVersion(): string
+    {
+        return hash('sha256', $this->passwordHash ?? '');
+    }
+
     public function verifyPassword(string $password): bool
     {
 

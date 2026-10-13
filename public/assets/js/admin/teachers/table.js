@@ -1,3 +1,4 @@
+import { escapeHTML } from "../../services/escape.js";
 import { createDataTable } from "../shared/datatable_config.js";
 import { get } from "../../services/http.js";
 import {
@@ -91,12 +92,12 @@ export async function loadTeachers() {
                    border-2 border-white
                    object-cover object-center
                    shadow-sm"
-            src="${window.BASE_URL}uploads/teachers/${teacher.image_path}"
+            src="${window.BASE_URL}uploads/teachers/${encodeURIComponent(teacher.image_path)}"
             onerror="
               this.src='${window.BASE_URL}uploads/teachers/default_teacher.png';
               this.onerror=null;
             "
-            alt="${teacher.full_name}"
+            alt="${escapeHTML(teacher.full_name)}"
           >
 
         </div>
@@ -107,7 +108,7 @@ export async function loadTeachers() {
           `
       <div class="flex justify-center items-center">
         <span class="text-center font-medium text-slate-700">
-          ${teacher.employee_id}
+          ${escapeHTML(teacher.employee_id)}
         </span>
       </div>
       `,
@@ -116,7 +117,7 @@ export async function loadTeachers() {
           `
       <div class="flex flex-col">
         <span class="font-semibold text-slate-800">
-          ${teacher.full_name}
+          ${escapeHTML(teacher.full_name)}
         </span>
 
         <span class="mt-0.5 text-xs text-slate-400">
@@ -132,7 +133,7 @@ export async function loadTeachers() {
                     bg-violet-50 px-2.5 py-1
                     text-xs font-semibold uppercase
                     tracking-wide text-violet-700">
-          ${teacher.department}
+          ${escapeHTML(teacher.department)}
         </span>
       </div>
       `,
@@ -340,14 +341,14 @@ export async function loadTeacherHandles(teacherId) {
             <!-- LEVEL -->
             <td class="py-3 px-5">
               <span class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1 rounded-full text-xs font-medium shadow-sm">
-                ${h.year_level} ${h.year_level <= 4 ? "Year" : "Grade"}
+                ${escapeHTML(h.year_level)} ${h.year_level <= 4 ? "Year" : "Grade"}
               </span>
             </td>
 
             <!-- PROGRAM -->
             <td>
               <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-medium">
-                ${h.program_name}
+                ${escapeHTML(h.program_name)}
               </span>
             </td>
 

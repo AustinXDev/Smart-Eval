@@ -1,3 +1,4 @@
+import { escapeHTML } from "../../services/escape.js";
 import { nameToInitials } from "../shared/utils.js";
 import {
   createPieChart,
@@ -741,7 +742,7 @@ function renderTeacherRanking(data) {
                   group-hover:scale-105
                 "
               >
-                ${nameToInitials(name)}
+                ${escapeHTML(nameToInitials(name))}
               </div>
 
 
@@ -759,7 +760,7 @@ function renderTeacherRanking(data) {
                       text-slate-800
                     "
                   >
-                    ${name}
+                    ${escapeHTML(name)}
                   </span>
 
                   ${topBadge}
@@ -1043,7 +1044,7 @@ function renderCategoricalBreakdown(data) {
           class="text-xs font-medium
           text-gray-700"
         >
-          ${category}
+          ${escapeHTML(category)}
         </span>
 
         <span

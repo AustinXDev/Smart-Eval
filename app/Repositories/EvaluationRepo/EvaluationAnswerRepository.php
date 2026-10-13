@@ -11,6 +11,55 @@ class EvaluationAnswerRepository
     ) {
     }
 
+    /** Lock the assignment and period before accepting any answer writes. */
+    public function lockOwnedEvaluation(int $evalId, string $studentId, int $teacherId): ?array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT 
+                es.period_id, 
+                ep.set_id,
+
+                (ep.is_active = 1 
+                    AND ep.is_closed = 0
+                ) AS is_open
+
+            FROM evaluation_status es
+
+            INNER JOIN evaluation_periods ep 
+                ON ep.period_id = es.period_id
+
+            INNER JOIN students s 
+                ON s.student_id = es.student_id 
+                AND s.is_active = 1
+
+            INNER JOIN programs p 
+                ON p.program_id = s.program_id 
+                AND p.department = ep.target_dept
+
+            WHERE es.eval_id = ? 
+                AND es.student_id = ? 
+                AND es.teacher_id = ?
+
+            FOR UPDATE
+        ");
+        $stmt->execute([$evalId, $studentId, $teacherId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function getRequiredQuestionIds(int $setId): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT 
+                question_id 
+            FROM questions 
+            WHERE set_id = ? 
+                AND is_active = 1");
+
+        $stmt->execute([$setId]);
+
+        return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+    }
+
     /**
      * Score Destribution
      *

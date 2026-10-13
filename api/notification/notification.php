@@ -3,6 +3,10 @@
 
 declare(strict_types=1);
 
+require_once dirname(__DIR__, 2) . '/app/api_bootstrap.php';
+
+
+
 require_once dirname(__DIR__)  . '/../app/init.php';
 require_once dirname(__DIR__) . '/../app/config/database.php';
 
@@ -87,14 +91,14 @@ try {
 
     error_log(
         '[Notification Queue API] ' .
-        get_class($e) . ': ' . $e->getMessage()
+        get_class($e) . ': ' . \App\middleware\ApiSecurity::publicMessage($e)
     );
 
     http_response_code(500);
 
     echo json_encode([
       'status' => 'error',
-      'message' => $e->getMessage()
+      'message' => \App\middleware\ApiSecurity::publicMessage($e)
     ]);
 
 }

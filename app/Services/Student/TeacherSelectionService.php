@@ -41,14 +41,16 @@ class TeacherSelectionService
         }
 
 
-        /*
-         * Normalize teacher IDs
-         */
-        $teacherIds = array_values(
-            array_unique(
-                array_map('intval', $teacherIds)
-            )
-        );
+        if (count($teacherIds) > 200) {
+            throw new RuntimeException('Too many teachers selected.');
+        }
+
+        foreach ($teacherIds as $id) {
+            if ((!is_int($id) && !is_string($id)) || !ctype_digit((string) $id) || (int) $id < 1) {
+                throw new RuntimeException('Invalid teacher ID.');
+            }
+        }
+        $teacherIds = array_values(array_unique(array_map('intval', $teacherIds)));
 
         $studentId = $student['student_id'] ?? null;
         $department = $student['department'] ?? null;
@@ -81,20 +83,7 @@ class TeacherSelectionService
         /**
          * Create evaluation status
          */
-        $this->evaluationRepo->seedIrregularCollegeEvaluationStatues(
-            $studentId,
-            $teacherIds,
-            $periodId
-        );
-
-
-        /**
-         * Store selected teacher IDs
-         */
-        $this->studentRepo->updateSelectedTeacherIds(
-            $studentId,
-            $teacherIds
-        );
+        $this->evaluationRepo->saveEligibleTeacherSelection($studentId, $teacherIds, $periodId);
 
         return [
             'status' => 'success',

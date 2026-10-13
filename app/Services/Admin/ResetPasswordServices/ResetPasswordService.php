@@ -33,6 +33,8 @@ class ResetPasswordService
 
     }
 
+    \App\Services\LoginServices\PasswordPolicy::validate($password);
+
     $tokenHash = hash('sha256', $token);
 
     $resetRequest = $this->adminResetRepo->findValidToken($tokenHash);
@@ -55,21 +57,9 @@ class ResetPasswordService
       ");
     }
 
-    /**
-     * Update admin password
-     */
-    $success = $this->adminRepo->updatePassword(
-      $resetRequest['admin_id'],
-      $passwordHash
-    );
-
-    if(!$success) {
-      throw new RuntimeException("
-        Unable to reset your password. Please try again.
-      ");
+    if (!$this->adminResetRepo->consumeAndReset($tokenHash, $passwordHash)) {
+      throw new RuntimeException('Invalid or expired password reset token.');
     }
-
-    $this->adminResetRepo->markAsUsed($tokenHash);
 
     return[
       'status'  => 'success',

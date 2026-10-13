@@ -648,7 +648,7 @@ class EvaluationRepository
             full_name_at_time, 
             year_level_at_time, 
             dept_at_time, 
-            program_name_at_time
+            program_name_at_time,
             status 
           )
 

@@ -1,4 +1,8 @@
-<?php 
+<?php
+
+
+
+require_once dirname(__DIR__, 3) . '/app/api_bootstrap.php';
 
 require_once __DIR__ . '/../../../app/init.php';
 
@@ -17,19 +21,12 @@ try {
 
 $rawInput = file_get_contents('php://input');
 
-error_log(
-    'REGISTRATION VERIFY RAW: ' . $rawInput
-);
 
 $input = json_decode(
     $rawInput,
     true
 ) ?? [];
 
-error_log(
-    'REGISTRATION VERIFY INPUT: ' .
-    print_r($input, true)
-);
 
 $studentId = trim(
     $input['student_id'] ?? ''
@@ -99,7 +96,7 @@ $ip = $_SERVER['REMOTE_ADDR'] ?? '';
 
   echo json_encode([
     'status'  => 'error',
-    "message" => $e->getMessage()
+    "message" => \App\middleware\ApiSecurity::publicMessage($e)
   ]);
 
 }

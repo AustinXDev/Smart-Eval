@@ -80,7 +80,7 @@ final class ReportController
 
             error_log(
                 'Faculty report generation failed: '
-                . $e->getMessage()
+                . \App\middleware\ApiSecurity::publicMessage($e)
             );
 
             http_response_code(500);
@@ -120,7 +120,7 @@ final class ReportController
 
             $teacherName = trim($_GET['teacher_name'] ?? '');
 
-            $formattedName = str_replace(' ', '-', $teacherName);
+            $formattedName = preg_replace('/[^a-zA-Z0-9_-]/', '-', $teacherName);
 
 
             if ($teacherId === null || $periodId === null) {
@@ -173,7 +173,7 @@ final class ReportController
 
             error_log(
                 "Teacher report generation failed: "
-                . $e->getMessage()
+                . \App\middleware\ApiSecurity::publicMessage($e)
             );
 
             http_response_code(500);
@@ -183,9 +183,9 @@ final class ReportController
             echo json_encode([
                 'success' => false,
                 'message' => 'Unable to generate teacher report.',
-                'line' => $e->getLine(),
-                'file' => $e->getFile(),
-                'error-message' => $e->getMessage()
+
+
+
             ]);
 
         }

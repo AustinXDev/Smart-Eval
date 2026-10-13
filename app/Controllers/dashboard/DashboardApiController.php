@@ -43,15 +43,15 @@ class DashboardApiController
             http_response_code(500);
 
             error_log(
-                'Dashboard API Error: ' . $e->getMessage()
+                'Dashboard API Error: ' . \App\middleware\ApiSecurity::publicMessage($e)
             );
 
             echo json_encode([
                 'status' => 'error',
                 'message' => 'Unable to load dashboard data',
-                'error' => $e->getMessage(),
-        'file' => $e->getFile(),
-        'line' => $e->getLine()
+
+
+
             ]);
         }
     }

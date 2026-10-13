@@ -1,3 +1,4 @@
+import { escapeHTML } from "../../services/escape.js";
 import { createDataTable } from "../shared/datatable_config.js";
 import { getPrograms } from "./api/api.js";
 import {
@@ -100,7 +101,7 @@ export async function loadPrograms() {
             text-violet-700
           "
         >
-          ${p.program_code}
+          ${escapeHTML(p.program_code)}
         </span>
       `;
 
@@ -133,7 +134,7 @@ export async function loadPrograms() {
                 text-slate-800
               "
             >
-              ${p.program_name}
+              ${escapeHTML(p.program_name)}
             </p>
 
             <p class="mt-0.5 text-[11px] text-slate-400">
@@ -165,7 +166,7 @@ export async function loadPrograms() {
             "
           ></span>
 
-          ${String(p.department).toUpperCase()}
+          ${escapeHTML(String(p.department).toUpperCase())}
         </span>
       `;
 
@@ -215,9 +216,9 @@ export async function loadPrograms() {
             type="button"
 
             data-program-id="${p.program_id}"
-            data-program-code="${p.program_code}"
-            data-program-name="${p.program_name}"
-            data-program-department="${p.department}"
+            data-program-code="${escapeHTML(p.program_code)}"
+            data-program-name="${escapeHTML(p.program_name)}"
+            data-program-department="${escapeHTML(p.department)}"
 
             class="
               editProgram

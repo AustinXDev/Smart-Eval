@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+require_once dirname(__DIR__, 2) . '/app/api_bootstrap.php';
+
+
+
 use App\Repositories\ProgramRepo\ProgramRepository;
 
 require_once __DIR__ . '/../../app/init.php';

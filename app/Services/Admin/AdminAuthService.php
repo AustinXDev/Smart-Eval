@@ -380,6 +380,9 @@ class AdminAuthService
      */
     session_regenerate_id(true);
 
+    $_SESSION['authenticated_at'] = time();
+    $_SESSION['last_activity'] = time();
+    $_SESSION['admin_auth_version'] = hash('sha256', $admin->passwordHash);
     $_SESSION['admin_authenticated'] = true;
     $_SESSION['admin_id'] = $adminId;
     $_SESSION['role'] = $admin->role;

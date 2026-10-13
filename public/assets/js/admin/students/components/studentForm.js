@@ -126,7 +126,7 @@ export function initResetPasswordButton() {
     showConfirmation({
       title: "Reset Password",
       message:
-        "Are you sure you want to reset the password of this student? The new password will be the same as their student ID.",
+        "Send a password reset link to this student's registered email?",
       onConfirm: () => submitResetPassword(studentId),
     });
   });

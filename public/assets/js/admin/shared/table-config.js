@@ -1,3 +1,4 @@
+import { escapeHTML } from "../../services/escape.js";
 import { getRatingBadge } from "./utils.js";
 import { state } from "../report_analytics/modules/state.js";
 import { openModal, closeModal, showConfirmation } from "../../modal/modal.js";
@@ -130,7 +131,7 @@ export function initRankingTable() {
                   group-hover:bg-violet-100
                 "
               >
-                ${initials}
+                ${escapeHTML(initials)}
               </div>
 
               <div class="min-w-0">
@@ -147,7 +148,7 @@ export function initRankingTable() {
                     group-hover:text-slate-900
                   "
                 >
-                  ${row.full_name}
+                  ${escapeHTML(row.full_name)}
                 </p>
 
                 <p
@@ -158,7 +159,7 @@ export function initRankingTable() {
                     text-slate-400
                   "
                 >
-                  ${v}
+                  ${escapeHTML(v)}
                 </p>
               </div>
             </div>
@@ -277,7 +278,7 @@ export function initRankingTable() {
               </span>
 
               <span class="tabular-nums">
-                ${v}
+                ${escapeHTML(v)}
               </span>
             </div>
           </div>
@@ -323,7 +324,7 @@ export function initRankingTable() {
               "
               data-id="${row.teacher_id}"
               data-mean="${row.mean_score}"
-              data-name="${row.full_name}"
+              data-name="${escapeHTML(row.full_name)}"
               title="View Comments"
               aria-label="View Comments"
             >
@@ -374,7 +375,7 @@ export function initRankingTable() {
                             active:scale-95
                         "
                         data-id="${row.teacher_id}"
-                        data-name="${row.full_name}"
+                        data-name="${escapeHTML(row.full_name)}"
                         title="Download"
                         aria-label="Download"
                     >
@@ -476,10 +477,10 @@ export function initNotEvaluatedTable() {
             .toUpperCase();
           return `
             <div class="flex items-center gap-2.5">
-              <div class="avatar-init" style="background:#E6F1FB;color:#0C447C;">${initials}</div>
+              <div class="avatar-init" style="background:#E6F1FB;color:#0C447C;">${escapeHTML(initials)}</div>
               <div class="flex flex-col">
-                <span class="font-medium text-sm whitespace-nowrap">${v}</span>
-                <span class="text-xs text-gray-400">${row.student_id}</span>
+                <span class="font-medium text-sm whitespace-nowrap">${escapeHTML(v)}</span>
+                <span class="text-xs text-gray-400">${escapeHTML(row.student_id)}</span>
               </div>
             </div>`;
         },
@@ -489,7 +490,7 @@ export function initNotEvaluatedTable() {
         title: "Email",
         render: (v) => `
           <div class="flex justify-center">
-            <a href="mailto:${v}" class="text-xs text-blue-500 hover:underline whitespace-nowrap">${v}</a>
+            <a href="mailto:${escapeHTML(v)}" class="text-xs text-blue-500 hover:underline whitespace-nowrap">${escapeHTML(v)}</a>
           </div>`,
       },
       {
@@ -497,7 +498,7 @@ export function initNotEvaluatedTable() {
         title: "Program",
         render: (v) => `
           <div class="flex justify-center items-center">
-            <span class="text-xs text-gray-500 whitespace-nowrap">${v}</span>
+            <span class="text-xs text-gray-500 whitespace-nowrap">${escapeHTML(v)}</span>
           </div>`,
       },
       {
@@ -606,10 +607,10 @@ export function initAbandonedTable() {
             .toUpperCase();
           return `
             <div class="flex items-center gap-2.5">
-              <div class="avatar-init" style="background:#FEF3C7;color:#92400E;">${initials}</div>
+              <div class="avatar-init" style="background:#FEF3C7;color:#92400E;">${escapeHTML(initials)}</div>
               <div class="flex flex-col">
-                <span class="font-medium text-sm whitespace-nowrap">${v}</span>
-                <span class="text-xs text-gray-400">${row.employee_id ?? ""}</span>
+                <span class="font-medium text-sm whitespace-nowrap">${escapeHTML(v)}</span>
+                <span class="text-xs text-gray-400">${escapeHTML(row.employee_id ?? "")}</span>
               </div>
             </div>`;
         },
@@ -618,14 +619,14 @@ export function initAbandonedTable() {
         data: "email",
         title: "Email",
         render: (v) => `
-          <a href="mailto:${v}" class="text-xs text-blue-500 hover:underline whitespace-nowrap">${v}</a>`,
+          <a href="mailto:${escapeHTML(v)}" class="text-xs text-blue-500 hover:underline whitespace-nowrap">${escapeHTML(v)}</a>`,
       },
       {
         data: "program_name",
         title: "Program",
         render: (v) => `
           <div class="flex justify-center">
-            <span class="text-xs text-gray-500 whitespace-nowrap">${v}</span>
+            <span class="text-xs text-gray-500 whitespace-nowrap">${escapeHTML(v)}</span>
           </div>`,
       },
       {
@@ -668,7 +669,7 @@ export function initHistoryTable(periodId) {
         title: "Academic Year",
         render: (v) =>
           `<div class="flex items-center gap-2 justify-center">
-            <span class="font-medium text-sm text-gray-700">${v}</span>
+            <span class="font-medium text-sm text-gray-700">${escapeHTML(v)}</span>
           </div>
           `,
       },
@@ -677,7 +678,7 @@ export function initHistoryTable(periodId) {
         title: "Semester",
         render: (v) => `
         <div class="flex items-center gap-2 justify-center">
-          <span class="text-sm text-gray-600">${v}</span>
+          <span class="text-sm text-gray-600">${escapeHTML(v)}</span>
         </div>
         `,
       },
@@ -712,7 +713,7 @@ export function initHistoryTable(periodId) {
                    : "bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 cursor-pointer"
                }
                transition-all duration-150"
-        data-id="${v}"
+        data-id="${escapeHTML(v)}"
         data-state="${isLoaded ? "loaded" : "idle"}"
         ${isLoaded ? "disabled" : ""}
         title="Load Historical Data"
@@ -782,7 +783,7 @@ export function initTableButtonEvents(dept) {
                   (c) => `
                   <div class="bg-white hover:bg-gray-100 transition border border-gray-200 rounded-lg p-4" id="comment-card">
                     <p style="font-size:11px;color:#94A3B8;margin:0 0 8px;">Evaluator's comment</p>
-                    <p id="comment" style="font-size:13px;color:#334155;line-height:1.65;margin:0;">${c}</p>
+                    <p id="comment" style="font-size:13px;color:#334155;line-height:1.65;margin:0;">${escapeHTML(c)}</p>
                     </div>
                   </div>`,
                 )

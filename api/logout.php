@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname(__DIR__, 1) . '/app/api_bootstrap.php';
+
 require_once __DIR__ . '/../app/init.php';
 
 use App\Controllers\Logout\LogoutController;
@@ -26,9 +28,7 @@ try {
 
     echo json_encode([
       'status' => 'error',
-      'message' => $e->getMessage(),
-      'error-line' => $e->getLine(),
-      'error-file' => $e->getFile(),
-      'error-code' => $e->getCode(),
+      'error' => $e,
+      'message' => \App\middleware\ApiSecurity::publicMessage($e),
     ]);
 }

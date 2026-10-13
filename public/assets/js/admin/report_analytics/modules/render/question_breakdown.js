@@ -1,3 +1,4 @@
+import { escapeHTML } from "../../../../services/escape.js";
 function buildRow(item, rank, isHigh) {
   const pct = Math.min((item.score / 5) * 100, 100).toFixed(0);
 
@@ -63,9 +64,9 @@ function buildRow(item, rank, isHigh) {
               leading-relaxed
               text-slate-700
             "
-            title="${item.question}"
+            title="${escapeHTML(item.question)}"
           >
-            ${item.question}
+            ${escapeHTML(item.question)}
           </p>
 
 

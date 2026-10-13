@@ -1,5 +1,6 @@
 <?php 
 require_once __DIR__ . '/../app/config/database.php';
+\App\middleware\ApiSecurity::admin($pdo);
 require_once __DIR__ . '/../app/config/path.php';
 require_once __DIR__ . '/../app/Controllers/reports/ReportController.php';
 

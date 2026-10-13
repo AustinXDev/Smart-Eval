@@ -1,4 +1,8 @@
-<?php 
+<?php
+
+
+
+require_once dirname(__DIR__, 3) . '/app/api_bootstrap.php';
 
 require_once __DIR__ . '/../../../app/init.php';
 
@@ -70,14 +74,14 @@ try {
   http_response_code(200);
 
   echo json_encode($response);
-  
+
 } catch (Throwable $e) {
 
   http_response_code(400);
 
   echo json_encode([
     'status'  => 'error',
-    'message' =>  $e->getMessage()
+    'message' =>  \App\middleware\ApiSecurity::publicMessage($e)
   ]);
 
 }

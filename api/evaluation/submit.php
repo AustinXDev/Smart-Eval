@@ -1,6 +1,10 @@
 <?php
 
 
+
+
+require_once dirname(__DIR__, 2) . '/app/api_bootstrap.php';
+
 require_once __DIR__ . '/../../app/init.php';
 
 use App\Repositories\EvaluationRepo\EvaluationAnswerRepository;
@@ -38,17 +42,20 @@ try {
 
     $controller = new EvaluationAnswerController($evalAnswerService);
 
-    $result = $controller->saveAnswers($data);
+    $result = $controller->saveAnswers($data, $_SESSION['student']['student_id']);
 
     echo json_encode($result);
 
+} catch (\App\Services\EvaluationServices\EvaluationRequestException $e) {
+    http_response_code($e->status);
+    echo json_encode(['status' => 'error', 'message' => \App\middleware\ApiSecurity::publicMessage($e)]);
 } catch (\Throwable $e) {
 
     http_response_code(500);
 
     echo json_encode([
       'status' => 'error',
-      'message' => $e->getMessage()
+      'message' => \App\middleware\ApiSecurity::publicMessage($e)
     ]);
 
 }

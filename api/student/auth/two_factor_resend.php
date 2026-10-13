@@ -1,5 +1,9 @@
 <?php
 
+
+
+require_once dirname(__DIR__, 3) . '/app/api_bootstrap.php';
+
 require_once __DIR__ . '/../../../app/init.php';
 
 use App\Controllers\TwoFactor\TwoFactorSendController;
@@ -62,6 +66,6 @@ try {
 
     echo json_encode([
         'status' => 'error',
-        'message' => $e->getMessage()
+        'message' => \App\middleware\ApiSecurity::publicMessage($e)
     ]);
 }

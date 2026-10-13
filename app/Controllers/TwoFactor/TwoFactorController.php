@@ -36,7 +36,7 @@ class TwoFactorController
 
         $studentId = $this->session->get('2fa_student_id');
 
-        if (!$pending || !$studentId) {
+        if (!$pending || !$studentId || (int) $this->session->get('2fa_expires_at', 0) < time()) {
             throw new Exception(
                 'No pending two-factor authentication request.'
             );

@@ -147,7 +147,8 @@ class TwoFactorService
     }
 
     $record = $this->twoFactor->findValidCode(
-      $studentId
+      $studentId,
+      $purpose
     );
 
     if(!$record) {
@@ -186,9 +187,9 @@ class TwoFactorService
       );
     }
 
-    $this->twoFactor->markAsUsed(
-      (int) $record['id']
-    );
+    if (!$this->twoFactor->markAsUsed((int) $record['id'])) {
+      throw new TwoFactorException('The verification code is invalid or expired.');
+    }
 
     // Record successful attempt
     $this->twoFactor->recordAttempt(

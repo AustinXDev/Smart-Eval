@@ -172,7 +172,7 @@ async function submitCurrentTeacher({ moveNext = false } = {}) {
   setNextButtonLoading(true);
 
   try {
-    await saveEvaluation({
+    const result = await saveEvaluation({
       teacherId: teacher.teacher_id ?? 0,
       evalId: teacher.eval_id ?? 0,
 
@@ -180,6 +180,10 @@ async function submitCurrentTeacher({ moveNext = false } = {}) {
       comment,
       update: isSubmitted,
     });
+
+    if (result.status !== 'success') {
+      throw new Error(result.message || 'Unable to save the evaluation.');
+    }
 
     teacher.is_submitted = 1;
 

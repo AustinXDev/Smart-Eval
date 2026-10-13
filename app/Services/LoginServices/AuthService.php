@@ -70,13 +70,14 @@ class AuthService
         }
 
         //Generate and send 2fa code
-        $this->twoFactor->sendCode(
+        $this->twoFactor->resendCode(
             $student->studentId,
             'login'
         );
 
         //Store temporary authentication state
         $this->session->set('2fa_pending', true);
+        $this->session->set('2fa_expires_at', time() + 300);
         $this->session->set(
             '2fa_student_id',
             $student->studentId
@@ -107,7 +108,12 @@ class AuthService
         string $ip
     ): array {
 
+        if (!$student->isActive || $student->accountStatus !== 'active') {
+            throw new AuthException('This account is not available.');
+        }
         $this->session->regenerate();
+        $this->session->set('authenticated_at', time());
+        $this->session->set('last_activity', time());
 
         $this->session->set(
             'student',
@@ -121,6 +127,7 @@ class AuthService
         $this->session->remove('2fa_pending');
         $this->session->remove('2fa_student_id');
         $this->session->remove('2fa_ip');
+        $this->session->remove('2fa_expires_at');
 
         $this->rateLimiter->clear(
             $student->studentId

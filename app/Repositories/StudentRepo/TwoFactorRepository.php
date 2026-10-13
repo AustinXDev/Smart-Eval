@@ -39,12 +39,14 @@ class TwoFactorRepository
 
     public function findValidCode(
         string $studentId,
+        string $purpose,
     ): ?array {
 
         $stmt = $this->pdo->prepare("
       SELECT *
       FROM 2fa_codes
       WHERE student_id = ?
+        AND purpose = ?
         AND used = 0
         AND expires_at > NOW()
       ORDER BY created_at DESC
@@ -53,6 +55,7 @@ class TwoFactorRepository
 
         $stmt->execute([
           $studentId,
+          $purpose,
         ]);
 
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;

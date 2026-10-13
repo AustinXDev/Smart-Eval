@@ -1,3 +1,4 @@
+import { escapeHTML } from "../../../services/escape.js";
 import { fetchAllSets, fetchAllQuestions } from "../api/api.js";
 import { setAllQuestions, getAllQuestions } from "./questionState.js";
 import {
@@ -228,7 +229,7 @@ function renderSetCard(s) {
           </div>
 
           <div class="min-w-0">
-            <h2 class="truncate text-base font-bold text-slate-800">${s.set_name}</h2>
+            <h2 class="truncate text-base font-bold text-slate-800">${escapeHTML(s.set_name)}</h2>
             <p class="mt-1 text-sm text-slate-500">
               <span class="font-medium text-slate-700">${s.total_questions}</span>
               Total Questions
@@ -267,7 +268,7 @@ function renderSetCard(s) {
 
         <button
           data-set-id="${s.set_id}"
-          data-set-name="${s.set_name}"
+          data-set-name="${escapeHTML(s.set_name)}"
           class="editSet inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-300">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M11 5h2M5 19l1.5-6L16 4.5a2.121 2.121 0 013 3L9.5 17.5 5 19z" />
@@ -277,7 +278,7 @@ function renderSetCard(s) {
 
         <button
           data-set-id="${s.set_id}"
-          data-set-name="${s.set_name}"
+          data-set-name="${escapeHTML(s.set_name)}"
           class="deleteSet inline-flex items-center justify-center rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-red-500 transition hover:border-red-200 hover:bg-red-100 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
           title="Delete">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -467,7 +468,7 @@ function renderQuestionRow(q) {
                 whitespace-normal
               "
             >
-              ${q.question_text}
+              ${escapeHTML(q.question_text)}
             </p>
 
             <p class="mt-0.5 text-[11px] text-slate-400">
@@ -498,7 +499,7 @@ function renderQuestionRow(q) {
             class="h-1.5 w-1.5 rounded-full bg-violet-500"
           ></span>
 
-          ${q.category}
+          ${escapeHTML(q.category)}
         </span>
 
       </td>
@@ -514,8 +515,8 @@ function renderQuestionRow(q) {
             type="button"
             data-question-id="${q.question_id}"
             data-set-id="${q.set_id}"
-            data-question-text="${q.question_text}"
-            data-category="${q.category}"
+            data-question-text="${escapeHTML(q.question_text)}"
+            data-category="${escapeHTML(q.category)}"
             class="
               editQuestion
               flex h-8 w-8

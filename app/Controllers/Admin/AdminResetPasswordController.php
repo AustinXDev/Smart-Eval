@@ -20,7 +20,7 @@ class AdminResetPasswordController
   {
 
     $token = trim($input['token'] ?? '');
-    $password = trim($input['password'] ?? '');
+    $password = $input['password'] ?? '';
 
     try{
 

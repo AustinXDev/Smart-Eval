@@ -3,6 +3,10 @@
 
 declare(strict_types=1);
 
+require_once dirname(__DIR__, 2) . '/app/api_bootstrap.php';
+
+
+
 require_once __DIR__ . '/../../app/init.php';
 
 use App\Controllers\students\TeacherSelectionController;
@@ -19,6 +23,8 @@ try {
 
         echo json_encode([
             'success' => false,
+            'status' => 'error',
+            'message' => 'Unauthorized',
             'error' => 'Unauthorized'
         ]);
 
@@ -63,21 +69,25 @@ try {
         ...$result
     ]);
 
-} catch (RuntimeException $e) {
-
-    http_response_code(400);
-
-    echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage()
-    ]);
-
-} catch (PDOException $e) {
+} catch (\PDOException $e) {
 
     http_response_code(500);
 
     echo json_encode([
         'success' => false,
+        'status' => 'error',
+        'message' => 'A database error occurred.',
         'error' => 'A database error occurred.'
     ]);
+} catch (\RuntimeException $e) {
+
+    http_response_code(400);
+
+    echo json_encode([
+        'success' => false,
+        'status' => 'error',
+        'message' => \App\middleware\ApiSecurity::publicMessage($e),
+        'error' => \App\middleware\ApiSecurity::publicMessage($e)
+    ]);
+
 }

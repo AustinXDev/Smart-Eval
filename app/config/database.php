@@ -21,7 +21,10 @@ try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
     // Return JSON instead of HTML error
-    echo json_encode(['status'=>'error','message'=>'Database connection failed: '.$e->getMessage()]);
+    error_log('[Database] ' . $e->getMessage());
+    http_response_code(503);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['status'=>'error','message'=>'Database connection unavailable.']);
     exit;
 }
 ?>

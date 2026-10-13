@@ -1,6 +1,10 @@
 <?php
 
 
+
+
+require_once dirname(__DIR__, 2) . '/app/api_bootstrap.php';
+
 require_once __DIR__ . '/../../app/init.php';
 
 use App\Controllers\students\EnrollmentSelectionController;
@@ -70,7 +74,7 @@ try {
 
     echo json_encode([
       'status' => 'error',
-      'message' => $e->getMessage()
+      'message' => \App\middleware\ApiSecurity::publicMessage($e)
     ]);
 
 }

@@ -32,6 +32,8 @@ class ActivationService
       ');
     }
 
+    \App\Services\LoginServices\PasswordPolicy::validate($password);
+
     //Hash the token
     $hashedToken = hash('sha256', $token);
 

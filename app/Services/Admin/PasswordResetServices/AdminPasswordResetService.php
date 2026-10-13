@@ -45,7 +45,7 @@ class AdminPasswordResetService
      * Check and don't reveal if username exist for security
      */
     if(!$admin) {
-      return [];
+      return ['status' => 'success', 'message' => "If the email is registered, you'll receive a password reset link shortly."];
     }
 
 
@@ -59,7 +59,7 @@ class AdminPasswordResetService
     );
 
 
-    if($attemptCount > self::LIMIT) {
+    if($attemptCount >= self::LIMIT) {
       throw new RuntimeException(
         'Too many request. Please try again.'
       );

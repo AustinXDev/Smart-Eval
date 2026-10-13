@@ -1,3 +1,4 @@
+import { escapeHTML } from "../../services/escape.js";
 import { createDataTable } from "../shared/datatable_config.js";
 import { fetchAllPrograms } from "../shared/program_api.js";
 import { getStudentsByDepartment } from "./api/api.js";
@@ -309,7 +310,7 @@ export async function loadStudents() {
                   focus:outline-none
                   focus:ring-2 focus:ring-blue-500/20
                   cursor-pointer"
-            data-student-id="${student.student_id}"
+            data-student-id="${escapeHTML(student.student_id)}"
             title="View Student">
 
             <i class="fas fa-eye text-xs"></i>
@@ -333,7 +334,7 @@ export async function loadStudents() {
                   focus:outline-none
                   focus:ring-2 focus:ring-violet-500/20
                   cursor-pointer"
-            data-student-id="${student.student_id}"
+            data-student-id="${escapeHTML(student.student_id)}"
             title="Edit Student">
 
             <i class="fas fa-pen text-xs"></i>
@@ -357,7 +358,7 @@ export async function loadStudents() {
                   focus:outline-none
                   focus:ring-2 focus:ring-red-500/20
                   cursor-pointer"
-            data-student-id="${student.student_id}"
+            data-student-id="${escapeHTML(student.student_id)}"
             title="Delete Student">
 
             <i class="fas fa-trash-alt text-xs"></i>
@@ -375,7 +376,7 @@ export async function loadStudents() {
         .add([
           `
             <span class="font-medium text-slate-700">
-              ${student.student_id}
+              ${escapeHTML(student.student_id)}
             </span>
           `,
 
@@ -389,14 +390,14 @@ export async function loadStudents() {
                 text-xs font-semibold
                 text-violet-600
               ">
-                ${getInitials(student.full_name)}
+                ${escapeHTML(getInitials(student.full_name))}
               </div>
 
               <div class="min-w-0">
                 <p class="
                   truncate font-medium text-slate-800
                 ">
-                  ${student.full_name}
+                  ${escapeHTML(student.full_name)}
                 </p>
               </div>
 
@@ -405,7 +406,7 @@ export async function loadStudents() {
 
           `
             <span class="text-slate-600">
-              ${student.department.toUpperCase()}
+              ${escapeHTML(student.department.toUpperCase())}
             </span>
           `,
 
@@ -417,9 +418,9 @@ export async function loadStudents() {
                 bg-slate-50 px-2.5 py-1
                 text-xs font-medium text-slate-600
               "
-              title="${student.program_name}"
+              title="${escapeHTML(student.program_name)}"
             >
-              ${student.program_name.toUpperCase()}
+              ${escapeHTML(student.program_name.toUpperCase())}
             </span>
           `,
 

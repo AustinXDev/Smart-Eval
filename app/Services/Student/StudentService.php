@@ -9,10 +9,10 @@ use RuntimeException;
 
 class StudentService
 {
-    private const DEFAULT_PASSWORD = "password123";
 
     public function __construct(
-        private StudentRepository $studentRepo
+        private StudentRepository $studentRepo,
+        private ?\App\Services\ForgotPasswordServices\ForgotPasswordServices $passwordRecovery = null
     ) {
     }
 
@@ -265,39 +265,15 @@ class StudentService
 
         }
 
-        $default_password = self::DEFAULT_PASSWORD;
-        $hashed_password = password_hash($default_password, PASSWORD_DEFAULT);
-
         $student = $this->studentRepo->findById($studentId);
-
-        if (!$student) {
-            throw new RuntimeException(
-                "Student not found."
-            );
+        if (!$student || !$student->hasPassword()) {
+            throw new RuntimeException('Student does not have a registered password.');
         }
-
-        if (!$student->hasPassword()) {
-            throw new RuntimeException(
-                "Student does not have a registered password."
-            );
+        if (!$this->passwordRecovery) {
+            throw new RuntimeException('Password recovery service is unavailable.');
         }
-
-        $reset = $this->studentRepo->resetPassword(
-            $studentId,
-            $hashed_password
-        );
-
-        if (!$reset) {
-            throw new RuntimeException(
-                "Failed to reset password."
-            );
-        }
-
-        return [
-          'status' => 'success',
-          'message' => 'Password has been reset to default.'
-        ];
-
+        $this->passwordRecovery->sendResetLink($student->email, $_SERVER['REMOTE_ADDR'] ?? '');
+        return ['status' => 'success', 'message' => 'A password reset link has been requested for the registered email.'];
     }
 
 

@@ -1,5 +1,9 @@
 <?php
 
+
+
+require_once dirname(__DIR__, 3) . '/app/api_bootstrap.php';
+
 require_once __DIR__ . '/../../../app/init.php';
 
 use App\Controllers\Login\LoginController;
@@ -114,8 +118,7 @@ try {
         $ip
     );
 
-    error_log('LOGIN SESSION ID: ' . session_id());
-    error_log('LOGIN SESSION: ' . print_r($_SESSION, true));
+
 
 
     http_response_code(200);
@@ -128,6 +131,6 @@ try {
 
     echo json_encode([
         'status' => 'error',
-        'message' => $e->getMessage()
+        'message' => \App\middleware\ApiSecurity::publicMessage($e)
     ]);
 }

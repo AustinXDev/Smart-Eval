@@ -59,6 +59,13 @@ class EnrollmentSelectionService
         }
 
 
+        if ($this->evaluationRepo->countSelectedTeachers($studentId, $periodId) > 0) {
+            if ($enrollmentType !== ($student['enrollment_type'] ?? null)) {
+                throw new RuntimeException('Enrollment type cannot change after teacher assignments are finalized.');
+            }
+            return ['status' => 'success', 'message' => 'Enrollment type is already set.', 'redirect' => 'evaluation'];
+        }
+
         /*
          * REGULAR STUDENT
          *

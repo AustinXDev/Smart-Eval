@@ -1,6 +1,10 @@
 <?php
 
 
+
+
+require_once dirname(__DIR__, 2) . '/app/api_bootstrap.php';
+
 require_once __DIR__ . '/../../app/init.php';
 
 use App\Repositories\EvaluationRepo\EvaluationRepository;
@@ -16,7 +20,7 @@ header(
 
 try {
 
-    $student = $_SESSION['student'] ?? $_SESSION;
+    $student = $_SESSION['student'] ?? null;
 
     if (!$student) {
 
@@ -56,7 +60,7 @@ try {
 
     echo json_encode([
       'status' => 'error',
-      'message' => $e->getMessage(),
+      'message' => \App\middleware\ApiSecurity::publicMessage($e),
     ]);
 
 }

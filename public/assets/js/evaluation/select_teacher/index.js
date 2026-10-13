@@ -264,14 +264,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       try {
         const data = await submitTeacherSelection(selectedIds);
 
+        if (!data.success) {
+          throw new Error(
+            data.message || data.error || "Unable to save teacher selection.",
+          );
+        }
+
         if (data.success) {
-          window.location.href =
-            "/Smart-Eval/views/student/evaluation.view.php";
+          window.location.href = "evaluation";
 
           return;
         }
-
-        alert(data.error || "Failed to save teacher selection.");
 
         setProceedButtonState(proceedBtn, {
           disabled: false,
@@ -280,7 +283,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       } catch (err) {
         console.error("Failed to save selection:", err);
 
-        alert("Failed to save teacher selection. Please try again.");
+        alert(
+          err.message || "Failed to save teacher selection. Please try again.",
+        );
 
         setProceedButtonState(proceedBtn, {
           disabled: false,

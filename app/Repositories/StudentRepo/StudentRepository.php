@@ -192,7 +192,9 @@ class StudentRepository
 
         $stmt = $this->pdo->prepare("
             SELECT
-                s.*,
+                s.student_id, s.full_name, s.email, s.program_id,
+                s.year_level, s.enrollment_type, s.account_status,
+                s.is_active, s.is_finished_all,
                 p.program_name,
                 p.department
             FROM students s

@@ -24,8 +24,11 @@ final class AnalyticsResolver
 
         if ($periodId !== null && $periodId > 0) {
 
-            return $this->evalRepo
-                ->getById($periodId);
+            $period = $this->evalRepo->getById($periodId);
+            if (!$period || ($period['target_dept'] ?? null) !== $department) {
+                throw new \RuntimeException('Invalid evaluation period for this department.');
+            }
+            return $period;
         }
 
 

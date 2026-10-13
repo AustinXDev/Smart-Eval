@@ -13,10 +13,11 @@ class EvaluationAnswerController
 
 
     public function saveAnswers(
-        array $data
+        array $data,
+        string $studentId
     ): array {
 
-        return $this->service->submitAnswers($data);
+        return $this->service->submitAnswers($data, $studentId);
 
     }
 

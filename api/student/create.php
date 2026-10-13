@@ -1,4 +1,8 @@
-<?php 
+<?php
+
+
+
+require_once dirname(__DIR__, 2) . '/app/api_bootstrap.php';
 
 require_once __DIR__ . '/../../app/init.php';
 
@@ -17,7 +21,7 @@ try {
   $email      = trim($input['email'] ?? '');
   $yearLevel  = trim($input['year'] ?? '');
   $programId  = trim($input['program'] ?? '');
-  
+
   require_once __DIR__ . '/../../app/config/database.php';
 
   $studentRepo = new StudentRepository($pdo);
@@ -44,7 +48,7 @@ try {
 
   echo json_encode([
     'status' => 'error',
-    'message' => $e->getMessage()
+    'message' => \App\middleware\ApiSecurity::publicMessage($e)
   ]);
 
 }

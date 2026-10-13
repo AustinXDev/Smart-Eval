@@ -38,6 +38,13 @@ class FileUploader
             );
         }
 
+        $dimensions = getimagesize($file['tmp_name']);
+        if ($dimensions === false || $dimensions[0] < 1 || $dimensions[1] < 1
+            || $dimensions[0] > 4096 || $dimensions[1] > 4096
+            || $dimensions[0] * $dimensions[1] > 12000000) {
+            throw new RuntimeException('Image dimensions exceed the supported limit.');
+        }
+
         $image = $this->createImage(
             $file['tmp_name'],
             $mimeType

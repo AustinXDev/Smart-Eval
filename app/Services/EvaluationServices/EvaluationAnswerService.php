@@ -16,28 +16,50 @@ class EvaluationAnswerService
     ) {
     }
 
-    public function submitAnswers(array $data): array
+    public function submitAnswers(array $data, string $studentId): array
     {
-        $evalId = (int) ($data['eval_id'] ?? 0);
-        $teacherId = (int) ($data['teacher_id'] ?? 0);
-        $answers = $data['answers'];
-        $comment = trim($data['comment'] ?? '');
-
-        if ($evalId < 1 || $teacherId < 1) {
-            throw new RuntimeException(
-                'Invalid evaluation or teacher ID.'
-            );
+        $evalId = filter_var($data['eval_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $teacherId = filter_var($data['teacher_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $answers = $data['answers'] ?? null;
+        $comment = $data['comment'] ?? '';
+        if (!$evalId || !$teacherId || $studentId === '') {
+            throw new EvaluationRequestException('Invalid evaluation or teacher ID.');
         }
-
-        if (empty($answers)) {
-            throw new RuntimeException(
-                'No answers were provided.'
-            );
+        if (!is_array($answers) || $answers === [] || count($answers) > 500) {
+            throw new EvaluationRequestException('A valid answer object is required.');
         }
+        if (!is_string($comment) || mb_strlen($comment) > 5000) {
+            throw new EvaluationRequestException('Comment must not exceed 5000 characters.');
+        }
+        $comment = trim($comment);
+        $normalized = [];
+        foreach ($answers as $questionId => $score) {
+            $id = filter_var($questionId, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+            if (!$id || !is_int($score) || $score < 1 || $score > 5) {
+                throw new EvaluationRequestException('Answers must contain valid question IDs and integer scores from 1 to 5.');
+            }
+            $normalized[$id] = $score;
+        }
+        $answers = $normalized;
 
         try {
 
             $this->pdo->beginTransaction();
+
+            $assignment = $this->evalAnswerRepo->lockOwnedEvaluation($evalId, $studentId, $teacherId);
+            if (!$assignment) {
+                throw new EvaluationRequestException('You cannot submit this evaluation.', 403);
+            }
+            if (!(bool) $assignment['is_open']) {
+                throw new EvaluationRequestException('The evaluation period is closed.', 409);
+            }
+            $required = $this->evalAnswerRepo->getRequiredQuestionIds((int) $assignment['set_id']);
+            $submitted = array_keys($answers);
+            sort($required);
+            sort($submitted);
+            if ($required === [] || $required !== $submitted) {
+                throw new EvaluationRequestException('Answer every question in the evaluation questionnaire.');
+            }
 
             $existingAnswers =
                 $this->evalAnswerRepo->getAnswersByEvalId($evalId);
@@ -113,6 +135,10 @@ class EvaluationAnswerService
 
             if ($this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
+            }
+
+            if ($e instanceof EvaluationRequestException) {
+                throw $e;
             }
 
             error_log($e->getMessage());
