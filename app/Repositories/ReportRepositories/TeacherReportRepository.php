@@ -49,21 +49,11 @@ class TeacherReportRepository
 
     public function getTeacherSummary(
         int $periodId,
-        int $teacherId,
-        array $validStudentIds
+        int $teacherId
     ): ?array {
 
-        if (empty($validStudentIds)) {
-            return null;
-        }
-
-        $placeholders = implode(
-            ',',
-            array_fill(0, count($validStudentIds), "?")
-        );
-
         $stmt = $this->pdo->prepare("
-          SELECT
+        SELECT
             t.teacher_id,
             t.employee_id,
             t.full_name,
@@ -72,149 +62,161 @@ class TeacherReportRepository
 
             COUNT(DISTINCT es.student_id) AS total_evaluated
 
-          FROM evaluation_status es
+        FROM evaluation_status es
 
-          INNER JOIN teachers t
-            ON es.teacher_id = t.teacher_id
+        INNER JOIN teachers t
+            ON t.teacher_id = es.teacher_id
 
-          INNER JOIN evaluation_answers ea
-            ON es.eval_id = ea.eval_id
+        INNER JOIN evaluation_answers ea
+            ON ea.eval_id = es.eval_id
 
-          WHERE es.period_id = ?
-            AND es.teacher_id =?
+        WHERE es.period_id = ?
+          AND es.teacher_id = ?
+          AND es.is_submitted = 1
 
-          AND es.student_id IN ($placeholders)
+          AND EXISTS (
+              SELECT 1
+              FROM evaluation_status completed
+              WHERE completed.student_id = es.student_id
+                AND completed.period_id = es.period_id
+              GROUP BY completed.student_id
+              HAVING COUNT(*) > 0
+                 AND SUM(completed.is_submitted = 1) = COUNT(*)
+          )
 
-          GROUP BY 
-            t.teacher_id, 
+        GROUP BY
+            t.teacher_id,
             t.employee_id,
             t.full_name
-        ");
+    ");
 
         $stmt->execute([
-          $periodId,
-          $teacherId,
-          ...$validStudentIds
+            $periodId,
+            $teacherId
         ]);
 
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $result ?: null;
-
     }
 
 
     # Categorical Performance
 
+    /**
+     * Get teacher performance by evaluation category.
+     *
+     * Only includes responses from students who completed
+     * all assigned evaluations within the period.
+     */
     public function getCategoryBreakdown(
         int $periodId,
-        int $teacherId,
-        array $validStudentIds
+        int $teacherId
     ): array {
-
-        if (empty($validStudentIds)) {
-            return [];
-        }
-
-        $placeholders = implode(
-            ',',
-            array_fill(0, count($validStudentIds), '?')
-        );
-
 
         $stmt = $this->pdo->prepare("
         SELECT
-          q.category,
+            q.category,
 
-          ROUND(
-            AVG(ea.score),
-            2
-          ) AS average_score
+            ROUND(
+                AVG(ea.score),
+                2
+            ) AS average_score
 
         FROM evaluation_answers ea
 
         INNER JOIN evaluation_status es
-          ON ea.eval_id = es.eval_id
+            ON es.eval_id = ea.eval_id
 
         INNER JOIN questions q
-          On ea.question_id = q.question_id
+            ON q.question_id = ea.question_id
 
         WHERE es.period_id = ?
           AND es.teacher_id = ?
-        
-          AND es.student_id IN ($placeholders)
+          AND es.is_submitted = 1
+
+          AND EXISTS (
+              SELECT 1
+              FROM evaluation_status completed
+              WHERE completed.student_id = es.student_id
+                AND completed.period_id = es.period_id
+              GROUP BY completed.student_id
+              HAVING COUNT(*) > 0
+                 AND SUM(completed.is_submitted = 1) = COUNT(*)
+          )
 
         GROUP BY q.category
 
         ORDER BY average_score DESC
-      ");
+    ");
 
         $stmt->execute([
-          $periodId,
-          $teacherId,
-          ...$validStudentIds
+            $periodId,
+            $teacherId
         ]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
     }
 
 
     #Question Performance
 
+    /**
+     * Get teacher performance for each evaluation question.
+     *
+     * Only includes responses from students who completed
+     * all assigned evaluations within the period.
+     */
     public function getQuestionPerformance(
         int $periodId,
-        int $teacherId,
-        array $validStudentIds
+        int $teacherId
     ): array {
 
-        if (empty($validStudentIds)) {
-            return [];
-        }
-
-        $placeholders = implode(
-            ',',
-            array_fill(0, count($validStudentIds), '?')
-        );
-
         $stmt = $this->pdo->prepare("
-          SELECT 
+        SELECT
             q.question_id,
             q.question_text,
 
             ROUND(
-              AVG(ea.score),
-              2
+                AVG(ea.score),
+                2
             ) AS average_score
 
-          FROM evaluation_answers ea
+        FROM evaluation_answers ea
 
-          INNER JOIN evaluation_status es
-            ON ea.eval_id = es.eval_id
+        INNER JOIN evaluation_status es
+            ON es.eval_id = ea.eval_id
 
-          INNER JOIN questions q
-            ON ea.question_id = q.question_id
+        INNER JOIN questions q
+            ON q.question_id = ea.question_id
 
-          WHERE es.period_id = ?
-            AND es.teacher_id = ?
+        WHERE es.period_id = ?
+          AND es.teacher_id = ?
+          AND es.is_submitted = 1
 
-            AND es.student_id IN ($placeholders)
-          
-          GROUP BY 
+          AND EXISTS (
+              SELECT 1
+              FROM evaluation_status completed
+              WHERE completed.student_id = es.student_id
+                AND completed.period_id = es.period_id
+              GROUP BY completed.student_id
+              HAVING COUNT(*) > 0
+                 AND SUM(completed.is_submitted = 1) = COUNT(*)
+          )
+
+        GROUP BY
             q.question_id,
             q.question_text
 
-          ORDER BY average_score ASC
-        ");
+        ORDER BY average_score ASC
+    ");
 
         $stmt->execute([
-          $periodId,
-          $teacherId,
-          ...$validStudentIds
+            $periodId,
+            $teacherId
         ]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
     }
 
 

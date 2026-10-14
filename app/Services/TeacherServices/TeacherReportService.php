@@ -21,7 +21,7 @@ class TeacherReportService
     public function getIndividualTeacherReport(
         int $periodId,
         int $teacherId,
-    ): ?array {
+    ): array {
 
         # Find evaluation period if exist
         $period = $this->teacherReportRepo->getPeriodById($periodId);
@@ -48,8 +48,7 @@ class TeacherReportService
 
         $summary = $this->teacherReportRepo->getTeacherSummary(
             $periodId,
-            $teacherId,
-            $validStudentIds
+            $teacherId
         );
 
         if (!$summary) {
@@ -65,17 +64,23 @@ class TeacherReportService
 
         $summary['total_evaluated'] = (int) $summary['total_evaluated'];
 
+        if ($summary['total_evaluated'] <= 0) {
+            throw new RuntimeException(
+                'Teacher has no reportable evaluation responses.'
+            );
+        }
+
         $summary['adjective_rating'] = $this->helpers->adjectiveRating($summary['average_score']);
 
 
         # Category Performance.
 
-        $categories = $this->teacherReportRepo->getCategoryBreakdown($periodId, $teacherId, $validStudentIds);
+        $categories = $this->teacherReportRepo->getCategoryBreakdown($periodId, $teacherId);
 
 
         # Question-level performance.
 
-        $questions = $this->teacherReportRepo->getQuestionPerformance($periodId, $teacherId, $validStudentIds);
+        $questions = $this->teacherReportRepo->getQuestionPerformance($periodId, $teacherId);
 
 
         $strengths = [];
@@ -89,7 +94,7 @@ class TeacherReportService
 
                 $areasForImprovement[] = $question;
 
-            } else {
+            } elseif ($score >= 3.5) {
 
                 $strengths[] = $question;
 

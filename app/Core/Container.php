@@ -25,25 +25,34 @@ class Container
     public function reportController(): ReportController
     {
 
+        return new ReportController(
+            $this->reportService()
+        );
+
+    }
+
+    public function reportService(): ReportService
+    {
+
         $analyticRepository = new AnalyticsRepository($this->pdo);
-
-        $evalRepository = new EvaluationRepository($this->pdo);
-
-        $resolver = new AnalyticsResolver($evalRepository);
+        $evaluationRepository = new EvaluationRepository($this->pdo);
 
         $helper = new AnalyticsHelpers();
 
-        $service = new AnalyticsService($analyticRepository, $resolver, $helper);
-
-        $teacherReportService = new TeacherReportService(
-            (new TeacherReportRepository($this->pdo)),
-            (new AnalyticsHelpers())
+        $analyticsService = new AnalyticsService(
+            $analyticRepository,
+            new AnalyticsResolver($evaluationRepository),
+            $helper
         );
 
-        $reportService = new ReportService($service, $teacherReportService);
+        $teacherReportService = new TeacherReportService(
+            new TeacherReportRepository($this->pdo),
+            $helper
+        );
 
-        return new ReportController(
-            $reportService
+        return new ReportService(
+            $analyticsService,
+            $teacherReportService
         );
 
     }

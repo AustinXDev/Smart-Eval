@@ -53,6 +53,6 @@ try {
     cronLog(
         'Cron failed: ' .
         $e->getMessage() . PHP_EOL .
-        'Stack Trace: ' . $e->getTraceAsString() // Added for better troubleshooting
+        'Stack Trace: ' . $e->getTraceAsString()
     );
 }

@@ -2,6 +2,7 @@
 /bin/
 /storage/
 /public/uploads/*
+/node_modules/
 
 # Environment configuration
 .env

@@ -45,7 +45,6 @@ class AuthService
 
         }
 
-
         if ($student && !$student->isActive) {
             throw new AuthException('This account is not available.');
         }

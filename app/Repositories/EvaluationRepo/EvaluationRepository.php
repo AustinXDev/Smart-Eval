@@ -705,41 +705,37 @@ class EvaluationRepository
 
 
     //Queue Teacher Notifications
-    #Note: this will be edited soon
     public function queueTeacherNotifications(
         int $periodId,
         string $department
     ): bool {
 
-        $stmt = $this->pdo->prepare(" 
-          INSERT INTO teacher_notification_queue (
-            teacher_id, 
-            period_id, 
-            status 
-          ) 
+        // Queue active teachers from the target department.
+        $stmt = $this->pdo->prepare("
+        INSERT INTO teacher_notification_queue (
+            teacher_id,
+            period_id,
+            status
+        )
 
-          SELECT DISTINCT 
-            t.teacher_id, 
-            ?, 
+        SELECT
+            t.teacher_id,
+            ?,
             'pending'
 
-          FROM teachers t 
+        FROM teachers t
 
-          WHERE t.department = ? 
-            AND t.is_active = 1 
+        WHERE t.department = ?
+          AND t.is_active = 1
 
-            AND EXISTS ( 
-              SELECT 1 
-              FROM evaluation_status es 
-              WHERE es.teacher_id = t.teacher_id
-                AND es.period_id = ? 
-                AND es.is_submitted = 1 
-            ) 
-                
-        ");
+        ON DUPLICATE KEY UPDATE
+            queue_id = queue_id
+    ");
 
-        return $stmt->execute([ $periodId, $department, $periodId ]);
-
+        return $stmt->execute([
+            $periodId,
+            $department
+        ]);
     }
 
 

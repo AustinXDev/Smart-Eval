@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/*
+ * Explicit source scanning for Smart-Eval.
+ * Paths are relative to this CSS file.
+ */
+@source "../../app";
+@source "../../public_html";
