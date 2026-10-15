@@ -29,7 +29,7 @@ final class ApiSecurity
 
     public static function policy(string $endpoint): ?array
     {
-        if ($endpoint === 'csrf.php') {
+        if (in_array($endpoint, ['csrf.php', 'session_status.php'], true)) {
             return ['GET', 'public'];
         }
         $public = ['admin/auth/login.php', 'admin/auth/verify.php', 'admin/auth/sendReset.php',

@@ -44,6 +44,11 @@ class EmailProvider
             $this->mail->addAddress($to);
             $this->mail->Subject = $subject;
             $this->mail->Body = $body;
+            $this->mail->AltBody = html_entity_decode(
+                strip_tags($body),
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            );
 
             // Send the email.
             return $this->mail->send();
@@ -88,7 +93,11 @@ class EmailProvider
             $this->mail->addAddress($to);
             $this->mail->Subject = $subject;
             $this->mail->Body = $body;
-            $this->mail->AltBody = strip_tags($body);
+            $this->mail->AltBody = html_entity_decode(
+                strip_tags($body),
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            );
 
             //Attach the generated PDF directly from memory.
             $this->mail->addStringAttachment(

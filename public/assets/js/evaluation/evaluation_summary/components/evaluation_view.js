@@ -30,9 +30,6 @@ export function renderTeachersList(data) {
   el("empty-state").style.display = "none";
   el("teachers-list").style.display = "block";
 
-  el("total-count").textContent = data.total_evaluated;
-  el("plural-s").textContent = data.total_evaluated !== 1 ? "s" : "";
-
   const teachersList = document.querySelector("#teachers-list .space-y-2");
 
   teachersList.innerHTML = data.evaluated_teachers

@@ -424,5 +424,6 @@ $pageTitle = "Manage Evaluation";
 
 <script src="<?= BASE_URL ?>assets/js/admin/evaluation_periods/index.js" type="module"></script>
 <script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>
+<?php $autoLogoutRole = 'admin'; require __DIR__ . '/../partials/auto_logout.php'; ?>
 </body>
 </html>

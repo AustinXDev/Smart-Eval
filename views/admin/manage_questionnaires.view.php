@@ -329,5 +329,6 @@ $pageTitle = "Manage Questionnaires";
 
   <script src="<?= BASE_URL ?>assets/js/admin/manage_questionnaires/index.js" type="module"></script>
   <script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>
+<?php $autoLogoutRole = 'admin'; require __DIR__ . '/../partials/auto_logout.php'; ?>
 </body>
 </html>

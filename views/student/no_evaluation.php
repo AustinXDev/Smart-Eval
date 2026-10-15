@@ -75,6 +75,7 @@
     </div>
   </main>
  
+<?php $autoLogoutRole = 'student'; require __DIR__ . '/../partials/auto_logout.php'; ?>
 </body>
 </html>
 

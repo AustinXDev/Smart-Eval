@@ -2477,6 +2477,7 @@ $pageTitle = "Reports & Analytics";
 
   </div>
 
+<?php $autoLogoutRole = 'admin'; require __DIR__ . '/../partials/auto_logout.php'; ?>
 </body>
 
 <script> 

@@ -941,6 +941,8 @@ require __DIR__ . '/../partials/sidebar.php';
     ></script>
     <script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>
 
+<?php $autoLogoutRole = 'admin';
+require __DIR__ . '/../partials/auto_logout.php'; ?>
 </body>
 
 </html>

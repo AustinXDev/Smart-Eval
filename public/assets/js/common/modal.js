@@ -59,6 +59,47 @@ class StatusModal {
         opacity: .9;
       }
 
+      .sma-close-btn {
+          position: absolute;
+          top: 14px;
+          right: 16px;
+
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          width: 32px;
+          height: 32px;
+
+          background: transparent;
+          border: none;
+          border-radius: 50%;
+
+          color: #969696;
+          font-size: 26px;
+          font-weight: 400;
+          line-height: 1;
+
+          cursor: pointer;
+          z-index: 2;
+
+          transition:
+              background-color .2s ease,
+              color .2s ease,
+              transform .2s ease;
+      }
+
+      .sma-close-btn:hover {
+          background: #F3F0FF;
+          color: #6010ff;
+          transform: rotate(90deg);
+      }
+
+      .sma-close-btn:focus-visible {
+          outline: 2px solid #6010ff;
+          outline-offset: 2px;
+      }
+
       .sma-box.success { color: #0F9D6C; }
       .sma-box.error   { color: #D64545; }
       .sma-box.verify  { color: #6010ff; }
@@ -305,6 +346,16 @@ class StatusModal {
     <!-- VERIFY -->
     <div id="sma-verify" class="sma-backdrop">
       <div class="sma-box verify">
+
+        <button
+          type="button"
+          class="sma-close-btn"
+          id="sma-verify-close"
+          aria-label="Close verification"
+        >
+          &times;
+        </button>
+
         <div class="sma-icon verify">
           <svg viewBox="0 0 52 52" fill="none">
             <path stroke="currentColor" stroke-width="3.2" d="M9 15 L26 27 L43 15" />
@@ -335,6 +386,12 @@ class StatusModal {
   // ── verify modal internals ──────────────────────────
   static _wireVerify() {
     const row = document.getElementById("sma-otp-row");
+
+    document
+      .getElementById("sma-verify-close")
+      .addEventListener("click", () => {
+        this.hide("verify");
+      });
 
     row.addEventListener("input", (e) => {
       const el = e.target;

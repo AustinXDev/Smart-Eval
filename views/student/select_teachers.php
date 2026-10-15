@@ -960,5 +960,6 @@ $studentMiddleware->preventDuplicateTeacherSelection(
 </script>
 
 <script src="<?= BASE_URL ?>assets/js/evaluation/select_teacher/index.js" type="module"></script>
+<?php $autoLogoutRole = 'student'; require __DIR__ . '/../partials/auto_logout.php'; ?>
 </body>
 </html>

@@ -330,28 +330,33 @@ class StudentRepository
 
 
     /**
-     * Save activation token.
+     * Save activation token for a pending student.
      */
     public function saveActivationToken(
         string $studentId,
         string $email,
         string $tokenHash,
         string $expires
-    ): void {
+    ): bool {
+
         $stmt = $this->pdo->prepare("
-            UPDATE students
-            SET activation_token = ?,
-                token_expires = ?
-            WHERE student_id = ?
-              AND email = ?
-        ");
+        UPDATE students
+        SET
+            activation_token = :token,
+            token_expires = :expires
+        WHERE student_id = :student_id
+          AND email = :email
+          AND account_status = 'pending'
+    ");
 
         $stmt->execute([
-            $tokenHash,
-            $expires,
-            $studentId,
-            $email
+            'token' => $tokenHash,
+            'expires' => $expires,
+            'student_id' => $studentId,
+            'email' => $email
         ]);
+
+        return $stmt->rowCount() === 1;
     }
 
 

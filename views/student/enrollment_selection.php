@@ -837,5 +837,6 @@ $studentMiddleware->handleEnrollmentRedirect($student, basename($requestPath))
 
   <script src="<?= BASE_URL ?>assets/js/evaluation/select_enrollment/index.js" type="module"></script>
   <script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>
+<?php $autoLogoutRole = 'student'; require __DIR__ . '/../partials/auto_logout.php'; ?>
 </body>
 </html>

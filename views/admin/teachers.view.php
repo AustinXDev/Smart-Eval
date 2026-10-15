@@ -522,5 +522,7 @@ window.API_URL = <?= json_encode($_ENV['APP_API'] ?? '') ?>
 <script src="<?= BASE_URL ?>assets/js/admin/teachers/table.js" type="module"></script>
 <script src="<?= BASE_URL ?>assets/js/admin/teachers/index.js" type="module"></script>
 <script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>
+<?php $autoLogoutRole = 'admin';
+require __DIR__ . '/../partials/auto_logout.php'; ?>
 </body>
 </html>
