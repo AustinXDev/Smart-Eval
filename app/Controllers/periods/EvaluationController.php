@@ -23,6 +23,11 @@ class EvaluationController
     }
 
 
+    public function getPeriodList(array $query): array
+    {
+        return $this->service->getPeriodList($query);
+    }
+
     public function getDashboardData(): array
     {
 

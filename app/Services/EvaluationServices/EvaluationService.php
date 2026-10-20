@@ -47,6 +47,29 @@ class EvaluationService
     }
 
 
+    public function getPeriodList(array $query): array
+    {
+        $search = $query['search'] ?? '';
+        $search = is_array($search) ? ($search['value'] ?? '') : $search;
+        $status = $query['status'] ?? 'All';
+        if (!is_string($search) || !in_array($status, ['All', 'Active', 'Archived', 'Upcoming'], true)) {
+            throw new RuntimeException('Invalid period filters.');
+        }
+        foreach (['draw', 'start', 'length'] as $key) {
+            if (isset($query[$key]) && filter_var($query[$key], FILTER_VALIDATE_INT) === false) {
+                throw new RuntimeException('Invalid pagination parameters.');
+            }
+        }
+        return [
+            'draw' => max(0, (int) ($query['draw'] ?? 0)),
+            ...$this->evaluationRepo->findPage(
+                max(0, (int) ($query['start'] ?? 0)),
+                max(1, min(100, (int) ($query['length'] ?? 5))),
+                trim($search), $status, date('Y-m-d H:i:s')
+            ),
+        ];
+    }
+
     public function getAllPeriods(): array
     {
 

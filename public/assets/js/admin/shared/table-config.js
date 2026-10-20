@@ -66,6 +66,9 @@ export function initRankingTable() {
         className: "whitespace-nowrap px-5 py-3.5 text-center font-semibold",
         render: (v, type, row, meta) => {
           const n = meta.row + 1;
+
+          if (type !== "display") return n;
+
           const cls =
             n === 1
               ? "border-violet-200 bg-violet-50 text-violet-700"
@@ -172,7 +175,12 @@ export function initRankingTable() {
         title: "Mean Score",
         data: "mean_score",
         className: "whitespace-nowrap px-5 py-3.5 text-center font-semibold",
-        render: (v) => `
+        render: (v, type) => {
+          const score = Number(v);
+
+          if (type !== "display") return score;
+
+          return `
           <div class="flex items-center justify-center">
             <span
               class="
@@ -193,7 +201,7 @@ export function initRankingTable() {
                 group-hover:bg-violet-100
               "
             >
-              ${Number(v).toFixed(2)}
+              ${score.toFixed(2)}
               <span
                 class="
                   ml-0.5
@@ -206,7 +214,8 @@ export function initRankingTable() {
               </span>
             </span>
           </div>
-        `,
+        `;
+        },
       },
 
       // RATING
@@ -406,7 +415,10 @@ export function initRankingTable() {
     ],
 
     // DEFAULT ORDER
-    order: [[0, "desc"]],
+    order: [
+      [2, "desc"],
+      [4, "desc"],
+    ],
 
     // ROW STYLING
     createdRow: function (row) {

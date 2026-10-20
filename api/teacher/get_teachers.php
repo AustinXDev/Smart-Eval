@@ -59,6 +59,14 @@ try {
    */
   if($department !== '') {
 
+    if (isset($_GET['draw']) || isset($_GET['counts_only'])) {
+      echo json_encode([
+        'status' => 'success',
+        ...$controller->getTeacherList($department, $_GET)
+      ], JSON_INVALID_UTF8_SUBSTITUTE);
+      exit;
+    }
+
     $data = $controller->getAll($department);
 
     echo json_encode([

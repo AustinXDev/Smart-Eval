@@ -10,6 +10,15 @@ if (PHP_SAPI !== 'cli') {
     exit(1);
 }
 
+// Only start work between midnight (inclusive) and 5 AM (exclusive).
+// Explicit timezone keeps the window independent of the cron server timezone.
+$now = new DateTimeImmutable('now', new DateTimeZone('Asia/Manila'));
+$windowEnd = $now->setTime(5, 0, 0);
+if ($now >= $windowEnd) {
+    fwrite(STDOUT, "[SKIPPED] Teacher reports run only from 00:00 to 05:00 Asia/Manila.\n");
+    exit(0);
+}
+
 // Resolve relative paths from this script, not the cron working directory.
 require_once dirname(__DIR__) . '/app/init.php';
 
@@ -88,6 +97,12 @@ try {
     teacherReportLog('Pending jobs selected=' . count($jobs));
 
     foreach ($jobs as $job) {
+        // Finish any in-flight report, but never claim another after the cutoff.
+        if (new DateTimeImmutable('now', $now->getTimezone()) >= $windowEnd) {
+            teacherReportLog('Worker stopped taking jobs: 05:00 processing window ended.');
+            echo "[STOPPED] Processing window ended; remaining reports stay queued.\n";
+            break;
+        }
         $queueId = (int) $job['queue_id'];
         $teacherId = (int) $job['teacher_id'];
         $periodId = (int) $job['period_id'];

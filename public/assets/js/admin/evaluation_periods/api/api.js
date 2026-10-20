@@ -24,9 +24,13 @@ export async function fetchCreatedPeriod(periodId) {
   }
 }
 
-export async function getDashboardData() {
+export async function getEvaluationPeriods(params = {}) {
+  return get(`evaluation/get_periods.php?${new URLSearchParams(params)}`);
+}
+
+export async function getDashboardData(params = {}) {
   try {
-    return await get("evaluation/get_dashboard.php");
+    return await get(`evaluation/get_dashboard.php?${new URLSearchParams(params)}`);
   } catch (error) {
     return {
       status: "error",

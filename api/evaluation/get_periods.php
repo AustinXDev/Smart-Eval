@@ -25,6 +25,11 @@ try {
 
     $controller = new EvaluationController($service);
 
+    if (isset($_GET['draw'])) {
+        echo json_encode(['status' => 'success', ...$controller->getPeriodList($_GET)], JSON_INVALID_UTF8_SUBSTITUTE);
+        exit;
+    }
+
     $periods = $controller->getAllPeriods();
 
     echo json_encode([

@@ -16,6 +16,7 @@ export const options = {
 
   thresholds: {
     http_req_failed: ["rate<0.05"],
+    http_req_duration: ["p(95)<2000"],
     checks: ["rate==1"],
   },
 };
@@ -86,6 +87,13 @@ export default function () {
       tags: { name: "student-login" },
     },
   );
+
+  if (loginResponse.status !== 200) {
+    console.error(
+      `Login failed: HTTP ${loginResponse.status}, ` +
+        `Duration: ${loginResponse.timings.duration.toFixed(0)}ms`,
+    );
+  }
 
   let loginData;
 

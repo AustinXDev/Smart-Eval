@@ -25,7 +25,9 @@ try {
 
     $controller = new EvaluationController($service);
 
-    $result = $controller->getDashboardData();
+    $result = ($_GET['cards_only'] ?? '') === '1'
+        ? ['status' => 'success', 'active_periods' => $controller->getActivePeriodWithStudentStats()]
+        : $controller->getDashboardData();
 
     echo json_encode($result);
 

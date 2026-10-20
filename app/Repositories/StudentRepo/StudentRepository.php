@@ -217,6 +217,39 @@ class StudentRepository
     /**
      * Get students counts by department
      */
+    public function findPageByDepartment(string $department, int $offset, int $limit, string $search, string $status, string $program): array
+    {
+        // Preserve the existing active-student list scope.
+        $where = 'p.department = :department AND s.is_active = 1';
+        $params = ['department' => $department];
+        if ($search !== '') {
+            $where .= ' AND (s.student_id LIKE :idSearch OR s.full_name LIKE :nameSearch OR p.program_name LIKE :programSearch OR p.department LIKE :deptSearch)';
+            foreach (['idSearch', 'nameSearch', 'programSearch', 'deptSearch'] as $key) {
+                $params[$key] = '%' . strtr($search, ['!' => '!!', '%' => '!%', '_' => '!_']) . '%';
+            }
+            $where = str_replace([':idSearch', ':nameSearch', ':programSearch', ':deptSearch'], [":idSearch ESCAPE '!'", ":nameSearch ESCAPE '!'", ":programSearch ESCAPE '!'", ":deptSearch ESCAPE '!'"], $where);
+        }
+        if ($status === 'Inactive') {
+            $where .= ' AND s.is_active = 0';
+        }
+        if ($program !== 'All' && $program !== '') {
+            $where .= ' AND p.program_name = :program';
+            $params['program'] = $program;
+        }
+        $from = ' FROM students s INNER JOIN programs p ON s.program_id = p.program_id WHERE ' . $where;
+        $count = $this->pdo->prepare('SELECT COUNT(*)' . $from);
+        $count->execute($params);
+        $filtered = (int) $count->fetchColumn();
+        $stmt = $this->pdo->prepare('SELECT s.student_id, s.full_name, s.is_active, p.program_name, p.department' . $from . ' ORDER BY s.full_name ASC, s.student_id ASC LIMIT :limit OFFSET :offset');
+        foreach ($params as $key => $value) {
+            $stmt->bindValue(':' . $key, $value, PDO::PARAM_STR);
+        }
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return ['students' => $stmt->fetchAll(PDO::FETCH_ASSOC), 'filtered' => $filtered];
+    }
+
     public function getCountByDepartment(
         string $department
     ): array {

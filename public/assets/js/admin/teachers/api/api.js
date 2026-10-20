@@ -1,9 +1,13 @@
 import { post, get } from "../../../services/http.js";
 
-const BASE = "/Smart-Eval/app/Controllers/teachers";
+export async function getTeachersByDepartment(department, params = {}) {
+  const query = new URLSearchParams({ department, ...params });
+  return get(`teacher/get_teachers.php?${query}`);
+}
 
-function toJson(res) {
-  return res.json();
+export async function getTeacherHandles(teacherId) {
+  const teacher = await getTeacher(teacherId);
+  return teacher?.data?.handles ?? teacher?.handles ?? [];
 }
 
 export async function getTeacher(teacherId) {

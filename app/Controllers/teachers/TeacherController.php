@@ -65,6 +65,10 @@ class TeacherController
   }
 
 
+  public function getTeacherList(string $department, array $query): array {
+    return $this->service->getTeacherList($department, $query);
+  }
+
   public function getAll(
     string $department
   ): array {

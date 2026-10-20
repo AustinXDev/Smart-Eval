@@ -7,11 +7,12 @@ export const options = {
       executor: "ramping-vus",
       startVUs: 0,
       stages: [
-        { duration: "15s", target: 10 },
-        { duration: "30s", target: 10 },
-        { duration: "15s", target: 0 },
+        { duration: "15s", target: 25 },
+        { duration: "30s", target: 50 },
+        { duration: "1m", target: 50 },
+        { duration: "30s", target: 0 },
       ],
-      gracefulRampDown: "5s",
+      gracefulRampDown: "10s",
     },
   },
 
@@ -30,6 +31,7 @@ export const options = {
         delayAbortEval: "10s",
       },
     ],
+    checks: ["rate>0.99"],
   },
 };
 

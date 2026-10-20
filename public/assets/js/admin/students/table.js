@@ -2,12 +2,7 @@ import { escapeHTML } from "../../services/escape.js";
 import { createDataTable } from "../shared/datatable_config.js";
 import { fetchAllPrograms } from "../shared/program_api.js";
 import { getStudentsByDepartment } from "./api/api.js";
-import {
-  showTableLoader,
-  hideTableLoader,
-  showCardLoader,
-  hideCardLoader,
-} from "../shared/Loader.js";
+import { showCardLoader, hideCardLoader } from "../shared/Loader.js";
 
 let department;
 let table;
@@ -24,6 +19,39 @@ $(document).ready(async function () {
   table = createDataTable(
     "#studentsTable",
     {
+      serverSide: true,
+      processing: true,
+      createdRow: styleStudentRow,
+      ajax: async function (request, callback) {
+        try {
+          const response = await getStudentsByDepartment(department, {
+            draw: request.draw,
+            start: request.start,
+            length: request.length,
+            search: request.search.value,
+            status: $("#statusFilter").val() || "All",
+            program: $("#courseFilter").val() || "All",
+          });
+
+          if (response.status !== "success") {
+            throw new Error(response.message || "Unable to load students.");
+          }
+
+          callback({ ...response, data: response.data.map(renderStudentRow) });
+        } catch (error) {
+          callback({
+            draw: request.draw,
+            recordsTotal: 0,
+            recordsFiltered: 0,
+            data: [],
+          });
+          StatusModal.show(
+            "Error",
+            error.message || "Unable to load students.",
+            "error",
+          );
+        }
+      },
       columnDefs: [
         {
           orderable: false,
@@ -58,209 +86,40 @@ $(document).ready(async function () {
   // STATUS FILTER
   // ============================================================
 
-  $("#statusFilter").on("change", function () {
-    const status = $(this).val();
-
-    if (status === "All") {
-      table.column(4).search("").draw();
-    } else {
-      table
-        .column(4)
-        .search("^" + status + "$", true, false)
-        .draw();
-    }
+  $("#statusFilter, #courseFilter").on("change", function () {
+    table.ajax.reload();
   });
 
-  // ============================================================
-  // COURSE / PROGRAM FILTER
-  // ============================================================
-
-  $("#courseFilter").on("change", function () {
-    const program = $(this).val();
-
-    if (program === "All") {
-      table.column(3).search("").draw();
-    } else {
-      table.column(3).search(program, false, true).draw();
-    }
-  });
-
-  // ============================================================
-  // SEARCH
-  // ============================================================
-
-  $("#searchBox").on("keyup", function () {
-    table.search(this.value).draw();
+  let searchTimer;
+  $("#searchBox").on("input", function () {
+    const value = this.value;
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => table.search(value).draw(), 350);
   });
 
   // ============================================================
   // INITIAL LOAD
   // ============================================================
 
-  await Promise.all([loadStudents(), loadStudentCard()]);
+  await loadStudentCard();
 });
 
 // ================================================================
 // LOAD STUDENTS
 // ================================================================
 
-export async function loadStudents() {
-  showTableLoader("#studentsTable", "Loading student records...");
+export function loadStudents() {
+  return new Promise((resolve) => table.ajax.reload(resolve, true));
+}
 
-  try {
-    const data = await getStudentsByDepartment(department);
+function renderStudentRow(student) {
+  // --------------------------------------------------------
+  // STATUS
+  // --------------------------------------------------------
 
-    if (data.status !== "success") {
-      throw new Error(data.message || "Unable to load students.");
-    }
-
-    table.clear();
-
-    const students = data.students ?? [];
-
-    if (students.length === 0) {
-      table.draw();
-
-      const tbody = document.querySelector("#studentsTable tbody");
-
-      if (tbody) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="6" class="px-5 py-16">
-
-              <div class="
-                flex flex-col
-                items-center
-                justify-center
-                text-center
-              ">
-
-                <!-- Icon -->
-                <div class="
-                  mb-5
-                  flex h-16 w-16
-                  items-center justify-center
-                  rounded-2xl
-                  border border-violet-100
-                  bg-violet-50
-                  text-violet-500
-                ">
-                  <i class="
-                    fa-solid
-                    fa-user-group
-                    text-xl
-                  "></i>
-                </div>
-
-
-                <!-- Title -->
-                <h3 class="
-                  text-sm
-                  font-semibold
-                  text-slate-800
-                ">
-                  No student records found
-                </h3>
-
-
-                <!-- Description -->
-                <p class="
-                  mt-1.5
-                  max-w-sm
-                  text-xs
-                  leading-relaxed
-                  text-slate-400
-                ">
-                  There are currently no registered students
-                  available for this department.
-                </p>
-
-
-                <!-- Department Badge -->
-                ${
-                  department
-                    ? `
-                      <span class="
-                        mt-4
-                        inline-flex
-                        items-center
-                        gap-1.5
-                        rounded-full
-                        bg-slate-50
-                        px-3 py-1.5
-                        text-[10px]
-                        font-semibold
-                        uppercase
-                        tracking-wide
-                        text-slate-500
-                      ">
-                        <span class="
-                          h-1.5 w-1.5
-                          rounded-full
-                          bg-violet-500
-                        "></span>
-
-                        ${department}
-                      </span>
-                    `
-                    : ""
-                }
-
-
-                <!-- Optional Action -->
-                <button
-                  type="button"
-                  class="
-                    mt-5
-                    inline-flex
-                    items-center
-                    gap-2
-                    rounded-xl
-                    border border-violet-200
-                    bg-white
-                    px-4 py-2
-                    text-xs
-                    font-semibold
-                    text-violet-600
-                    shadow-sm
-                    transition-all
-                    duration-200
-
-                    hover:-translate-y-0.5
-                    hover:border-violet-300
-                    hover:bg-violet-50
-                    hover:shadow-md
-
-                    focus:outline-none
-                    focus:ring-4
-                    focus:ring-violet-500/10
-
-                    active:translate-y-0
-                    active:scale-[0.98]
-                  "
-                  onclick="document.querySelector('.add-btn')?.click()"
-                >
-                  <i class="fa-solid fa-plus text-[10px]"></i>
-                  Add Student
-                </button>
-
-              </div>
-
-            </td>
-          </tr>
-        `;
-      }
-
-      return;
-    }
-
-    students.forEach((student) => {
-      // --------------------------------------------------------
-      // STATUS
-      // --------------------------------------------------------
-
-      const statusBadge = student.is_active
-        ? `
+  const statusBadge =
+    Number(student.is_active) === 1
+      ? `
           <span class="
             inline-flex items-center gap-1.5
             rounded-full bg-emerald-50
@@ -273,7 +132,7 @@ export async function loadStudents() {
             Active
           </span>
         `
-        : `
+      : `
           <span class="
             inline-flex items-center gap-1.5
             rounded-full bg-red-50
@@ -287,11 +146,11 @@ export async function loadStudents() {
           </span>
         `;
 
-      // --------------------------------------------------------
-      // ACTION BUTTONS
-      // --------------------------------------------------------
+  // --------------------------------------------------------
+  // ACTION BUTTONS
+  // --------------------------------------------------------
 
-      const actionButtons = `
+  const actionButtons = `
         <div class="flex items-center justify-center gap-1.5">
 
           <!-- View -->
@@ -368,19 +227,18 @@ export async function loadStudents() {
         </div>
         `;
 
-      // --------------------------------------------------------
-      // TABLE ROW
-      // --------------------------------------------------------
+  // --------------------------------------------------------
+  // TABLE ROW
+  // --------------------------------------------------------
 
-      const rowNode = table.row
-        .add([
-          `
+  return [
+    `
             <span class="font-medium text-slate-700">
               ${escapeHTML(student.student_id)}
             </span>
           `,
 
-          `
+    `
             <div class="flex items-center gap-3">
 
               <div class="
@@ -404,13 +262,13 @@ export async function loadStudents() {
             </div>
           `,
 
-          `
+    `
             <span class="text-slate-600">
               ${escapeHTML(student.department.toUpperCase())}
             </span>
           `,
 
-          `
+    `
             <span
               class="
                 inline-flex max-w-[180px]
@@ -424,103 +282,42 @@ export async function loadStudents() {
             </span>
           `,
 
-          `
+    `
           <div class="flex justify-center items-center">
             ${statusBadge}
           </div>
 
           `,
 
-          actionButtons,
-        ])
-        .draw(false)
-        .node();
+    actionButtons,
+  ];
+}
 
-      // --------------------------------------------------------
-      // ROW STYLING
-      // --------------------------------------------------------
+function styleStudentRow(rowNode) {
+  // --------------------------------------------------------
+  // ROW STYLING
+  // --------------------------------------------------------
 
-      rowNode.classList.add(
-        "group",
-        "border-b",
-        "border-slate-100",
-        "transition-colors",
-        "duration-150",
-        "hover:bg-slate-50/70",
-      );
+  rowNode.classList.add(
+    "group",
+    "border-b",
+    "border-slate-100",
+    "transition-colors",
+    "duration-150",
+    "hover:bg-slate-50/70",
+  );
 
-      // --------------------------------------------------------
-      // CELL STYLING
-      // --------------------------------------------------------
+  // --------------------------------------------------------
+  // CELL STYLING
+  // --------------------------------------------------------
 
-      rowNode.querySelectorAll("td").forEach((td, index) => {
-        td.classList.add("px-5", "py-3.5", "text-sm", "whitespace-nowrap");
+  rowNode.querySelectorAll("td").forEach((td, index) => {
+    td.classList.add("px-5", "py-3.5", "text-sm", "whitespace-nowrap");
 
-        if (index === 5) {
-          td.classList.add("text-right");
-        }
-      });
-    });
-  } catch (error) {
-    console.error("Error loading students:", error);
-
-    const tbody = document.querySelector("#studentsTable tbody");
-
-    if (tbody) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="6">
-
-            <div class="
-              flex flex-col
-              items-center
-              justify-center
-              py-14
-              text-center
-            ">
-
-              <div class="
-                mb-3 flex h-12 w-12
-                items-center justify-center
-                rounded-xl bg-red-50
-                text-red-500
-              ">
-                <i class="fas fa-exclamation-triangle"></i>
-              </div>
-
-              <p class="text-sm font-semibold text-slate-700">
-                Unable to load students
-              </p>
-
-              <p class="mt-1 text-xs text-slate-400">
-                Please try again.
-              </p>
-
-              <button
-                type="button"
-                onclick="location.reload()"
-                class="
-                  mt-4 rounded-lg
-                  bg-violet-600
-                  px-4 py-2
-                  text-xs font-semibold
-                  text-white
-                  transition
-                  hover:bg-violet-700
-                "
-              >
-                Try Again
-              </button>
-
-            </div>
-
-          </td>
-        </tr>
-      `;
+    if (index === 5) {
+      td.classList.add("text-right");
     }
-  } finally {
-    hideTableLoader("#studentsTableBody");
-  }
+  });
 }
 
 // ================================================================
@@ -547,7 +344,7 @@ export async function loadStudentCard() {
   showCardLoader(["total-students", "total-active", "total-inactive"]);
 
   try {
-    const data = await getStudentsByDepartment(department);
+    const data = await getStudentsByDepartment(department, { counts_only: 1 });
 
     if (data.status !== "success") {
       throw new Error(data.message || "Unable to load student counts.");

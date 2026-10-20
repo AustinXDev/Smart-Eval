@@ -68,6 +68,37 @@ class StudentService
     }
 
 
+    public function getStudentList(string $department, array $query): array
+    {
+        $department = trim($department);
+        if ($department === '') {
+            throw new RuntimeException('Department is required.');
+        }
+        $counts = $this->studentRepo->getCountByDepartment($department);
+        if (($query['counts_only'] ?? '') === '1') {
+            return ['counts' => $counts];
+        }
+        $search = $query['search'] ?? [];
+        $search = is_array($search) ? ($search['value'] ?? '') : $search;
+        $status = $query['status'] ?? 'All';
+        $program = $query['program'] ?? 'All';
+        if (!is_string($search) || !is_string($program) || !in_array($status, ['All', 'Active', 'Inactive'], true)) {
+            throw new RuntimeException('Invalid student filters.');
+        }
+        $page = $this->studentRepo->findPageByDepartment(
+            $department,
+            max(0, (int) ($query['start'] ?? 0)),
+            max(1, min(100, (int) ($query['length'] ?? 5))),
+            trim($search), $status, $program
+        );
+        return [
+            'draw' => max(0, (int) ($query['draw'] ?? 0)),
+            'recordsTotal' => (int) $counts['active'],
+            'recordsFiltered' => $page['filtered'],
+            'data' => $page['students'],
+        ];
+    }
+
     public function createStudent(
         string $studentId,
         string $fullName,

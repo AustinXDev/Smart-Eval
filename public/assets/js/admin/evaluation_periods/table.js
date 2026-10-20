@@ -1,111 +1,148 @@
+import { escapeHTML } from "../../services/escape.js";
 import { createDataTable } from "../shared/datatable_config.js";
-import { getDashboardData } from "./api/api.js";
-import {
-  showTableLoader,
-  hideTableLoader,
-  showCardLoader,
-  hideCardLoader,
-} from "../shared/Loader.js";
+import { getDashboardData, getEvaluationPeriods } from "./api/api.js";
+import { showCardLoader, hideCardLoader } from "../shared/Loader.js";
 
 let table;
-let lastPeriodsHash = null;
+let latestDraw = 0;
+let listError = "";
 
 export function initEvaluationTable() {
   return new Promise((resolve) => {
     $(document).ready(function () {
       table = createDataTable(
         "#evaluationTable",
-        { columnDefs: [{ orderable: false, targets: 4 }] },
+        {
+          serverSide: true,
+          processing: true,
+          pageLength: 5,
+          columnDefs: [{ orderable: false, searchable: false, targets: 4 }],
+          createdRow: stylePeriodRow,
+          language: {
+            emptyTable: renderPeriodState("No evaluation period records found"),
+            zeroRecords: renderPeriodState("No matching evaluation periods"),
+            processing:
+              '<span class="period-loading" role="status"><span class="period-loading__icon"><span class="period-loading__spinner" aria-hidden="true"></span></span><strong>Loading evaluation period records...</strong><span class="period-loading__subtitle">Please wait a moment...</span></span>',
+            info: "Showing _START_ to _END_ of _TOTAL_ records",
+            infoEmpty: "Showing 0 to 0 of 0 records",
+            paginate: { previous: "Previous", next: "Next" },
+          },
+          ajax: async function (request, callback) {
+            const draw = Number(request.draw);
+            latestDraw = draw;
+            const tableElement = document.getElementById("evaluationTable");
+            tableElement?.classList.add("periods-loading");
+            tableElement?.setAttribute("aria-busy", "true");
+            const loader = document.getElementById(
+              "evaluationTable_processing",
+            );
+            if (loader) loader.style.display = "block";
+            try {
+              let result;
+              try {
+                const response = await getEvaluationPeriods({
+                  draw,
+                  start: request.start,
+                  length: request.length,
+                  search: request.search.value,
+                  status: $("#statusFilter").val() || "All",
+                });
+                if (response.status !== "success")
+                  throw new Error(
+                    response.message || "Unable to load evaluation periods.",
+                  );
+                if (
+                  !Array.isArray(response.data) ||
+                  Number(response.draw) !== draw ||
+                  response.recordsTotal == null ||
+                  response.recordsFiltered == null ||
+                  !Number.isInteger(Number(response.recordsTotal)) ||
+                  !Number.isInteger(Number(response.recordsFiltered)) ||
+                  Number(response.recordsTotal) < 0 ||
+                  Number(response.recordsFiltered) < 0
+                ) {
+                  throw new Error("Invalid evaluation-period response.");
+                }
+                result = {
+                  ...response,
+                  data: response.data.map(renderPeriodRow),
+                };
+                if (draw === latestDraw) listError = "";
+              } catch (error) {
+                console.error(error);
+                if (draw === latestDraw)
+                  listError =
+                    error.message || "Unable to load evaluation periods.";
+                result = {
+                  draw,
+                  recordsTotal: 0,
+                  recordsFiltered: 0,
+                  data: [],
+                };
+              }
+              callback(result);
+            } finally {
+              if (draw === latestDraw) {
+                if (loader) loader.style.display = "none";
+                tableElement?.classList.remove("periods-loading");
+                tableElement?.setAttribute("aria-busy", "false");
+              }
+            }
+          },
+          drawCallback: function () {
+            if (!listError) return;
+            const cell = this.api()
+              .table()
+              .container()
+              .querySelector("td.dataTables_empty, td.dt-empty");
+            if (cell) cell.innerHTML = renderPeriodState(listError, true);
+          },
+        },
         "Search evaluation periods",
       );
 
-      if (!table) {
-        console.error("Failed to initialize evaluation DataTable.");
-        resolve(null);
-        return;
-      }
-
+      let searchTimer;
+      $("#searchBox").on("input", function () {
+        const value = this.value;
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => table.search(value).draw(), 350);
+      });
       $("#statusFilter").on("change", function () {
-        const status = $(this).val();
-        const statusColumn = table.column(2);
-        if (status === "All") return statusColumn.search("").draw();
-        statusColumn.search(status, false, false).draw();
+        clearTimeout(searchTimer);
+        table.search($("#searchBox").val() || "").draw();
       });
-
-      $("#searchBox").on("keyup", function () {
-        table.search(this.value).draw();
-      });
-
+      $("#evaluationTable").on("click", ".retryPeriodsBtn", () =>
+        loadEvaluationPeriods(),
+      );
+      $("#evaluationTable").on("click", ".emptyCreatePeriodBtn", () =>
+        document.querySelector(".createPeriodBtn")?.click(),
+      );
       resolve(table);
     });
   });
 }
 
-export async function loadEvaluationPeriods(periods = []) {
-  try {
-    const hash = JSON.stringify(periods);
+export function loadEvaluationPeriods(resetPaging = true) {
+  if (!table) return Promise.resolve();
+  return new Promise((resolve) => table.ajax.reload(resolve, resetPaging));
+}
 
-    if (hash === lastPeriodsHash) return;
+function renderPeriodState(message, error = false) {
+  return `<div class="flex flex-col items-center justify-center py-14 text-center">
+    <p class="text-sm font-semibold text-slate-700">${escapeHTML(message)}</p>
+    <p class="mt-1 text-xs text-slate-400">${error ? "Please try again." : "Try changing your search or filters."}</p>
+    <button type="button" class="${error ? "retryPeriodsBtn" : "emptyCreatePeriodBtn"} mt-4 rounded-lg bg-violet-600 px-4 py-2 text-xs text-white">${error ? "Try Again" : "Create Period"}</button>
+  </div>`;
+}
 
-    lastPeriodsHash = hash;
+function renderPeriodRow(period) {
+  let statusBadge, buttons;
 
-    showTableLoader("#evaluationTable", "Loading evaluation period records...");
+  const baseBtn =
+    "flex h-8 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 text-[10px] font-medium shadow-sm transition-all duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-violet-500/20";
 
-    table.clear();
-
-    if (periods.length === 0) {
-      const tbody = document.querySelector("#evaluationTable tbody");
-
-      if (tbody) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="5" class="px-5 py-16">
-              <div class="flex flex-col items-center justify-center text-center">
-                <div class="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-violet-100 bg-violet-50 text-violet-500">
-                  <i class="fa-solid fa-calendar-days text-xl"></i>
-                </div>
-
-                <h3 class="text-sm font-semibold text-slate-800">
-                  No evaluation period records found
-                </h3>
-
-                <p class="mt-1.5 max-w-sm text-xs leading-relaxed text-slate-400">
-                  There are currently no evaluation periods available for this department.
-                </p>
-
-                <button
-                  type="button"
-                  class="mt-5 inline-flex items-center gap-2 rounded-xl border border-violet-200 bg-white px-4 py-2 text-xs font-semibold text-violet-600 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-violet-300 hover:bg-violet-50 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-violet-500/10 active:translate-y-0 active:scale-[0.98]"
-                  onclick="document.querySelector('.createPeriodBtn')?.click()"
-                >
-                  <i class="fa-solid fa-plus text-[10px]"></i>
-                  Create Period
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
-      }
-
-      return;
-    }
-
-    periods.forEach((period) => {
-      const today = new Date();
-      const start = new Date(period.start_date);
-      const end = new Date(period.end_date);
-
-      const isActive = Number(period.is_active) === 1;
-      const isClosed = Number(period.is_closed) === 1;
-      const isForced = Number(period.is_forced) === 1;
-
-      let statusBadge, buttons;
-
-      const baseBtn =
-        "flex h-8 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 text-[10px] font-medium shadow-sm transition-all duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-violet-500/20";
-
-      if (isClosed) {
-        statusBadge = `
+  if (period.display_status === "Archived") {
+    statusBadge = `
         <div class="flex justify-center">
             <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
                 <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
@@ -114,11 +151,11 @@ export async function loadEvaluationPeriods(periods = []) {
         </div>
     `;
 
-        buttons = `
+    buttons = `
         <div class="flex items-center justify-center gap-1.5">
             <button
                 class="downloadBtn ${baseBtn} hover:border-violet-200 hover:bg-violet-50 hover:text-violet-600"
-                data-id="${period.period_id}"
+                data-id="${escapeHTML(String(period.period_id ?? ""))}"
                 title="Download Report"
                 aria-label="Download Report"
             >
@@ -126,10 +163,10 @@ export async function loadEvaluationPeriods(periods = []) {
             </button>
         </div>
     `;
-      } else if (isActive || isForced || (today >= start && today <= end)) {
-        // ACTIVE
+  } else if (period.display_status === "Active") {
+    // ACTIVE
 
-        statusBadge = `
+    statusBadge = `
         <div class="flex justify-center">
             <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
@@ -138,11 +175,11 @@ export async function loadEvaluationPeriods(periods = []) {
         </div>
     `;
 
-        buttons = `
+    buttons = `
         <div class="flex items-center justify-center gap-1.5">
             <button
                 class="closeBtn ${baseBtn} border-violet-200 bg-violet-50 text-violet-600 hover:border-violet-300 hover:bg-violet-100"
-                data-id="${period.period_id}"
+                data-id="${escapeHTML(String(period.period_id ?? ""))}"
                 title="Close Period"
                 aria-label="Close Period"
             >
@@ -150,10 +187,10 @@ export async function loadEvaluationPeriods(periods = []) {
             </button>
         </div>
     `;
-      } else if (today < start) {
-        // UPCOMING
+  } else if (period.display_status === "Upcoming") {
+    // UPCOMING
 
-        statusBadge = `
+    statusBadge = `
         <div class="flex justify-center">
             <span class="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-semibold text-violet-700">
                 <span class="h-1.5 w-1.5 rounded-full bg-violet-500"></span>
@@ -162,11 +199,11 @@ export async function loadEvaluationPeriods(periods = []) {
         </div>
     `;
 
-        buttons = `
+    buttons = `
         <div class="flex items-center justify-center gap-1.5">
             <button
                 class="editBtn ${baseBtn}"
-                data-id="${period.period_id}"
+                data-id="${escapeHTML(String(period.period_id ?? ""))}"
                 title="Edit Period"
                 aria-label="Edit Period"
             >
@@ -175,7 +212,7 @@ export async function loadEvaluationPeriods(periods = []) {
 
             <button
                 class="ActiveBtn ${baseBtn} hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-600"
-                data-id="${period.period_id}"
+                data-id="${escapeHTML(String(period.period_id ?? ""))}"
                 title="Activate Period"
                 aria-label="Activate Period"
             >
@@ -184,7 +221,7 @@ export async function loadEvaluationPeriods(periods = []) {
 
             <button
                 class="deleteBtn ${baseBtn} hover:border-red-200 hover:bg-red-50 hover:text-red-600"
-                data-id="${period.period_id}"
+                data-id="${escapeHTML(String(period.period_id ?? ""))}"
                 title="Delete Period"
                 aria-label="Delete Period"
             >
@@ -192,10 +229,10 @@ export async function loadEvaluationPeriods(periods = []) {
             </button>
         </div>
     `;
-      } else {
-        // EXPIRED → ARCHIVED
+  } else {
+    // EXPIRED → ARCHIVED
 
-        statusBadge = `
+    statusBadge = `
         <div class="flex justify-center">
             <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
                 <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
@@ -204,11 +241,11 @@ export async function loadEvaluationPeriods(periods = []) {
         </div>
     `;
 
-        buttons = `
+    buttons = `
         <div class="flex items-center justify-center gap-1.5">
             <button
                 class="downloadBtn ${baseBtn} hover:border-violet-200 hover:bg-violet-50 hover:text-violet-600"
-                data-id="${period.period_id}"
+                data-id="${escapeHTML(String(period.period_id ?? ""))}"
                 title="Download Report"
                 aria-label="Download Report"
             >
@@ -216,65 +253,58 @@ export async function loadEvaluationPeriods(periods = []) {
             </button>
         </div>
     `;
-      }
+  }
 
-      const academicYear = `
+  const academicYear = `
           <div class="flex items-center gap-3">
             <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-slate-500">
               <i class="fa-solid fa-calendar text-[10px]"></i>
             </div>
             <div class="min-w-0">
-              <p class="truncate text-sm font-semibold text-slate-800">${period.academic_year}</p>
+              <p class="truncate text-sm font-semibold text-slate-800">${escapeHTML(String(period.academic_year ?? ""))}</p>
               <p class="mt-0.5 text-[11px] text-slate-400">Academic Year</p>
             </div>
           </div>
         `;
 
-      const semester = `
+  const semester = `
           <span class="inline-flex items-center gap-2 text-sm font-medium text-slate-600">
             <span class="h-1.5 w-1.5 rounded-full bg-violet-500"></span>
-            ${period.semester}
+            ${escapeHTML(String(period.semester ?? ""))}
           </span>
         `;
 
-      const restriction = `
+  const restriction = `
           <span class="inline-flex items-center gap-2 text-sm font-medium text-slate-600">
             <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
-            ${period.target_dept || "—"}
+            ${escapeHTML(period.target_dept || "—")}
           </span>
         `;
 
-      const rowNode = table.row
-        .add([academicYear, semester, statusBadge.trim(), restriction, buttons])
-        .draw(false)
-        .node();
+  return [academicYear, semester, statusBadge.trim(), restriction, buttons];
+}
 
-      rowNode.classList.add(
-        "group",
-        "border-b",
-        "border-slate-100",
-        "transition-colors",
-        "duration-150",
-        "hover:bg-slate-50/70",
-      );
+function stylePeriodRow(rowNode) {
+  rowNode.classList.add(
+    "group",
+    "border-b",
+    "border-slate-100",
+    "transition-colors",
+    "duration-150",
+    "hover:bg-slate-50/70",
+  );
 
-      rowNode.querySelectorAll("td").forEach((td, index) => {
-        td.classList.add("px-5", "py-4", "align-middle", "whitespace-nowrap");
+  rowNode.querySelectorAll("td").forEach((td, index) => {
+    td.classList.add("px-5", "py-4", "align-middle", "whitespace-nowrap");
 
-        if (index === 4) {
-          td.classList.add("text-right");
-        }
-      });
+    if (index === 4) {
+      td.classList.add("text-right");
+    }
+  });
 
-      rowNode
-        .querySelectorAll("button")
-        .forEach((btn) => btn.classList.add("cursor-pointer"));
-    });
-  } catch (error) {
-    console.log(error);
-  } finally {
-    hideTableLoader("#evaluationTable");
-  }
+  rowNode
+    .querySelectorAll("button")
+    .forEach((btn) => btn.classList.add("cursor-pointer"));
 }
 
 export async function loadPeriodCard(activeData = []) {
@@ -321,7 +351,7 @@ export async function loadPeriodCard(activeData = []) {
             ? Math.round((totalFinished / totalStudents) * 100)
             : "--";
 
-        const status = p.is_active === 1 ? "Active" : "Inactive";
+        const status = Number(p.is_active) === 1 ? "Active" : "Inactive";
 
         if (p.target_dept.toLowerCase() === "college") {
           college.year = p.academic_year;
@@ -381,15 +411,20 @@ export async function loadPeriodCard(activeData = []) {
   }
 }
 
-export async function loadDashboard() {
-  try {
-    const data = await getDashboardData();
-
-    if (data.status !== "error") {
-      loadEvaluationPeriods(data.all_periods ?? []);
-      loadPeriodCard(data.active_periods ?? []);
-    }
-  } catch (error) {
-    console.error("Dashboard initialization error:", error);
-  }
+export async function loadDashboard({
+  refreshTable = true,
+  resetPaging = true,
+} = {}) {
+  await Promise.all([
+    refreshTable ? loadEvaluationPeriods(resetPaging) : Promise.resolve(),
+    (async () => {
+      try {
+        const response = await getDashboardData({ cards_only: 1 });
+        if (response.status === "error") throw new Error(response.message);
+        await loadPeriodCard(response.active_periods ?? []);
+      } catch (error) {
+        console.error("Unable to refresh period cards:", error);
+      }
+    })(),
+  ]);
 }

@@ -17,7 +17,7 @@ initCreatePeriodForm();
 initUpdatePeriodForm();
 
 initEvaluationTable().then(() => {
-  initAutoRefresh(60000);
+  initAutoRefresh(60000, false);
 });
 
 document.addEventListener("visibilitychange", () => {

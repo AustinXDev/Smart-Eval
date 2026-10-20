@@ -34,9 +34,10 @@ try {
         $service
     );
 
-    $result = $controller->getAllByDepartment(
-        $department
-    );
+    // Keep the legacy response for other callers; the table opts into paging.
+    $result = isset($_GET['draw']) || isset($_GET['counts_only'])
+        ? $controller->getStudentList($department, $_GET)
+        : $controller->getAllByDepartment($department);
 
     echo json_encode([
         'status' => 'success',

@@ -29,6 +29,11 @@ class StudentController
     /**
      * Get all student by department
      */
+    public function getStudentList(string $department, array $query): array
+    {
+        return $this->service->getStudentList($department, $query);
+    }
+
     public function getAllByDepartment(
         string $department
     ): array {

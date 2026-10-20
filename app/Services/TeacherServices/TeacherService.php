@@ -507,6 +507,41 @@ class TeacherService
     /**
      * Get all teachers and count
      */
+    public function getTeacherList(string $department, array $query): array
+    {
+        $department = trim($department);
+        if ($department === '') {
+            throw new RuntimeException('Department is required.');
+        }
+        $counts = $this->teacherRepo->getCountByDepartment($department);
+        if (($query['counts_only'] ?? '') === '1') {
+            return ['counts' => $counts];
+        }
+        $search = $query['search'] ?? '';
+        $search = is_array($search) ? ($search['value'] ?? '') : $search;
+        $status = $query['status'] ?? 'All';
+        if (!is_string($search) || !in_array($status, ['All', 'Active', 'Inactive'], true)) {
+            throw new RuntimeException('Invalid teacher filters.');
+        }
+        foreach (['draw', 'start', 'length'] as $key) {
+            if (isset($query[$key]) && filter_var($query[$key], FILTER_VALIDATE_INT) === false) {
+                throw new RuntimeException('Invalid pagination parameters.');
+            }
+        }
+        $page = $this->teacherRepo->findPageByDepartment(
+            $department,
+            max(0, (int) ($query['start'] ?? 0)),
+            max(1, min(100, (int) ($query['length'] ?? 5))),
+            trim($search), $status
+        );
+        return [
+            'draw' => max(0, (int) ($query['draw'] ?? 0)),
+            'recordsTotal' => (int) $counts['total'],
+            'recordsFiltered' => $page['filtered'],
+            'data' => $page['teachers'],
+        ];
+    }
+
     public function getAll(
         string $department
     ): array {

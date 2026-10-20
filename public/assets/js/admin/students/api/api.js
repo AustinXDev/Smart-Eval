@@ -13,9 +13,10 @@ export async function getStudent(studentId) {
   }
 }
 
-export async function getStudentsByDepartment(department) {
+export async function getStudentsByDepartment(department, params = {}) {
+  const query = new URLSearchParams({ department, ...params });
   return get(
-    `student/get_all_students.php?department=${encodeURIComponent(department)}`,
+    `student/get_all_students.php?${query}`,
   );
 }
 

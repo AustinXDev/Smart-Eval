@@ -1,15 +1,12 @@
 import { escapeHTML } from "../../services/escape.js";
 import { createDataTable } from "../shared/datatable_config.js";
-import { get } from "../../services/http.js";
-import {
-  showTableLoader,
-  hideTableLoader,
-  showCardLoader,
-  hideCardLoader,
-} from "../shared/Loader.js";
+import { getTeachersByDepartment, getTeacherHandles } from "./api/api.js";
+import { showCardLoader, hideCardLoader } from "../shared/Loader.js";
 
 let department;
 let table;
+let latestDraw = 0;
+let listError = "";
 
 $(document).ready(function () {
   const wrapper = document.getElementById("tableWrapper");
@@ -18,45 +15,100 @@ $(document).ready(function () {
   table = createDataTable(
     "#teachersTable",
     {
+      serverSide: true,
+      processing: true,
+      pageLength: 5,
+      createdRow: styleTeacherRow,
+      language: {
+        emptyTable: renderTeacherState("No teacher records found"),
+        zeroRecords: renderTeacherState("No matching teachers"),
+        processing: `<span class="teacher-loading" role="status">
+          <span class="teacher-loading__icon"><span class="teacher-loading__spinner" aria-hidden="true"></span></span>
+          <span class="teacher-loading__title">Loading teacher records...</span>
+          <span class="teacher-loading__subtitle">Please wait a moment...</span>
+        </span>`,
+        info: "Showing _START_ to _END_ of _TOTAL_ records",
+        infoEmpty: "Showing 0 to 0 of 0 records",
+        paginate: { previous: "Previous", next: "Next" },
+      },
+      ajax: async function (request, callback) {
+        const draw = Number(request.draw);
+        latestDraw = draw;
+        const loader = document.getElementById("teachersTable_processing");
+        if (loader) loader.style.display = "block";
+        try {
+          let result;
+          try {
+            const response = await getTeachersByDepartment(department, {
+              draw,
+              start: request.start,
+              length: request.length,
+              search: request.search.value,
+              status: $("#statusFilter").val() || "All",
+            });
+            if (response.status !== "success")
+              throw new Error(response.message || "Unable to load teachers.");
+            if (
+              !Array.isArray(response.data) ||
+              Number(response.draw) !== draw ||
+              !Number.isInteger(Number(response.recordsTotal)) ||
+              response.recordsTotal == null ||
+              !Number.isInteger(Number(response.recordsFiltered)) ||
+              response.recordsFiltered == null ||
+              Number(response.recordsTotal) < 0 ||
+              Number(response.recordsFiltered) < 0
+            ) {
+              throw new Error("Invalid teacher-list response.");
+            }
+            result = { ...response, data: response.data.map(renderTeacherRow) };
+            if (draw === latestDraw) listError = "";
+          } catch (error) {
+            console.error(error);
+            if (draw === latestDraw)
+              listError = error.message || "Unable to load teachers.";
+            result = { draw, recordsTotal: 0, recordsFiltered: 0, data: [] };
+          }
+          callback(result);
+        } finally {
+          if (draw === latestDraw && loader) loader.style.display = "none";
+        }
+      },
+      drawCallback: function () {
+        if (!listError) return;
+        const cell = this.api()
+          .table()
+          .container()
+          .querySelector("td.dataTables_empty, td.dt-empty");
+        if (cell) cell.innerHTML = renderTeacherState(listError, true);
+      },
       columnDefs: [{ orderable: false, targets: 5 }],
     },
     "Search teachers",
   );
 
-  // Status filter
+  let searchTimer;
+  $("#searchBox").on("input", function () {
+    const value = this.value;
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => table.search(value).draw(), 350);
+  });
   $("#statusFilter").on("change", function () {
-    const status = $(this).val();
-    if (status === "All") {
-      table.column(4).search("").draw();
-    } else {
-      table.column(4).search(status, false, false).draw();
-    }
+    clearTimeout(searchTimer);
+    table.search($("#searchBox").val() || "").draw();
   });
-
-  // Search box
-  $("#searchBox").on("keyup", function () {
-    table.search(this.value).draw();
-  });
-
-  loadTeachers();
+  $("#teachersTable").on("click", ".retryTeachersBtn", () => loadTeachers());
 });
 
-export async function loadTeachers() {
-  showTableLoader("#teachersTableBody", "Loading teacher records...");
+export function loadTeachers() {
+  if (!table) return Promise.resolve();
+  return new Promise((resolve) => table.ajax.reload(resolve, true));
+}
 
-  try {
-    const response = await get(
-      `teacher/get_teachers.php?department=${department}`,
-    );
-
-    const teachers = response?.data?.teachers ?? [];
-
-    table.clear();
-
-    teachers.forEach((teacher) => {
-      // Status Badge
-      const statusBadge = teacher.is_active
-        ? `
+function renderTeacherRow(teacher) {
+  // Status Badge
+  const statusBadge =
+    Number(teacher.is_active) === 1
+      ? `
       <span class="inline-flex items-center gap-1.5
                    rounded-full bg-emerald-50
                    px-2.5 py-1
@@ -65,7 +117,7 @@ export async function loadTeachers() {
         Active
       </span>
     `
-        : `
+      : `
       <span class="inline-flex items-center gap-1.5
                    rounded-full bg-red-50
                    px-2.5 py-1
@@ -75,11 +127,10 @@ export async function loadTeachers() {
       </span>
     `;
 
-      // Table Row
-      const rowNode = table.row
-        .add([
-          // Photo
-          `
+  // Table Row
+  return [
+    // Photo
+    `
       <div class="flex items-center justify-center">
         <div class="relative h-10 w-10">
 
@@ -104,8 +155,8 @@ export async function loadTeachers() {
       </div>
       `,
 
-          // Employee ID
-          `
+    // Employee ID
+    `
       <div class="flex justify-center items-center">
         <span class="text-center font-medium text-slate-700">
           ${escapeHTML(teacher.employee_id)}
@@ -113,8 +164,8 @@ export async function loadTeachers() {
       </div>
       `,
 
-          // Teacher Name
-          `
+    // Teacher Name
+    `
       <div class="flex flex-col">
         <span class="font-semibold text-slate-800">
           ${escapeHTML(teacher.full_name)}
@@ -126,8 +177,8 @@ export async function loadTeachers() {
       </div>
       `,
 
-          // Department
-          `
+    // Department
+    `
       <div class="flex justify-center items-center">
         <span class="inline-flex items-center rounded-md
                     bg-violet-50 px-2.5 py-1
@@ -138,11 +189,11 @@ export async function loadTeachers() {
       </div>
       `,
 
-          // Status
-          statusBadge,
+    // Status
+    statusBadge,
 
-          // Actions
-          `
+    // Actions
+    `
       <div class="flex items-center justify-center gap-1.5">
 
         <!-- View -->
@@ -161,7 +212,7 @@ export async function loadTeachers() {
                  focus:outline-none
                  focus:ring-2 focus:ring-blue-500/20
                  cursor-pointer"
-          data-teacher-id="${teacher.teacher_id}"
+          data-teacher-id="${escapeHTML(String(teacher.teacher_id))}"
           title="View Teacher">
 
           <i class="fas fa-eye text-xs"></i>
@@ -185,7 +236,7 @@ export async function loadTeachers() {
                  focus:outline-none
                  focus:ring-2 focus:ring-violet-500/20
                  cursor-pointer"
-          data-teacher-id="${teacher.teacher_id}"
+          data-teacher-id="${escapeHTML(String(teacher.teacher_id))}"
           title="Edit Teacher">
 
           <i class="fas fa-pen text-xs"></i>
@@ -209,7 +260,7 @@ export async function loadTeachers() {
                  focus:outline-none
                  focus:ring-2 focus:ring-red-500/20
                  cursor-pointer"
-          data-teacher-id="${teacher.teacher_id}"
+          data-teacher-id="${escapeHTML(String(teacher.teacher_id))}"
           title="Delete Teacher">
 
           <i class="fas fa-trash-alt text-xs"></i>
@@ -218,97 +269,41 @@ export async function loadTeachers() {
 
       </div>
       `,
-        ])
-        .draw(false)
-        .node();
+  ];
+}
 
-      // Row styling
-      rowNode.classList.add(
-        "group",
-        "transition-colors",
-        "duration-150",
-        "hover:bg-slate-50/80",
-      );
+function styleTeacherRow(rowNode) {
+  // Row styling
+  rowNode.classList.add(
+    "group",
+    "transition-colors",
+    "duration-150",
+    "hover:bg-slate-50/80",
+  );
 
-      // Cell styling
-      rowNode.querySelectorAll("td").forEach((td, index) => {
-        td.classList.add(
-          "px-5",
-          "py-3.5",
-          "text-xs",
-          "sm:text-sm",
-          "whitespace-nowrap",
-          "align-middle",
-        );
+  // Cell styling
+  rowNode.querySelectorAll("td").forEach((td, index) => {
+    td.classList.add(
+      "px-5",
+      "py-3.5",
+      "text-xs",
+      "sm:text-sm",
+      "whitespace-nowrap",
+      "align-middle",
+    );
 
-        // Center specific columns
-        if (index === 0 || index === 4 || index === 5) {
-          td.classList.add("text-center");
-        }
-      });
-    });
-
-    table.draw(false);
-  } catch (error) {
-    console.error(error);
-
-    const tbody = document.querySelector("$teachersTable tbody");
-
-    if (tbody) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="6">
-
-            <div class="
-              flex flex-col
-              items-center
-              justify-center
-              py-14
-              text-center
-            ">
-
-              <div class="
-                mb-3 flex h-12 w-12
-                items-center justify-center
-                rounded-xl bg-red-50
-                text-red-500
-              ">
-                <i class="fas fa-exclamation-triangle"></i>
-              </div>
-
-              <p class="text-sm font-semibold text-slate-700">
-                Unable to load students
-              </p>
-
-              <p class="mt-1 text-xs text-slate-400">
-                Please try again.
-              </p>
-
-              <button
-                type="button"
-                onclick="location.reload()"
-                class="
-                  mt-4 rounded-lg
-                  bg-violet-600
-                  px-4 py-2
-                  text-xs font-semibold
-                  text-white
-                  transition
-                  hover:bg-violet-700
-                "
-              >
-                Try Again
-              </button>
-
-            </div>
-
-          </td>
-        </tr>
-      `;
+    // Center specific columns
+    if (index === 0 || index === 4 || index === 5) {
+      td.classList.add("text-center");
     }
-  } finally {
-    hideTableLoader("#teachersTableBody");
-  }
+  });
+}
+
+function renderTeacherState(message, error = false) {
+  return `<div class="py-12 text-center">
+    <p class="text-sm font-semibold text-slate-700">${escapeHTML(message)}</p>
+    ${error ? '<button type="button" class="retryTeachersBtn mt-4 rounded-lg bg-violet-600 px-4 py-2 text-white">Try Again</button>' : '<p class="mt-1 text-xs text-slate-400">Try changing your search or filters.</p>'}
+  </div>`;
 }
 
 //load teacher handles
@@ -317,10 +312,7 @@ export async function loadTeacherHandles(teacherId) {
   tbody.innerHTML = ""; // clear previous rows
 
   try {
-    const response = await get(`teacher/get_teachers.php?id=${teacherId}`);
-
-    const handles =
-      response?.data?.data?.handles ?? response?.data?.handles ?? [];
+    const handles = await getTeacherHandles(teacherId);
 
     if (handles.length === 0) {
       tbody.innerHTML = `<tr><td colspan="3" class="text-center p-3">No handles assigned</td></tr>`;
@@ -385,13 +377,13 @@ export async function loadCard() {
   showCardLoader(["total-teachers", "total-active", "total-inactive"]);
 
   try {
-    const response = await get(
-      `teacher/get_teachers.php?department=${department}`,
-    );
+    const response = await getTeachersByDepartment(department, {
+      counts_only: 1,
+    });
 
-    const counts = response?.data?.counts ?? [];
+    const counts = response?.counts;
 
-    if (!counts) return;
+    if (!counts) throw new Error("Unable to load teacher counts.");
 
     document.getElementById("total-teachers").textContent =
       Number(counts.total) || 0;

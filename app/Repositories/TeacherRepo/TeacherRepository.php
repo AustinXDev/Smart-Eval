@@ -483,6 +483,33 @@ class TeacherRepository
     /**
      * Get all teachers by department
      */
+    public function findPageByDepartment(string $department, int $offset, int $limit, string $search, string $status): array
+    {
+        $where = 'department = :department';
+        $params = ['department' => $department];
+        if ($status !== 'All') {
+            $where .= ' AND is_active = :active';
+            $params['active'] = $status === 'Active' ? 1 : 0;
+        }
+        if ($search !== '') {
+            $where .= " AND (employee_id LIKE :employee ESCAPE '!' OR full_name LIKE :name ESCAPE '!' OR department LIKE :deptSearch ESCAPE '!')";
+            $pattern = '%' . strtr($search, ['!' => '!!', '%' => '!%', '_' => '!_']) . '%';
+            $params['employee'] = $params['name'] = $params['deptSearch'] = $pattern;
+        }
+        $from = ' FROM teachers WHERE ' . $where;
+        $count = $this->pdo->prepare('SELECT COUNT(*)' . $from);
+        $count->execute($params);
+        $filtered = (int) $count->fetchColumn();
+        $stmt = $this->pdo->prepare('SELECT teacher_id, employee_id, full_name, department, image_path, is_active' . $from . ' ORDER BY is_active DESC, full_name ASC, teacher_id ASC LIMIT :limit OFFSET :offset');
+        foreach ($params as $key => $value) {
+            $stmt->bindValue(':' . $key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return ['teachers' => $stmt->fetchAll(PDO::FETCH_ASSOC), 'filtered' => $filtered];
+    }
+
     public function findAllByDepartment(
         string $department
     ): array {

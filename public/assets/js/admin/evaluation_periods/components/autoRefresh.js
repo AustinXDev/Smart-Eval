@@ -3,7 +3,7 @@ import { loadDashboard } from "../table.js";
 let isUpdating = false;
 let refreshTimer = null;
 
-async function updatePeriodAndReload() {
+async function updatePeriodAndReload(refreshTable = true) {
   if (isUpdating) {
     return;
   }
@@ -11,7 +11,7 @@ async function updatePeriodAndReload() {
   isUpdating = true;
 
   try {
-    await loadDashboard();
+    await loadDashboard({ refreshTable, resetPaging: false });
   } catch (err) {
     console.error("Error updating periods:", err);
   } finally {
@@ -19,14 +19,14 @@ async function updatePeriodAndReload() {
   }
 }
 
-export function initAutoRefresh(intervalMs = 60000) {
+export function initAutoRefresh(intervalMs = 60000, refreshTableImmediately = true) {
   // Prevent multiple intervals
   if (refreshTimer !== null) {
     return;
   }
 
   // Run once immediately
-  updatePeriodAndReload();
+  updatePeriodAndReload(refreshTableImmediately);
 
   // Start ONE interval
   refreshTimer = setInterval(() => {

@@ -300,15 +300,135 @@ require_once __DIR__ . '/../../app/init.php';
                 <p><span class="font-semibold text-gray-800">5. Termination</span> — conditions under which access may be revoked.</p>
               </div>
         
-              <div id="seContentPrivacy" class="hidden flex-col gap-3">
-                <p class="text-[11px] text-gray-400 uppercase tracking-widest font-semibold">Last updated: January 2026</p>
-                <p>Replace this block with your actual Privacy Policy copy. Suggested sections:</p>
-                <p><span class="font-semibold text-gray-800">1. Information We Collect</span> — student ID, email, evaluation responses.</p>
-                <p><span class="font-semibold text-gray-800">2. How We Use It</span> — processing evaluations, account activation, communication.</p>
-                <p><span class="font-semibold text-gray-800">3. Data Sharing</span> — who within AITE has access (faculty, administrators).</p>
-                <p><span class="font-semibold text-gray-800">4. Data Retention</span> — how long records are kept.</p>
-                <p><span class="font-semibold text-gray-800">5. Your Rights</span> — how a student can request access or deletion.</p>
-              </div>
+              
+<div id="seContentPrivacy" class="hidden flex-col gap-3">
+
+  <p class="text-[11px] text-gray-400 uppercase tracking-widest font-semibold">
+    Last updated: October 2026
+  </p>
+
+  <p>
+    Smart-Eval recognizes the importance of protecting personal
+    information. This Privacy Policy explains how information is
+    collected, processed, stored, and protected when using the
+    teacher evaluation system.
+  </p>
+
+  <p>
+    <span class="font-semibold text-gray-800">
+      1. Information We Collect
+    </span>
+    — Smart-Eval may collect student identification numbers,
+    names, email addresses, account information, evaluation
+    responses, comments, and records necessary for authentication
+    and system operation. Passwords are stored using secure
+    password hashing rather than plain text.
+  </p>
+
+  <p>
+    <span class="font-semibold text-gray-800">
+      2. Purpose of Data Processing
+    </span>
+    — Personal information is processed to verify user identities,
+    manage accounts, administer teacher evaluations, prevent
+    duplicate submissions, monitor participation, generate
+    evaluation reports, and support authorized institutional
+    assessment activities.
+  </p>
+
+  <p>
+    <span class="font-semibold text-gray-800">
+      3. Evaluation Responses
+    </span>
+    — Evaluation ratings and comments are collected for
+    faculty performance assessment and institutional improvement.
+    Responses may be linked to student records for participation
+    verification and duplicate prevention. Access to identifying
+    information is restricted according to authorized roles.
+  </p>
+
+  <p>
+    <span class="font-semibold text-gray-800">
+      4. Access and Data Sharing
+    </span>
+    — Information may be accessed by designated AITE administrators
+    and other authorized personnel according to their responsibilities.
+    Faculty members may access evaluation results and reports
+    permitted by their assigned roles. Service providers may
+    process limited information necessary for hosting, email
+    delivery, and system operations.
+  </p>
+
+  <p>
+    <span class="font-semibold text-gray-800">
+      5. Data Security
+    </span>
+    — Smart-Eval implements security measures including
+    password hashing, role-based access controls, authentication
+    verification, and restricted system access. These measures
+    are intended to reduce unauthorized access, disclosure,
+    and modification of information.
+  </p>
+
+  <p>
+    <span class="font-semibold text-gray-800">
+      6. Data Retention and Backup
+    </span>
+    — Personal information and evaluation records are retained
+    according to applicable institutional retention policies
+    and legitimate operational requirements. System backups
+    may be maintained for recovery and continuity purposes.
+    Records and backups will be reviewed and securely disposed
+    of when no longer required, subject to applicable obligations.
+  </p>
+
+  <p>
+    <span class="font-semibold text-gray-800">
+      7. Your Data Privacy Rights
+    </span>
+    — Subject to applicable laws, users may request access to
+    their personal information, correction of inaccurate records,
+    and other applicable privacy rights. Requests may be
+    submitted to the institution's designated administrator
+    or Data Protection Officer. Requests for deletion or
+    restriction will be assessed under applicable legal and
+    institutional requirements.
+  </p>
+
+  <p>
+    <span class="font-semibold text-gray-800">
+      8. Email Communications
+    </span>
+    — Smart-Eval uses email services to send account activation
+    links, authentication codes, password-reset instructions,
+    evaluation reminders, and other authorized system
+    notifications. Email addresses are used for these
+    operational communications.
+  </p>
+
+  <p>
+    <span class="font-semibold text-gray-800">
+      9. Privacy Policy Updates
+    </span>
+    — This policy may be updated when system features,
+    institutional procedures, or applicable privacy requirements
+    change. Material updates will be communicated through
+    appropriate institutional channels.
+  </p>
+
+  <p>
+    <span class="font-semibold text-gray-800">
+      10. Contact and Privacy Concerns
+    </span>
+    — For questions regarding personal information, evaluation
+    records, or privacy-related requests, users may contact
+    the designated AITE system administrator or Data
+    Protection Officer through the institution's official
+    communication channels.
+  </p>
+
+</div>
+
         
             </div>
         

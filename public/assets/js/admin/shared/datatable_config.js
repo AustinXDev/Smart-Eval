@@ -30,7 +30,7 @@ export function createDataTable(
     // --------------------------------------------------------------
 
     dom:
-      "rt" +
+      "tr" +
       "<'mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between'" +
       "<'dataTables-info'i>" +
       "<'dataTables-pagination'p>" +
@@ -220,7 +220,7 @@ function stylePagination() {
         "border-slate-200",
         "bg-white",
         "px-3",
-        "mx-1",
+        "mx-2",
         "text-xs",
         "font-semibold",
         "text-slate-600",
