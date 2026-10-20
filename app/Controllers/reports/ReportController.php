@@ -193,4 +193,38 @@ final class ReportController
     }
 
 
+    public function ExportTeacherScoreExcel(): void
+    {
+
+        $periodId = isset($_GET['period_id']) && (int) $_GET['period_id'] > 0
+           ? (int) $_GET['period_id']
+           : null;
+
+        $department = trim(
+            $_GET['dept'] ?? ''
+        );
+
+        $csv = $this->service->renderScoreExcel(
+            $periodId,
+            $department
+        );
+
+        $filename = "teacher-ranking-{$periodId}.csv";
+
+        header('Content-Type: text/csv; charset=UTF-8');
+
+        header(
+            'Content-Disposition: attachment; filename="' .
+            $filename . '"'
+        );
+
+        header('Content-Length: ' . strlen($csv));
+        header('Cache-Control: private, no-store');
+
+        echo $csv;
+        exit;
+
+    }
+
+
 }

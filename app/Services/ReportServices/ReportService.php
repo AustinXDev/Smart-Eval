@@ -3,6 +3,7 @@
 namespace App\Services\ReportServices;
 
 use App\Models\Teacher;
+use App\Repositories\AnalyticsRepo\AnalyticsRepository;
 use App\Services\AnalyticsServices\AnalyticsService;
 use App\Services\TeacherServices\TeacherReportService;
 use Dompdf\Dompdf;
@@ -14,6 +15,7 @@ define('BASE_PATH', dirname(__DIR__, 3));
 final class ReportService
 {
     public function __construct(
+        private AnalyticsRepository $analyticsRepo,
         private AnalyticsService $analyticsService,
         private TeacherReportService $teacherReportService
     ) {
@@ -234,5 +236,79 @@ final class ReportService
 
             throw $e;
         }
+    }
+
+    public function renderScoreExcel(
+        int $periodId,
+        string $department
+    ): string {
+
+        $data = $this->analyticsRepo->getTeacherRanking($periodId, $department);
+
+        if ($data === null) {
+            throw new RuntimeException(
+                "No ranking score available in this period"
+            );
+        }
+
+        $stream = fopen('php://temp', 'w+');
+
+        if ($stream === false) {
+            throw new RuntimeException(
+                "Unable to create CSV stream."
+            );
+        }
+
+        try {
+
+            fwrite($stream, "\xEF\xBB\xBF");
+
+            fputcsv($stream, [
+                'Rank',
+                'Employee ID',
+                'Teacher Name',
+                'Mean Score',
+                'Total Evaluated'
+            ], ',', '"', '');
+
+            $rank = 1;
+
+            // Insert teacher ranking records
+            foreach ($data as $teacher) {
+
+                fputcsv($stream, [
+                    $rank,
+                    $teacher['employee_id'],
+                    $teacher['full_name'],
+                    number_format(
+                        (float) $teacher['mean_score'],
+                        2,
+                        '.',
+                        ''
+                    ),
+                    $teacher['total_evaluated']
+                ], ',', '"', '');
+
+                $rank++;
+            }
+
+            // Return CSV content
+            rewind($stream);
+
+            $csv = stream_get_contents($stream);
+
+            if ($csv === false) {
+                throw new RuntimeException(
+                    "Unable to read CSV content."
+                );
+            }
+
+            return $csv;
+
+
+        } finally {
+            fclose($stream);
+        }
+
     }
 }

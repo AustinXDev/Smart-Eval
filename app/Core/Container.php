@@ -51,8 +51,18 @@ class Container
         );
 
         return new ReportService(
+            $analyticRepository,
             $analyticsService,
             $teacherReportService
+        );
+
+    }
+
+    public function teacherReportExcel(): ReportController
+    {
+
+        return new ReportController(
+            $this->reportService()
         );
 
     }

@@ -23,6 +23,16 @@ $(document).ready(async function () {
       processing: true,
       createdRow: styleStudentRow,
       ajax: async function (request, callback) {
+        const draw = Number(request.draw);
+        latestDraw = draw;
+
+        const tableElement = document.getElementById("studentsTable");
+        tableElement?.classList.add("is-loading");
+        tableElement?.setAttribute("aria-busy", "true");
+
+        const loader = document.getElementById("studentsTable_processing");
+        if (loader) loader.style.display = "block";
+
         try {
           const response = await getStudentsByDepartment(department, {
             draw: request.draw,
@@ -50,6 +60,13 @@ $(document).ready(async function () {
             error.message || "Unable to load students.",
             "error",
           );
+        } finally {
+          if (draw === latestDraw) {
+            if (loader) loader.style.display = "none";
+
+            tableElement?.classList.remove("is-loading");
+            tableElement?.setAttribute("aria-busy", "false");
+          }
         }
       },
       columnDefs: [
@@ -91,6 +108,7 @@ $(document).ready(async function () {
   });
 
   let searchTimer;
+
   $("#searchBox").on("input", function () {
     const value = this.value;
     clearTimeout(searchTimer);

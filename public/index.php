@@ -137,6 +137,17 @@ switch ($request) {
 
         break;
 
+    case 'report/teacher-ranking':
+        \App\middleware\ApiSecurity::admin($pdo);
+
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'GET') {
+            header('Allow: GET');
+            \App\middleware\ApiSecurity::fail(405, 'Method not allowed.');
+        }
+
+        $container->reportController()->ExportTeacherScoreExcel();
+
+        break;
 
     default:
         http_response_code(404);

@@ -84,7 +84,7 @@ function bindExportRankingExcel() {
         return;
       }
 
-      const url = `/Smart-Eval/app/Controllers/reportAnalytics/AnalyticsController.php?action=exportExcel&dept=${dept}&period_id=${periodId || ""}`;
+      const url = `report/teacher-ranking?dept=${dept}&period_id=${periodId}`;
 
       showConfirmation({
         title: "Export to Excel",

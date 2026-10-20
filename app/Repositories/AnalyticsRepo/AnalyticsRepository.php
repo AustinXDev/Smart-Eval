@@ -552,6 +552,77 @@ class AnalyticsRepository
 
 
     /**
+     * Retrieve teacher rankings for both live and historical evaluations.
+     *
+     * Only includes scores from students who completed
+     * all their assigned evaluations within the period.
+     *
+     * @param int $periodId The evaluation period ID.
+     * @param string $department The department to filter rankings.
+     * @return array Teacher ranking data.
+     */
+    public function getTeacherRanking(
+        $periodId,
+        $department
+    ): array {
+
+        $stmt = $this->pdo->prepare("
+            SELECT 
+                t.employee_id,
+                t.full_name,
+
+                ROUND(AVG(ea.score), 2) AS mean_score,
+
+                COUNT(DISTINCT es.student_id) AS total_evaluated
+
+            FROM evaluation_status es
+
+            INNER JOIN teachers t
+                ON t.teacher_id = es.teacher_id
+                AND t.department = ?
+            
+            INNER JOIN evaluation_answers ea
+                On ea.eval_id = es.eval_id
+
+            INNER JOIN (
+                SELECT
+                    student_id
+
+                FROM evaluation_status
+
+                WHERE period_id = ?
+
+                GROUP BY student_id
+
+                HAVING 
+                    SUM(is_submitted = 1) = COUNT(*)
+            ) AS completed_students
+                ON completed_students.student_id = es.student_id
+            
+            WHERE es.period_id = ?
+                AND es.is_submitted = 1
+
+            GROUP BY 
+                t.employee_id,
+                t.full_name
+
+            ORDER BY 
+                mean_score DESC,
+                total_evaluated DESC
+        ");
+
+        $stmt->execute([
+            $department,
+            $periodId,
+            $periodId
+        ]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    }
+
+
+    /**
      * Get teacher ranking for an active evaluation period.
      */
     public function getLiveTeacherRanking(
