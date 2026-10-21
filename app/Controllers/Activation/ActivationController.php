@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Controllers\Activation;
 
@@ -7,44 +7,41 @@ use App\Services\ActivationServices\ActivationService;
 
 class ActivationController
 {
+    public function __construct(private ActivationService $service)
+    {
+    }
 
-  public function __construct(private ActivationService $service)
-  {
-  }
+    public function handle(array $input): array
+    {
 
-  public function handle(array $input): array
-  {
+        try {
 
-    try{
+            $token = trim($input['token'] ?? '');
+            $password = $input['password'] ?? '';
 
-      $token = trim($input['token'] ?? '');
-      $password = trim($input['password'] ?? '');
-      
-      return $this->service->activate(
-        $token,
-        $password
-      );
+            return $this->service->activate(
+                $token,
+                $password
+            );
 
-    } catch(ActivationException $e) {
+        } catch (ActivationException $e) {
 
-      return [
-        'status'  => 'error',
-        'message' => $e->getMessage()
-      ];
+            return [
+              'status'  => 'error',
+              'message' => $e->getMessage()
+            ];
 
-    } catch(\Throwable $e) {
+        } catch (\Throwable $e) {
 
-      error_log('[ActivationController]' . $e->getMessage());
+            error_log('[ActivationController]' . $e->getMessage());
 
-      return[
-        'status' => 'error',
-        'message' => 'An unexpected error occured. Please try again.'
-      ];
+            return[
+              'status' => 'error',
+              'message' => 'An unexpected error occured. Please try again.'
+            ];
+
+        }
 
     }
 
-  }
-
 }
-
-?>

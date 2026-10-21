@@ -34,7 +34,7 @@ final class ApiSecurity
         }
         $public = ['admin/auth/login.php', 'admin/auth/verify.php', 'admin/auth/sendReset.php',
             'admin/auth/password_reset.php', 'student/auth/login.php', 'student/auth/register.php',
-            'student/auth/activate.php', 'student/auth/registration_verify.php',
+            'student/auth/activate.php',
             'student/auth/send_reset.php', 'student/auth/password_reset.php',
             'student/auth/two_factor_verify.php', 'student/auth/two_factor_resend.php',
             'student/auth/logout.php', 'logout.php'];

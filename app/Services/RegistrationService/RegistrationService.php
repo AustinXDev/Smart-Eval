@@ -18,6 +18,7 @@ class RegistrationService
     public function register(string $studentId, string $email): array
     {
 
+        //Check if input is not empty
         if ($studentId === '' || $email === '') {
             throw new RegistrationException(
                 'Student ID and email are required'
@@ -25,11 +26,12 @@ class RegistrationService
         }
 
 
+        // Find pending student ID and email, then check if it is exist.
         $student = $this->students->findPending($studentId, $email);
 
         if (!$student) {
             throw new RegistrationException(
-                'Invalid student ID or email address.',
+                'Unable to register with these details. Check your student ID and email. If you already activated your account, please log in or reset your password.',
             );
         }
 
@@ -37,6 +39,7 @@ class RegistrationService
             'now',
             new DateTimeZone('Asia/Manila')
         );
+
 
         if ($this->students->hasActiveToken(
             $studentId,
@@ -59,13 +62,14 @@ class RegistrationService
             $studentId,
             $email,
             $tokenHash,
-            $expires
+            $expires,
+            $now->format('Y-m-d H:i:s')
         );
 
 
         if (!$saved) {
             throw new RegistrationException(
-                'Unable to generate an activation link. Please try again.'
+                'An activation link may already have been issued. Please check your inbox and spam folder.'
             );
         }
 
@@ -81,8 +85,13 @@ class RegistrationService
         );
 
         if (!$sent) {
+            $this->students->clearFailedActivationToken(
+                $studentId,
+                $tokenHash
+            );
+
             throw new RegistrationException(
-                'Failed to send activation email.'
+                'Unable to send the activation email. Please try again.'
             );
         }
 

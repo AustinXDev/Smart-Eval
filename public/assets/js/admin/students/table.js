@@ -6,6 +6,7 @@ import { showCardLoader, hideCardLoader } from "../shared/Loader.js";
 
 let department;
 let table;
+let latestDraw = 0;
 
 $(document).ready(async function () {
   const wrapper = document.getElementById("tableWrapper");

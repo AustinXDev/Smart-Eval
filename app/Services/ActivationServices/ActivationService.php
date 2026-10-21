@@ -38,8 +38,11 @@ final class ActivationService
             );
         }
 
-        // Validate password requirements
-        PasswordPolicy::validate($password);
+        try {
+            PasswordPolicy::validate($password);
+        } catch (\RuntimeException $e) {
+            throw new ActivationException($e->getMessage());
+        }
 
         // Hash the activation token
         $hashedToken = hash('sha256', $token);
@@ -97,26 +100,21 @@ final class ActivationService
             );
         }
 
-        // Save password
-        $saved = $this->students->savePendingPassword(
-            $student->studentId,
-            $passwordHash
+        $activationTime = new DateTimeImmutable(
+            'now',
+            new DateTimeZone(self::TIMEZONE)
         );
 
-        if (!$saved) {
-            throw new ActivationException(
-                'Unable to save your password. Please try again.'
-            );
-        }
-
-        // Immediately activate account
-        $activated = $this->students->activateStudent(
-            $student->studentId
+        $activated = $this->students->activateWithToken(
+            $student->studentId,
+            $hashedToken,
+            $passwordHash,
+            $activationTime->format('Y-m-d H:i:s')
         );
 
         if (!$activated) {
             throw new ActivationException(
-                'Unable to activate your account. Please try again.'
+                'This activation link has expired, been replaced, or already been used. Please log in or request a new link.'
             );
         }
 
