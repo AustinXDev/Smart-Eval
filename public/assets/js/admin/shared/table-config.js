@@ -6,6 +6,7 @@ import { fetchAnalytics } from "../report_analytics/api/api.js";
 import { renderHistoricalBanner } from "../report_analytics/modules/render/historical_banner.js";
 import { nameToInitials } from "./utils.js";
 import { getAdjectiveRating } from "../report_analytics/modules/helpers/formatters.js";
+import { get, post } from "../../services/http.js";
 
 function tableEmptyState(title, description, icon) {
   return `

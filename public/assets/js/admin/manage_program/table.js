@@ -1,94 +1,152 @@
 import { escapeHTML } from "../../services/escape.js";
 import { createDataTable } from "../shared/datatable_config.js";
 import { getPrograms } from "./api/api.js";
-import {
-  showTableLoader,
-  hideTableLoader,
-  showCardLoader,
-  hideCardLoader,
-} from "../shared/Loader.js";
+import { showCardLoader, hideCardLoader } from "../shared/Loader.js";
 
 let table;
+let latestDraw = 0;
+let listError = "";
 
 $(document).ready(async function () {
-  // ============================================================
-  // DATATABLE
-  // ============================================================
-
-  table = createDataTable("#programTable", {
-    columnDefs: [
-      {
-        orderable: false,
-        targets: 4,
+  table = createDataTable(
+    "#programTable",
+    {
+      serverSide: true,
+      processing: true,
+      pageLength: 5,
+      ordering: false,
+      columnDefs: [{ orderable: false, searchable: false, targets: 4 }],
+      language: {
+        emptyTable: renderEmptyState(),
+        zeroRecords: renderEmptyState(true),
+        processing: `<span class="program-loading" role="status">
+        <span class="program-loading__icon"><span class="program-loading__spinner"></span></span>
+        <strong>Loading program records...</strong>
+        <span>Please wait a moment...</span>
+      </span>`,
+        info: "Showing _START_ to _END_ of _TOTAL_ records",
+        infoEmpty: "Showing 0 to 0 of 0 records",
+        infoFiltered: "(filtered from _MAX_ total records)",
+        paginate: { previous: "Previous", next: "Next" },
       },
-    ],
+      ajax: async function (request, callback) {
+        const draw = Number(request.draw);
+        latestDraw = draw;
+        const element = document.getElementById("programTable");
+        const loader = document.getElementById("programTable_processing");
+        element?.classList.add("is-loading");
+        element?.setAttribute("aria-busy", "true");
+        if (loader) loader.style.display = "block";
+        let result;
+        try {
+          const response = await getPrograms({
+            draw,
+            start: request.start,
+            length: request.length,
+            search: request.search.value,
+            department: $("#departmentFilter").val() || "All",
+          });
+          if (response?.status !== "success") {
+            throw new Error(response?.message || "Unable to load programs.");
+          }
+          if (
+            !Array.isArray(response.data) ||
+            Number(response.draw) !== draw ||
+            !Number.isInteger(Number(response.recordsTotal)) ||
+            !Number.isInteger(Number(response.recordsFiltered)) ||
+            Number(response.recordsTotal) < 0 ||
+            Number(response.recordsFiltered) < 0
+          ) {
+            throw new Error("Invalid program-list response.");
+          }
+          result = {
+            draw,
+            recordsTotal: Number(response.recordsTotal),
+            recordsFiltered: Number(response.recordsFiltered),
+            data: buildProgramRows(response.data),
+          };
+          if (draw === latestDraw) listError = "";
+        } catch (error) {
+          console.error("Error loading programs:", error);
+          if (draw === latestDraw)
+            listError = error.message || "Unable to load programs.";
+          result = { draw, recordsTotal: 0, recordsFiltered: 0, data: [] };
+        }
+        try {
+          callback(result);
+        } finally {
+          if (draw === latestDraw) {
+            if (loader) loader.style.display = "none";
+            element?.classList.remove("is-loading");
+            element?.setAttribute("aria-busy", "false");
+          }
+        }
+      },
+      createdRow(row) {
+        $(row).addClass(
+          "group border-b border-slate-100 transition-colors duration-150 hover:bg-slate-50/70",
+        );
+        $(row).find("td").addClass("px-5 py-4 align-middle whitespace-nowrap");
+        $(row).find("td:last-child").addClass("text-right");
+      },
+      drawCallback() {
+        if (!listError) return;
+        const cell = this.api()
+          .table()
+          .container()
+          .querySelector("td.dataTables_empty, td.dt-empty");
+        if (cell) cell.innerHTML = renderErrorState(listError);
+      },
+    },
+    "Search programs",
+  );
 
-    order: [[1, "asc"]],
-  });
-
-  // ============================================================
-  // SEARCH
-  // ============================================================
-
+  let searchTimer;
   $("#searchBox").on("input", function () {
-    table.search(this.value).draw();
+    clearTimeout(searchTimer);
+    const value = this.value;
+    searchTimer = setTimeout(() => {
+      if (table.search() !== value) table.search(value).draw();
+    }, 350);
   });
-
-  // ============================================================
-  // DEPARTMENT FILTER
-  // ============================================================
-
-  $("#departmentFilter").on("change", function () {
-    const department = $(this).val();
-
-    if (!department || department === "All") {
-      table.column(2).search("").draw();
-      return;
-    }
-
-    table.column(2).search(department, false, false).draw();
+  $("#departmentFilter").on("change", () => {
+    clearTimeout(searchTimer);
+    table.search($("#searchBox").val() || "").draw();
   });
-
-  // ============================================================
-  // LOAD PROGRAMS
-  // ============================================================
-
-  await Promise.all([loadPrograms(), loadProgramCard()]);
+  $("#programTable").on("click", ".retryPrograms", () => loadPrograms());
+  // DataTables issues the initial list request.
+  await loadProgramCard();
 });
 
-// ============================================================
-// LOAD PROGRAMS
-// ============================================================
+export function loadPrograms() {
+  if (!table) return Promise.resolve();
+  return new Promise((resolve) => table.ajax.reload(resolve, true));
+}
 
-export async function loadPrograms() {
-  showTableLoader("#programTable", "Loadin program records...");
-  try {
-    const response = await getPrograms();
+function renderEmptyState(filtered = false) {
+  return `<div class="py-12 text-center">
+    <p class="font-semibold text-slate-700">${filtered ? "No matching programs" : "No programs found"}</p>
+    <p class="mt-1 text-sm text-slate-400">${filtered ? "Try adjusting your search or department filter." : "There are currently no program records."}</p>
+  </div>`;
+}
 
-    if (response.status !== "success") {
-      console.error("Failed to load programs", response);
-      return;
-    }
+function renderErrorState(message) {
+  return `<div class="py-12 text-center">
+    <p class="font-semibold text-slate-700">Unable to load programs</p>
+    <p class="mt-1 text-sm text-slate-400">${escapeHTML(message)}</p>
+    <button type="button" class="retryPrograms mt-4 rounded-lg bg-violet-600 px-4 py-2 text-white">Try Again</button>
+  </div>`;
+}
 
-    const programs = response.data.programs ?? [];
+function buildProgramRows(programs) {
+  return programs.map((p) => {
+    const isActive = Number(p.is_active) === 1;
 
-    if (!table) return;
+    // ========================================================
+    // PROGRAM CODE
+    // ========================================================
 
-    table.clear();
-
-    if (!programs || programs.length === 0) {
-      table.draw();
-      return;
-    }
-
-    programs.forEach((p) => {
-      const isActive = Number(p.is_active) === 1;
-
-      // ========================================================
-      // PROGRAM CODE
-      // ========================================================
-
-      const programCode = `
+    const programCode = `
         <span
           class="
             inline-flex items-center
@@ -105,11 +163,11 @@ export async function loadPrograms() {
         </span>
       `;
 
-      // ========================================================
-      // PROGRAM NAME
-      // ========================================================
+    // ========================================================
+    // PROGRAM NAME
+    // ========================================================
 
-      const programName = `
+    const programName = `
         <div class="flex items-center gap-3">
 
           <div
@@ -146,11 +204,11 @@ export async function loadPrograms() {
         </div>
       `;
 
-      // ========================================================
-      // DEPARTMENT
-      // ========================================================
+    // ========================================================
+    // DEPARTMENT
+    // ========================================================
 
-      const department = `
+    const department = `
         <span
           class="
             inline-flex items-center gap-2
@@ -170,11 +228,11 @@ export async function loadPrograms() {
         </span>
       `;
 
-      // ========================================================
-      // STATUS
-      // ========================================================
+    // ========================================================
+    // STATUS
+    // ========================================================
 
-      const status = `
+    const status = `
       <div class="flex justify-center items-center">
         <span
           class="
@@ -205,17 +263,17 @@ export async function loadPrograms() {
       </div>
       `;
 
-      // ========================================================
-      // ACTIONS
-      // ========================================================
+    // ========================================================
+    // ACTIONS
+    // ========================================================
 
-      const actions = `
+    const actions = `
         <div class="flex items-center justify-center gap-1.5">
 
           <button
             type="button"
 
-            data-program-id="${p.program_id}"
+            data-program-id="${escapeHTML(String(p.program_id))}"
             data-program-code="${escapeHTML(p.program_code)}"
             data-program-name="${escapeHTML(p.program_name)}"
             data-program-department="${escapeHTML(p.department)}"
@@ -251,7 +309,7 @@ export async function loadPrograms() {
           <button
             type="button"
 
-            data-program-id="${p.program_id}"
+            data-program-id="${escapeHTML(String(p.program_id))}"
 
             class="
               deleteProgram
@@ -283,67 +341,25 @@ export async function loadPrograms() {
         </div>
       `;
 
-      // ========================================================
-      // ADD ROW
-      // ========================================================
+    // ========================================================
+    // ADD ROW
+    // ========================================================
 
-      const rowNode = table.row
-        .add([programCode, programName, department, status, actions])
-        .node();
-
-      // ========================================================
-      // ROW STYLE
-      // ========================================================
-
-      rowNode.classList.add(
-        "group",
-        "border-b",
-        "border-slate-100",
-        "transition-colors",
-        "duration-150",
-        "hover:bg-slate-50/70",
-      );
-
-      // ========================================================
-      // CELL STYLE
-      // ========================================================
-
-      rowNode.querySelectorAll("td").forEach((td, index) => {
-        td.classList.add("px-5", "py-4", "align-middle", "whitespace-nowrap");
-
-        if (index === 4) {
-          td.classList.add("text-right");
-        }
-      });
-    });
-
-    table.draw(false);
-  } catch (error) {
-    console.error("Error loading programs:", error);
-
-    if (table) {
-      table.clear().draw();
-    }
-  } finally {
-    hideTableLoader("#programTable");
-  }
+    return [programCode, programName, department, status, actions];
+  });
 }
-
-// ================================================================
-// LOAD PROGRAM COUNTS
-// ================================================================
 
 export async function loadProgramCard() {
   showCardLoader(["total-programs", "total-active", "total-inactive"]);
 
   try {
-    const response = await getPrograms();
+    const response = await getPrograms({ counts_only: 1 });
 
     if (response.status !== "success") {
-      throw new Error(data.message || "Unable to load student counts.");
+      throw new Error(response.message || "Unable to load program counts.");
     }
 
-    const counts = response.data.count ?? {
+    const counts = response.counts ?? {
       total: 0,
       active: 0,
       inactive: 0,
@@ -361,9 +377,9 @@ export async function loadProgramCard() {
       .getElementById("total-inactive")
       ?.replaceChildren(String(Number(counts.inactive || 0)));
   } catch (error) {
-    console.error("Error loading student counts:", error);
+    console.error("Error loading program counts:", error);
 
-    document.getElementById("total-students")?.replaceChildren("—");
+    document.getElementById("total-programs")?.replaceChildren("—");
 
     document.getElementById("total-active")?.replaceChildren("—");
 

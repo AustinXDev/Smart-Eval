@@ -22,6 +22,11 @@ class ProgramController
     }
 
 
+    public function getProgramList(array $query): array
+    {
+        return $this->service->getProgramList($query);
+    }
+
     public function getAllProgram(): array
     {
         return $this->service->getAllProgram();

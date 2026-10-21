@@ -89,6 +89,54 @@ class ProgramRepository
     }
 
 
+    public function findPage(int $offset, int $limit, string $search, string $department): array
+    {
+        $conditions = [];
+        $params = [];
+
+        if ($department !== 'all') {
+            $conditions[] = 'department = :department';
+            $params[':department'] = $department;
+        }
+
+        if ($search !== '') {
+            $pattern = '%' . strtr($search, ['!' => '!!', '%' => '!%', '_' => '!_']) . '%';
+            $conditions[] = "(program_code LIKE :code ESCAPE '!'
+                OR program_name LIKE :name ESCAPE '!'
+                OR department LIKE :search_department ESCAPE '!'
+                OR (CASE WHEN is_active = 1 THEN 'Active' ELSE 'Inactive' END) LIKE :status ESCAPE '!')";
+            foreach ([':code', ':name', ':search_department', ':status'] as $key) {
+                $params[$key] = $pattern;
+            }
+        }
+
+        $where = $conditions ? ' WHERE ' . implode(' AND ', $conditions) : '';
+
+        $count = $this->pdo->prepare('SELECT COUNT(*) FROM programs' . $where);
+
+        $count->execute($params);
+
+        $filtered = (int) $count->fetchColumn();
+
+        $stmt = $this->pdo->prepare(
+            'SELECT program_id, program_code, program_name, department, is_active FROM programs'
+            . $where . ' ORDER BY is_active DESC, program_name ASC, program_id ASC LIMIT :limit OFFSET :offset'
+        );
+
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, PDO::PARAM_STR);
+        }
+
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        return ['filtered' => $filtered, 'programs' => $stmt->fetchAll(PDO::FETCH_ASSOC)];
+
+    }
+
     public function getAllProgram(): array
     {
         $stmt = $this->pdo->prepare("

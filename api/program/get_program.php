@@ -25,6 +25,10 @@ try {
 
     $controller = new ProgramController($service);
 
+    if (isset($_GET['draw']) || isset($_GET['counts_only'])) {
+        echo json_encode(['status' => 'success', ...$controller->getProgramList($_GET)], JSON_INVALID_UTF8_SUBSTITUTE);
+        exit;
+    }
     $data = $controller->getAllProgram();
 
     echo json_encode([

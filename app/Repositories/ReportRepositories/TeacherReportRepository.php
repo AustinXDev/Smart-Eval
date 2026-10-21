@@ -245,4 +245,26 @@ class TeacherReportRepository
 
     }
 
+    public function getComment(
+        int $periodId,
+        int $teacherId
+    ): ?array {
+
+        $stmt = $this->pdo->prepare("
+            SELECT
+                comment
+            FROM evaluation_status
+            WHERE teacher_id = ?
+                AND period_id = ?
+                AND comment IS NOT NULL
+                AND TRIM(comment) <> ''
+            ORDER BY date_taken DESC
+        ");
+
+        $stmt->execute([$teacherId, $periodId]);
+
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    }
+
 }

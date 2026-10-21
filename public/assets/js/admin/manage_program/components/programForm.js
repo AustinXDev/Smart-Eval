@@ -28,7 +28,7 @@ async function submitAddProgram(formData, form) {
     if (data.status === "success") {
       StatusModal.show("Success", data.message, "success");
       form.reset();
-      await loadPrograms();
+      await Promise.all([loadPrograms(), loadProgramCard()]);
       closeModal("addProgramModal");
     } else {
       StatusModal.show("Failed", data.message, "error");
@@ -62,7 +62,7 @@ async function submitEditProgram(formData) {
 
     if (data.status === "success") {
       StatusModal.show("Success", data.message, "success");
-      await loadPrograms();
+      await Promise.all([loadPrograms(), loadProgramCard()]);
       closeModal("editProgramModal");
     } else {
       StatusModal.show("Failed", data.message, "error");

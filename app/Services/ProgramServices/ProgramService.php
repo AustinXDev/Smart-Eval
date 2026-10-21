@@ -34,6 +34,41 @@ class ProgramService
     }
 
 
+    public function getProgramList(array $query): array
+    {
+        if (($query['counts_only'] ?? '') === '1') {
+            return ['counts' => $this->programRepo->getCount()];
+        }
+        $search = $query['search'] ?? '';
+        $search = is_array($search) ? ($search['value'] ?? '') : $search;
+        $department = $query['department'] ?? 'All';
+        if (!is_string($search) || !is_string($department)) {
+            throw new RuntimeException('Invalid program filters.');
+        }
+        $department = strtolower(trim($department));
+        if (!in_array($department, ['all', 'college', 'shs'], true)) {
+            throw new RuntimeException('Invalid department filter.');
+        }
+        foreach (['draw', 'start', 'length'] as $key) {
+            if (isset($query[$key]) && filter_var($query[$key], FILTER_VALIDATE_INT) === false) {
+                throw new RuntimeException('Invalid pagination parameters.');
+            }
+        }
+        $counts = $this->programRepo->getCount();
+        $page = $this->programRepo->findPage(
+            max(0, (int) ($query['start'] ?? 0)),
+            max(1, min(100, (int) ($query['length'] ?? 5))),
+            trim($search),
+            $department
+        );
+        return [
+            'draw' => max(0, (int) ($query['draw'] ?? 0)),
+            'recordsTotal' => (int) $counts['total'],
+            'recordsFiltered' => $page['filtered'],
+            'data' => $page['programs'],
+        ];
+    }
+
     public function getAllProgram(): array
     {
         $programs = $this->programRepo->getAllProgram();

@@ -7,9 +7,9 @@ function toJson(res) {
   return res.json();
 }
 
-export async function getPrograms() {
+export async function getPrograms(params = {}) {
   try {
-    return await get(`program/get_program.php`);
+    return await get("program/get_program.php?" + new URLSearchParams(params));
   } catch (error) {
     return {
       status: "error",
