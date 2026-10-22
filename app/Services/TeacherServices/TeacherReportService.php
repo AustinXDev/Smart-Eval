@@ -130,6 +130,31 @@ class TeacherReportService
 
     }
 
+    public function getCommentList(
+        int $teacherId,
+        int $periodId
+    ): array {
+
+        if ($teacherId <= 0) {
+            throw new RuntimeException(
+                "Invalid teacher ID."
+            );
+        }
+
+        if ($periodId <= 0) {
+            throw new RuntimeException(
+                "Invalid evaluation period ID."
+            );
+        }
+
+        $comments = $this->teacherReportRepo->getComment($periodId, $teacherId);
+
+        return [
+          'comments' => $comments
+        ];
+
+    }
+
     /**
      * Prepare evidence-based individual findings for the PDF view.
      */

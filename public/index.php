@@ -149,6 +149,16 @@ switch ($request) {
 
         break;
 
+    case 'report/export-comment':
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'GET') {
+            header('Allow: GET');
+            \App\middleware\ApiSecurity::fail(405, 'Method not allowed.');
+        }
+
+        $container->reportController()->ExportTeacherCommentExcel();
+
+        break;
+
     default:
         http_response_code(404);
         echo "<h1>404 - Page Not Found</h1>";

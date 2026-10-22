@@ -2,13 +2,13 @@
 
 namespace App\Controllers\teachers;
 
-use App\Services\TeacherServices\TeacherCommentService;
+use App\Services\TeacherServices\TeacherReportService;
 use InvalidArgumentException;
 
 final class TeacherCommentController
 {
     public function __construct(
-        private TeacherCommentService $service
+        private TeacherReportService $service
     ) {
     }
 

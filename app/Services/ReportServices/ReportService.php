@@ -311,4 +311,87 @@ final class ReportService
         }
 
     }
+
+
+
+    public function renderCommentExcel(
+        int $periodId,
+        int $teacherId
+    ): string {
+
+        // Get teacher comments.
+        $data = $this->teacherReportService->getCommentList(
+            $teacherId,
+            $periodId
+        );
+
+        // Extract comments from service response.
+        $comments = $data['comments'] ?? [];
+
+        // Check if comments are available.
+        if (empty($comments)) {
+            throw new RuntimeException(
+                "No teacher comments available for this evaluation period."
+            );
+        }
+
+        // Create temporary CSV stream.
+        $stream = fopen('php://temp', 'w+');
+
+        if ($stream === false) {
+            throw new RuntimeException(
+                "Unable to create CSV stream."
+            );
+        }
+
+        try {
+
+            // UTF-8 BOM for Microsoft Excel compatibility.
+            fwrite($stream, "\xEF\xBB\xBF");
+
+            // CSV column headers.
+            fputcsv($stream, [
+                'Number',
+                'Comment'
+            ], ',', '"', '');
+
+            $number = 1;
+
+            // Write each student comment.
+            foreach ($comments as $comment) {
+
+                // Prevent spreadsheet formula injection.
+                $comment = (string) $comment;
+
+                if (preg_match('/^[\s\x00-\x1F]*[=+\-@]/u', $comment)) {
+                    $comment = "'" . $comment;
+                }
+
+                fputcsv($stream, [
+                    $number,
+                    $comment
+                ], ',', '"', '');
+
+                $number++;
+            }
+
+            rewind($stream);
+
+            $csv = stream_get_contents($stream);
+
+            if ($csv === false) {
+                throw new RuntimeException(
+                    "Unable to read CSV content."
+                );
+            }
+
+            return $csv;
+
+        } finally {
+
+            fclose($stream);
+
+        }
+    }
+
 }

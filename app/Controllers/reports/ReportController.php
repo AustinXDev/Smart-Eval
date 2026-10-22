@@ -226,5 +226,37 @@ final class ReportController
 
     }
 
+    public function ExportTeacherCommentExcel(): void
+    {
+
+        $periodId = isset($_GET['period_id']) && (int) $_GET['period_id'] > 0
+           ? (int) $_GET['period_id']
+           : null;
+
+        $teacherId = isset($_GET['teacher_id']) && (int) $_GET['teacher_id'] > 0
+            ? (int) $_GET['teacher_id']
+            : null;
+
+        $teacherName = trim($_GET['teacher_name']) ?? '';
+
+        $csv = $this->service->renderCommentExcel($periodId, $teacherId);
+
+        $filename = "student-comment-{$teacherName}.csv";
+
+        header('Content-Type: text/csv; charset=UTF-8');
+
+        header(
+            'Content-Disposition: attachment; filename="' .
+            $filename . '"'
+        );
+
+        header('Content-Length: ' . strlen($csv));
+        header('Cache-Control: private, no-store');
+
+        echo $csv;
+        exit;
+
+    }
+
 
 }

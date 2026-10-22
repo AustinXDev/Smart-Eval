@@ -7,20 +7,20 @@ require_once dirname(__DIR__, 3) . '/app/api_bootstrap.php';
 require_once __DIR__ . '/../../../app/init.php';
 
 use App\Controllers\teachers\TeacherCommentController;
-use App\Services\TeacherServices\TeacherCommentService;
+use App\Services\TeacherServices\TeacherReportService;
 use App\Repositories\ReportRepositories\TeacherReportRepository;
-use App\Repositories\EvaluationRepo\EvaluationRepository;
+use App\helpers\AnalyticsHelpers;
 
 header('Content-Type: application/json; charset=utf-8');
 
 try {
 
     $reportRepo = new TeacherReportRepository($pdo);
-    $evaluationRepo = new EvaluationRepository($pdo);
 
-    $service = new TeacherCommentService(
+
+    $service = new TeacherReportService(
         $reportRepo,
-        $evaluationRepo
+        new AnalyticsHelpers()
     );
 
     $controller = new TeacherCommentController($service);
