@@ -216,9 +216,18 @@ async function submitCurrentTeacher({ moveNext = false } = {}) {
 
       updateNavigation();
 
+      const scrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth";
+
       document.getElementById("questionsContainer")?.scrollTo({
         top: 0,
-        behavior: "smooth",
+        behavior: scrollBehavior,
+      });
+
+      window.scrollTo({
+        top: 0,
+        behavior: scrollBehavior,
       });
     } else {
       /*
@@ -268,9 +277,18 @@ function handlePrevious() {
 
   setNextButtonLoading(false);
 
+  const scrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ? "instant"
+    : "smooth";
+
   document.getElementById("questionsContainer")?.scrollTo({
     top: 0,
-    behavior: "smooth",
+    behavior: scrollBehavior,
+  });
+
+  window.scrollTo({
+    top: 0,
+    behavior: scrollBehavior,
   });
 }
 

@@ -130,139 +130,169 @@ $pageTitle = "Manage Students";
       <!-- =========================================================
           STATISTICS
       ========================================================== -->
+
+      
+      <!-- STUDENT MANAGEMENT KPI CARDS -->
       <div
         id="card-container"
         class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
       >
 
-        <!-- Total Students -->
-        <div
-          class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md"
+        <!-- TOTAL STUDENTS -->
+        <article
+          class="group relative flex min-h-[185px] min-w-0 flex-col
+                justify-between overflow-hidden rounded-2xl
+                border border-slate-200 bg-white p-5
+                shadow-sm transition-all duration-200
+                hover:border-violet-200 hover:shadow-md
+                sm:p-6"
         >
-
-          <div class="flex items-center gap-4">
-
-            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600 transition-colors group-hover:bg-violet-100">
-
-              <svg
-                class="h-6 w-6"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 640 640"
-                fill="currentColor"
-              >
-                <path d="M192 448C245 448 288 491 288 544C288 561.7 273.7 576 256 576L32 576C14.3 576 0 561.7 0 544C0 491 43 448 96 448L192 448zM544 96C579.3 96 608 124.7 608 160L608 448C608 481.1 582.8 508.4 550.5 511.7L544 512L332.9 512C327.8 487.8 316.6 465.9 300.8 448L352 448L352 416C352 398.3 366.3 384 384 384L480 384C497.7 384 512 398.3 512 416L512 448L544 448L544 160L192 160L192 217.3C177.2 211.3 161 208 144 208C138.6 208 133.2 208.3 128 209L128 160C128 124.7 156.7 96 192 96L544 96zM144 416C99.8 416 64 380.2 64 336C64 291.8 99.8 256 144 256C188.2 256 224 291.8 224 336C224 380.2 188.2 416 144 416z"/>
-              </svg>
-
-            </div>
-
-            <div class="min-w-0 flex-1">
-
-              <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+          <!-- Header -->
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h3 class="text-sm font-medium text-slate-700">
                 Total Students
+              </h3>
+              <p class="mt-1 text-xs text-slate-400">
+                Student records overview
               </p>
-
-              <p
-                id="total-students"
-                class="mt-1 text-2xl font-bold tracking-tight text-slate-900"
-              ></p>
-
             </div>
 
-            <div class="hidden h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-slate-400 sm:flex">
-              <i class="fas fa-users text-xs"></i>
-            </div>
-
+            <span
+              class="inline-flex shrink-0 items-center gap-1.5
+                    rounded-full bg-violet-50 px-2.5 py-1
+                    text-[11px] font-medium text-violet-700"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-violet-500"></span>
+              All
+            </span>
           </div>
 
-        </div>
+          <!-- KPI Value -->
+          <div class="mt-6">
+            <p
+              id="total-students"
+              class="text-4xl font-light leading-none
+                    tracking-tight tabular-nums text-slate-900"
+            ></p>
 
-
-        <!-- Active Students -->
-        <div
-          class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md"
-        >
-
-          <div class="flex items-center gap-4">
-
-            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition-colors group-hover:bg-emerald-100">
-
-              <svg
-                class="h-6 w-6"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 640 640"
-                fill="currentColor"
-              >
-                <path d="M286 368C384.5 368 464.3 447.8 464.3 546.3C464.3 562.7 451 576 434.6 576L78 576C61.6 576 48.3 562.7 48.3 546.3C48.3 447.8 128.1 368 226.6 368L286 368zM585.7 169.9C593.5 159.2 608.5 156.8 619.2 164.6C629.9 172.4 632.3 187.4 624.5 198.1L522.1 338.9C517.9 344.6 511.4 348.3 504.4 348.7C497.4 349.1 490.4 346.5 485.5 341.4L439.1 293.4C429.9 283.9 430.1 268.7 439.7 259.5C449.2 250.3 464.4 250.6 473.6 260.1L500.1 287.5L585.7 169.8zM256.3 312C190 312 136.3 258.3 136.3 192C136.3 125.7 190 72 256.3 72C322.6 72 376.3 125.7 376.3 192C376.3 258.3 322.6 312 256.3 312z"/>
-              </svg>
-
-            </div>
-
-            <div class="min-w-0 flex-1">
-
-              <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
-                Active Students
+            <div class="mt-4 flex items-center gap-2">
+              <span class="h-1.5 w-1.5 rounded-full bg-violet-500"></span>
+              <p class="text-xs text-slate-500">
+                Total registered students
               </p>
+            </div>
+          </div>
 
-              <p
-                id="total-active"
-                class="mt-1 text-2xl font-bold tracking-tight text-slate-900"
-              ></p>
+          <!-- Minimal Bottom Accent -->
+          <div class="absolute bottom-0 left-0 h-0.5 w-full bg-violet-100"></div>
+        </article>
 
+
+        <!-- ACTIVE STUDENTS -->
+        <article
+          class="group relative flex min-h-[185px] min-w-0 flex-col
+                justify-between overflow-hidden rounded-2xl
+                border border-slate-200 bg-white p-5
+                shadow-sm transition-all duration-200
+                hover:border-emerald-200 hover:shadow-md
+                sm:p-6"
+        >
+          <!-- Header -->
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h3 class="text-sm font-medium text-slate-700">
+                Active Students
+              </h3>
+              <p class="mt-1 text-xs text-slate-400">
+                Student account status
+              </p>
             </div>
 
-            <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700">
+            <span
+              class="inline-flex shrink-0 items-center gap-1.5
+                    rounded-full bg-emerald-50 px-2.5 py-1
+                    text-[11px] font-medium text-emerald-700"
+            >
               <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
               Active
             </span>
-
           </div>
 
-        </div>
+          <!-- KPI Value -->
+          <div class="mt-6">
+            <p
+              id="total-active"
+              class="text-4xl font-light leading-none
+                    tracking-tight tabular-nums text-slate-900"
+            ></p>
 
-
-        <!-- Inactive Students -->
-        <div
-          class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-red-200 hover:shadow-md"
-        >
-
-          <div class="flex items-center gap-4">
-
-            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-500 transition-colors group-hover:bg-red-100">
-
-              <svg
-                class="h-6 w-6"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 640 640"
-                fill="currentColor"
-              >
-                <path d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 405.8 61.8 344 138.3 344l91.4 0C306.2 344 368 405.8 368 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3zM484.7 246.7L440.1 202c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l84.7 84.7c9.4 9.4 9.4 24.6 0 33.9l-84.7 84.7c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l44.6-44.7L416 292.7c-13.3 0-24-10.7-24-24s10.7-24 24-24l68.7 0z"/>
-              </svg>
-
-            </div>
-
-            <div class="min-w-0 flex-1">
-
-              <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
-                Inactive Students
+            <div class="mt-4 flex items-center gap-2">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+              <p class="text-xs text-slate-500">
+                Currently active students
               </p>
+            </div>
+          </div>
 
-              <p
-                id="total-inactive"
-                class="mt-1 text-2xl font-bold tracking-tight text-slate-900"
-              ></p>
+          <!-- Minimal Bottom Accent -->
+          <div class="absolute bottom-0 left-0 h-0.5 w-full bg-emerald-100"></div>
+        </article>
 
+
+        <!-- INACTIVE STUDENTS -->
+        <article
+          class="group relative flex min-h-[185px] min-w-0 flex-col
+                justify-between overflow-hidden rounded-2xl
+                border border-slate-200 bg-white p-5
+                shadow-sm transition-all duration-200
+                hover:border-rose-200 hover:shadow-md
+                sm:p-6"
+        >
+          <!-- Header -->
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h3 class="text-sm font-medium text-slate-700">
+                Inactive Students
+              </h3>
+              <p class="mt-1 text-xs text-slate-400">
+                Student account status
+              </p>
             </div>
 
-            <span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-semibold text-red-600">
-              <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+            <span
+              class="inline-flex shrink-0 items-center gap-1.5
+                    rounded-full bg-rose-50 px-2.5 py-1
+                    text-[11px] font-medium text-rose-700"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
               Inactive
             </span>
-
           </div>
 
-        </div>
+          <!-- KPI Value -->
+          <div class="mt-6">
+            <p
+              id="total-inactive"
+              class="text-4xl font-light leading-none
+                    tracking-tight tabular-nums text-slate-900"
+            ></p>
+
+            <div class="mt-4 flex items-center gap-2">
+              <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
+              <p class="text-xs text-slate-500">
+                Currently inactive students
+              </p>
+            </div>
+          </div>
+
+          <!-- Minimal Bottom Accent -->
+          <div class="absolute bottom-0 left-0 h-0.5 w-full bg-rose-100"></div>
+        </article>
 
       </div>
+
+
 
 
       <!-- =========================================================
@@ -448,6 +478,7 @@ window.API_URL = <?= json_encode($_ENV['APP_API'] ?? '') ?>
 <script src="<?= BASE_URL ?>assets/js/admin/students/index.js" type="module"></script> 
 <script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>
 
-<?php $autoLogoutRole = 'admin'; require __DIR__ . '/../partials/auto_logout.php'; ?>
+<?php $autoLogoutRole = 'admin';
+require __DIR__ . '/../partials/auto_logout.php'; ?>
 </body>
 </html>

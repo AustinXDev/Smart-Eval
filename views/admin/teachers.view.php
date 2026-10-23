@@ -118,185 +118,174 @@ $pageTitle = "Manage Teachers";
       <!-- =========================================================
           STATISTICS
       ========================================================== -->
+
+      <!-- TEACHER MANAGEMENT KPI CARDS -->
       <div
         id="card-container"
-        data-department="<?php echo htmlspecialchars($department); ?>"
+        data-department="<?php echo htmlspecialchars($department, ENT_QUOTES, 'UTF-8'); ?>"
         class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
       >
 
-        <!-- =======================================================
-            TOTAL TEACHERS
-        ======================================================== -->
-        <div
-          class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm
-                transition-all duration-200
-                hover:-translate-y-0.5
-                hover:border-violet-200
-                hover:shadow-md"
+        <!-- TOTAL TEACHERS -->
+        <article
+          class="group relative flex min-h-[185px] min-w-0 flex-col
+                justify-between overflow-hidden rounded-2xl
+                border border-slate-200 bg-white p-5
+                shadow-sm transition-all duration-200
+                hover:border-violet-200 hover:shadow-md sm:p-6"
         >
-
-          <div class="flex items-center gap-4">
-
-            <!-- Icon -->
-            <div
-              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl
-                    bg-violet-50 text-violet-600
-                    transition-colors group-hover:bg-violet-100"
-            >
-              <svg
-                class="h-6 w-6"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 640 640"
-                fill="currentColor"
-              >
-                <path d="M192 448C245 448 288 491 288 544C288 561.7 273.7 576 256 576L32 576C14.3 576 0 561.7 0 544C0 491 43 448 96 448L192 448zM544 96C579.3 96 608 124.7 608 160L608 448C608 481.1 582.8 508.4 550.5 511.7L544 512L332.9 512C327.8 487.8 316.6 465.9 300.8 448L352 448L352 416C352 398.3 366.3 384 384 384L480 384C497.7 384 512 398.3 512 416L512 448L544 448L544 160L192 160L192 217.3C177.2 211.3 161 208 144 208C138.6 208 133.2 208.3 128 209L128 160C128 124.7 156.7 96 192 96L544 96zM144 416C99.8 416 64 380.2 64 336C64 291.8 99.8 256 144 256C188.2 256 224 291.8 224 336C224 380.2 188.2 416 144 416z"/>
-              </svg>
-            </div>
-
-            <!-- Content -->
-            <div class="min-w-0 flex-1">
-
-              <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+          <!-- Header -->
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <h3 class="text-sm font-medium text-slate-700">
                 Total Teachers
+              </h3>
+
+              <p class="mt-1 text-xs text-slate-400">
+                Faculty records overview
               </p>
-
-              <p
-                id="total-teachers"
-                class="mt-1 text-2xl font-bold tracking-tight text-slate-900"
-              ></p>
-
             </div>
 
-            <!-- Secondary Icon -->
-            <div class="hidden h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-slate-400 sm:flex">
-              <i class="fas fa-chalkboard-teacher text-xs"></i>
-            </div>
-
+            <!-- Status Badge -->
+            <span
+              class="inline-flex shrink-0 items-center gap-1.5
+                    rounded-full bg-violet-50 px-2.5 py-1
+                    text-[11px] font-medium text-violet-700"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-violet-500"></span>
+              All
+            </span>
           </div>
 
-        </div>
+          <!-- KPI Value -->
+          <div class="mt-6">
+            <p
+              id="total-teachers"
+              class="text-4xl font-light leading-none
+                    tracking-tight tabular-nums text-slate-900"
+            ></p>
 
+            <div class="mt-4 flex items-center gap-2">
+              <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-violet-500"></span>
 
-        <!-- =======================================================
-            ACTIVE TEACHERS
-        ======================================================== -->
-        <div
-          class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm
-                transition-all duration-200
-                hover:-translate-y-0.5
-                hover:border-emerald-200
-                hover:shadow-md"
-        >
-
-          <div class="flex items-center gap-4">
-
-            <!-- Icon -->
-            <div
-              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl
-                    bg-emerald-50 text-emerald-600
-                    transition-colors group-hover:bg-emerald-100"
-            >
-              <svg
-                class="h-6 w-6"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 640 640"
-                fill="currentColor"
-              >
-                <path d="M286 368C384.5 368 464.3 447.8 464.3 546.3C464.3 562.7 451 576 434.6 576L78 576C61.6 576 48.3 562.7 48.3 546.3C48.3 447.8 128.1 368 226.6 368L286 368zM585.7 169.9C593.5 159.2 608.5 156.8 619.2 164.6C629.9 172.4 632.3 187.4 624.5 198.1L522.1 338.9C517.9 344.6 511.4 348.3 504.4 348.7C497.4 349.1 490.4 346.5 485.5 341.4L439.1 293.4C429.9 283.9 430.1 268.7 439.7 259.5C449.2 250.3 464.4 250.6 473.6 260.1L500.1 287.5L585.7 169.8zM256.3 312C190 312 136.3 258.3 136.3 192C136.3 125.7 190 72 256.3 72C322.6 72 376.3 125.7 376.3 192C376.3 258.3 322.6 312 256.3 312z"/>
-              </svg>
-            </div>
-
-            <!-- Content -->
-            <div class="min-w-0 flex-1">
-
-              <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
-                Active Teachers
+              <p class="text-xs text-slate-500">
+                Total registered teachers
               </p>
+            </div>
+          </div>
 
-              <p
-                id="total-active"
-                class="mt-1 text-2xl font-bold tracking-tight text-slate-900"
-              ></p>
+          <!-- Bottom Accent -->
+          <div class="absolute bottom-0 left-0 h-0.5 w-full bg-violet-100"></div>
+        </article>
 
+
+        <!-- ACTIVE TEACHERS -->
+        <article
+          class="group relative flex min-h-[185px] min-w-0 flex-col
+                justify-between overflow-hidden rounded-2xl
+                border border-slate-200 bg-white p-5
+                shadow-sm transition-all duration-200
+                hover:border-emerald-200 hover:shadow-md sm:p-6"
+        >
+          <!-- Header -->
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <h3 class="text-sm font-medium text-slate-700">
+                Active Teachers
+              </h3>
+
+              <p class="mt-1 text-xs text-slate-400">
+                Faculty account status
+              </p>
             </div>
 
-            <!-- Status -->
+            <!-- Status Badge -->
             <span
-              class="inline-flex items-center gap-1.5 rounded-full
-                    bg-emerald-50 px-2.5 py-1
-                    text-[10px] font-semibold text-emerald-700"
+              class="inline-flex shrink-0 items-center gap-1.5
+                    rounded-full bg-emerald-50 px-2.5 py-1
+                    text-[11px] font-medium text-emerald-700"
             >
               <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
               Active
             </span>
-
           </div>
 
-        </div>
+          <!-- KPI Value -->
+          <div class="mt-6">
+            <p
+              id="total-active"
+              class="text-4xl font-light leading-none
+                    tracking-tight tabular-nums text-slate-900"
+            ></p>
 
+            <div class="mt-4 flex items-center gap-2">
+              <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500"></span>
 
-        <!-- =======================================================
-            INACTIVE TEACHERS
-        ======================================================== -->
-        <div
-          class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm
-                transition-all duration-200
-                hover:-translate-y-0.5
-                hover:border-red-200
-                hover:shadow-md"
-        >
-
-          <div class="flex items-center gap-4">
-
-            <!-- Icon -->
-            <div
-              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl
-                    bg-red-50 text-red-500
-                    transition-colors group-hover:bg-red-100"
-            >
-              <svg
-                class="h-6 w-6"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-2.625 6c-.54 0-.828.419-.936.634a1.96 1.96 0 0 0-.189.866c0 .298.059.605.189.866.108.215.395.634.936.634.54 0 .828-.419.936-.634.13-.26.189-.568-.189-.866-.108-.215-.395-.634-.936-.634Zm4.314.634c.108-.215.395-.634.936-.634.54 0 .828.419.936.634.13.26.189.568.189.866 0 .298-.059.605-.189.866-.108.215-.395.634-.936.634-.54 0-.828-.419-.936-.634a1.96 1.96 0 0 1-.189-.866c0-.298.059-.605.189-.866Zm-4.34 7.964a.75.75 0 0 1-1.061-1.06 5.236 5.236 0 0 1 3.73-1.538 5.236 5.236 0 0 1 3.695 1.538.75.75 0 1 1-1.061 1.06 3.736 3.736 0 0 0-2.639-1.098 3.736 3.736 0 0 0-2.664 1.098Z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </div>
-
-            <!-- Content -->
-            <div class="min-w-0 flex-1">
-
-              <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
-                Inactive Teachers
+              <p class="text-xs text-slate-500">
+                Currently active teachers
               </p>
+            </div>
+          </div>
 
-              <p
-                id="total-inactive"
-                class="mt-1 text-2xl font-bold tracking-tight text-slate-900"
-              ></p>
+          <!-- Bottom Accent -->
+          <div class="absolute bottom-0 left-0 h-0.5 w-full bg-emerald-100"></div>
+        </article>
 
+
+        <!-- INACTIVE TEACHERS -->
+        <article
+          class="group relative flex min-h-[185px] min-w-0 flex-col
+                justify-between overflow-hidden rounded-2xl
+                border border-slate-200 bg-white p-5
+                shadow-sm transition-all duration-200
+                hover:border-rose-200 hover:shadow-md sm:p-6"
+        >
+          <!-- Header -->
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <h3 class="text-sm font-medium text-slate-700">
+                Inactive Teachers
+              </h3>
+
+              <p class="mt-1 text-xs text-slate-400">
+                Faculty account status
+              </p>
             </div>
 
-            <!-- Status -->
+            <!-- Status Badge -->
             <span
-              class="inline-flex items-center gap-1.5 rounded-full
-                    bg-red-50 px-2.5 py-1
-                    text-[10px] font-semibold text-red-600"
+              class="inline-flex shrink-0 items-center gap-1.5
+                    rounded-full bg-rose-50 px-2.5 py-1
+                    text-[11px] font-medium text-rose-700"
             >
-              <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+              <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
               Inactive
             </span>
-
           </div>
 
-        </div>
+          <!-- KPI Value -->
+          <div class="mt-6">
+            <p
+              id="total-inactive"
+              class="text-4xl font-light leading-none
+                    tracking-tight tabular-nums text-slate-900"
+            ></p>
+
+            <div class="mt-4 flex items-center gap-2">
+              <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-rose-500"></span>
+
+              <p class="text-xs text-slate-500">
+                Currently inactive teachers
+              </p>
+            </div>
+          </div>
+
+          <!-- Bottom Accent -->
+          <div class="absolute bottom-0 left-0 h-0.5 w-full bg-rose-100"></div>
+        </article>
 
       </div>
+
 
 
       <!-- =========================================================

@@ -85,156 +85,204 @@ $pageTitle = "Reports & Analytics";
 
       <div class="mx-auto max-w-[1500px]">
 
-        <!-- ========================================================
-            PAGE HEADER
-        ========================================================= -->
-        <div class="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+        
+    <!-- ==========================================
+        DEPARTMENT PERFORMANCE PAGE HEADER
+    ========================================== -->
+    <header
+      class="mb-6 rounded-2xl border border-slate-200
+            bg-white shadow-sm"
+    >
+      <div
+        class="flex flex-col gap-6 p-5
+              sm:p-6 xl:flex-row
+              xl:items-center xl:justify-between"
+      >
 
-          <div class="flex flex-col gap-5 p-5 sm:p-6 xl:flex-row xl:items-center xl:justify-between">
+        <!-- LEFT: PAGE INFORMATION -->
+        <div class="min-w-0 flex-1">
 
-            <!-- Left -->
-            <div class="min-w-0">
+          <!-- Breadcrumb -->
+          <nav
+            aria-label="Breadcrumb"
+            class="mb-4 flex flex-wrap items-center
+                  gap-2 text-xs text-slate-400"
+          >
+            <span class="font-medium">
+              Reports &amp; Analytics
+            </span>
 
-              <!-- Breadcrumb -->
-              <div class="mb-3 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-400">
-                <span>Reports & Analytics</span>
+            <i
+              class="fas fa-chevron-right text-[9px] text-slate-300"
+              aria-hidden="true"
+            ></i>
 
-                <i class="fas fa-chevron-right text-[8px] text-slate-300"></i>
-
-                <span
-                  class="inline-flex items-center rounded-lg border border-violet-100 bg-violet-50 px-2.5 py-1
-                        font-semibold text-violet-700"
-                >
-                  <?php echo isset($_GET['dept']) ? ucfirst($_GET['dept']) : 'Department'; ?>
-                </span>
-              </div>
-
-              <!-- Title -->
-              <div class="flex flex-col gap-1">
-                <h1 class="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-                  Department Performance
-                </h1>
-
-                <p class="max-w-2xl text-xs leading-relaxed text-slate-400 sm:text-sm">
-                  Monitor evaluation participation, performance trends, category scores,
-                  and teacher evaluation results.
-                </p>
-              </div>
-
-              <!-- Current View -->
-              <div class="mt-4 flex flex-wrap items-center gap-2">
-
-                <span class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400">
-                  <i class="fas fa-calendar-alt text-[11px]"></i>
-                  Current view
-                </span>
-
-                <span
-                  id="evaluationPeriod"
-                  class="inline-flex items-center rounded-lg border border-slate-200
-                        bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700"
-                >
-                  Evaluation Period
-                </span>
-
-                <span class="text-slate-300">/</span>
-
-                <span
-                  id="semester"
-                  class="inline-flex items-center rounded-lg border border-slate-200
-                        bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700"
-                >
-                  Semester
-                </span>
-
-                <!-- Live -->
-                <div
-                  id="status"
-                  class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200
-                        bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700"
-                >
-                  <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500"></span>
-                  Live
-                </div>
-
-              </div>
-
-            </div>
+            <span class="font-medium text-slate-600">
+              <?php
+                echo htmlspecialchars(
+                    isset($_GET['dept'])
+                      ? ucfirst($_GET['dept'])
+                      : 'Department',
+                    ENT_QUOTES,
+                    'UTF-8'
+                );
+?>
+            </span>
+          </nav>
 
 
-            <!-- ====================================================
-                HEADER ACTIONS
-            ===================================================== -->
-            <div class="flex w-full flex-col gap-2 sm:flex-row xl:w-auto">
+          <!-- Page Title -->
+          <div class="space-y-2">
 
-              <button 
-                id="viewHistoryBtn" 
-                class="
-                  inline-flex
-                  h-10
-                  w-full
-                  items-center
-                  justify-center
-                  gap-2
-                  rounded-xl
-                  border
-                  border-slate-200
-                  bg-white
-                  px-4
-                  text-xs
-                  font-semibold
-                  text-slate-600
-                  shadow-sm
-                  transition-all
-                  duration-200
-                  hover:border-violet-200
-                  hover:bg-violet-50
-                  hover:text-violet-700
-                  active:scale-[.98]
-                  sm:w-auto
-                "
-              >
-                <i class="fas fa-history text-[11px]"></i>
-                View History
-              </button>
+            <h1
+              class="text-xl font-semibold tracking-tight
+                    text-slate-900 sm:text-2xl"
+            >
+              Department Performance
+            </h1>
 
-              <button 
-                id="exportPdfBtn" 
-                class="
-                  inline-flex
-                  h-10
-                  w-full
-                  items-center
-                  justify-center
-                  gap-2
-                  rounded-xl
-                  border
-                  border-violet-600
-                  bg-violet-600
-                  px-4
-                  text-xs
-                  font-semibold
-                  text-white
-                  shadow-sm
-                  shadow-violet-600/20
-                  transition-all
-                  duration-200
-                  hover:bg-violet-700
-                  hover:shadow-md
-                  hover:shadow-violet-600/20
-                  active:scale-[.98]
-                  sm:w-auto
-                "
-              >
-                <i class="fas fa-file-pdf text-[11px]"></i>
-                Export to PDF
-              </button>
+            <p
+              class="max-w-2xl text-sm leading-relaxed
+                    text-slate-500"
+            >
+              Monitor evaluation participation, performance trends,
+              category scores, and teacher evaluation results.
+            </p>
 
+          </div>
+
+
+          <!-- CURRENT EVALUATION INFORMATION -->
+          <div
+            class="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2"
+          >
+
+            <!-- Label -->
+            <span
+              class="inline-flex items-center gap-2
+                    text-xs font-medium text-slate-500"
+            >
+              <i
+                class="far fa-calendar text-slate-400"
+                aria-hidden="true"
+              ></i>
+
+              Current View
+            </span>
+
+
+            <!-- Separator -->
+            <span
+              class="hidden h-4 w-px bg-slate-200 sm:block"
+              aria-hidden="true"
+            ></span>
+
+
+            <!-- Evaluation Period -->
+            <span
+              id="evaluationPeriod"
+              class="text-xs font-medium text-slate-700"
+            >
+              Evaluation Period
+            </span>
+
+
+            <!-- Separator -->
+            <span class="text-xs text-slate-300" aria-hidden="true">
+              /
+            </span>
+
+
+            <!-- Semester -->
+            <span
+              id="semester"
+              class="text-xs font-medium text-slate-700"
+            >
+              Semester
+            </span>
+
+
+            <!-- Evaluation Status -->
+            <div
+              id="status"
+              class="inline-flex items-center gap-1.5
+                    rounded-full bg-emerald-50
+                    px-2.5 py-1 text-[11px]
+                    font-medium text-emerald-700"
+            >
+              <span
+                class="h-1.5 w-1.5 rounded-full bg-emerald-500"
+              ></span>
+
+              Live
             </div>
 
           </div>
 
         </div>
+
+
+        <!-- RIGHT: HEADER ACTIONS -->
+        <div
+          class="flex w-full shrink-0 flex-col gap-2
+                sm:w-auto sm:flex-row
+                xl:self-center"
+        >
+
+          <!-- View History -->
+          <button
+            type="button"
+            id="viewHistoryBtn"
+            class="inline-flex h-10 w-full items-center
+                  justify-center gap-2 rounded-xl
+                  border border-slate-200 bg-white
+                  px-4 text-sm font-medium text-slate-700
+                  transition-colors duration-200
+                  hover:border-slate-300 hover:bg-slate-50
+                  focus-visible:outline-none
+                  focus-visible:ring-2
+                  focus-visible:ring-violet-500
+                  focus-visible:ring-offset-2
+                  sm:w-auto"
+          >
+            <i
+              class="fas fa-history text-xs text-slate-500"
+              aria-hidden="true"
+            ></i>
+
+            View History
+          </button>
+
+
+          <!-- Export PDF -->
+          <button
+            type="button"
+            id="exportPdfBtn"
+            class="inline-flex h-10 w-full items-center
+                  justify-center gap-2 rounded-xl
+                  bg-violet-600 px-4
+                  text-sm font-medium text-white
+                  transition-colors duration-200
+                  hover:bg-violet-700
+                  focus-visible:outline-none
+                  focus-visible:ring-2
+                  focus-visible:ring-violet-500
+                  focus-visible:ring-offset-2
+                  sm:w-auto"
+          >
+            <i
+              class="fas fa-file-pdf text-xs"
+              aria-hidden="true"
+            ></i>
+
+            Export to PDF
+          </button>
+
+        </div>
+
+      </div>
+    </header>
+
 
 
         <!-- ========================================================
@@ -2477,7 +2525,8 @@ $pageTitle = "Reports & Analytics";
 
   </div>
 
-<?php $autoLogoutRole = 'admin'; require __DIR__ . '/../partials/auto_logout.php'; ?>
+<?php $autoLogoutRole = 'admin';
+require __DIR__ . '/../partials/auto_logout.php'; ?>
 </body>
 
 <script> 

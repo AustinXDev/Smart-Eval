@@ -122,147 +122,205 @@ $pageTitle = "Manage Programs";
 
       <div class="mx-auto max-w-[1800px] space-y-6 px-5 py-6 sm:px-6 lg:px-8">
 
-        <!-- =========================================================
-            PROGRAM STATISTICS
-        ========================================================== -->
-        <div
-          id="card-container"
-          class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+
+      <!-- ==========================================
+          PROGRAM STATISTICS
+      ========================================== -->
+      <div
+        id="card-container"
+        class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+      >
+
+        <!-- TOTAL PROGRAMS -->
+        <article
+          class="group relative flex min-h-[185px] min-w-0 flex-col
+                justify-between overflow-hidden rounded-2xl
+                border border-slate-200 bg-white p-5
+                shadow-sm transition-all duration-200
+                hover:border-violet-200 hover:shadow-md sm:p-6"
         >
 
-          <!-- Total Programs -->
-          <div
-            class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md"
-          >
+          <!-- Header -->
+          <div class="flex items-start justify-between gap-3">
 
-            <div class="flex items-center gap-4">
+            <div class="min-w-0">
+              <h3 class="text-sm font-medium text-slate-700">
+                Total Programs
+              </h3>
 
-              <div
-                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600 transition-colors group-hover:bg-violet-100"
-              >
-                <i class="fas fa-layer-group text-lg"></i>
-              </div>
-
-              <div class="min-w-0 flex-1">
-
-                <p
-                  class="text-xs font-medium uppercase tracking-wide text-slate-400"
-                >
-                  Total Programs
-                </p>
-
-                <p
-                  id="total-programs"
-                  class="mt-1 text-2xl font-bold tracking-tight text-slate-900"
-                >
-                  0
-                </p>
-
-              </div>
-
-              <div
-                class="hidden h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-slate-400 sm:flex"
-              >
-                <i class="fas fa-list text-xs"></i>
-              </div>
-
+              <p class="mt-1 text-xs text-slate-400">
+                Academic programs overview
+              </p>
             </div>
+
+            <!-- Badge -->
+            <span
+              class="inline-flex shrink-0 items-center gap-1.5
+                    rounded-full bg-violet-50 px-2.5 py-1
+                    text-[11px] font-medium text-violet-700"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-violet-500"></span>
+              All
+            </span>
 
           </div>
 
+          <!-- KPI Value -->
+          <div class="mt-6">
 
+            <p
+              id="total-programs"
+              class="text-4xl font-light leading-none
+                    tracking-tight tabular-nums text-slate-900"
+            >0</p>
 
-          <!-- Active Programs -->
-          <div
-            class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md"
-          >
-
-            <div class="flex items-center gap-4">
-
-              <div
-                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition-colors group-hover:bg-emerald-100"
-              >
-                <i class="fas fa-check-circle text-lg"></i>
-              </div>
-
-              <div class="min-w-0 flex-1">
-
-                <p
-                  class="text-xs font-medium uppercase tracking-wide text-slate-400"
-                >
-                  Active Programs
-                </p>
-
-                <p
-                  id="total-active"
-                  class="mt-1 text-2xl font-bold tracking-tight text-slate-900"
-                >
-                  0
-                </p>
-
-              </div>
+            <div class="mt-4 flex items-center gap-2">
 
               <span
-                class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700"
-              >
-                <span
-                  class="h-1.5 w-1.5 rounded-full bg-emerald-500"
-                ></span>
+                class="h-1.5 w-1.5 shrink-0 rounded-full bg-violet-500"
+              ></span>
 
-                Active
-              </span>
+              <p class="text-xs text-slate-500">
+                Total academic programs
+              </p>
 
             </div>
 
           </div>
 
+          <!-- Bottom Accent -->
+          <div class="absolute bottom-0 left-0 h-0.5 w-full bg-violet-100"></div>
+
+        </article>
 
 
-          <!-- Inactive Programs -->
-          <div
-            class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-red-200 hover:shadow-md"
-          >
+        <!-- ACTIVE PROGRAMS -->
+        <article
+          class="group relative flex min-h-[185px] min-w-0 flex-col
+                justify-between overflow-hidden rounded-2xl
+                border border-slate-200 bg-white p-5
+                shadow-sm transition-all duration-200
+                hover:border-emerald-200 hover:shadow-md sm:p-6"
+        >
 
-            <div class="flex items-center gap-4">
+          <!-- Header -->
+          <div class="flex items-start justify-between gap-3">
 
-              <div
-                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-500 transition-colors group-hover:bg-red-100"
-              >
-                <i class="fas fa-ban text-lg"></i>
-              </div>
+            <div class="min-w-0">
+              <h3 class="text-sm font-medium text-slate-700">
+                Active Programs
+              </h3>
 
-              <div class="min-w-0 flex-1">
+              <p class="mt-1 text-xs text-slate-400">
+                Academic program status
+              </p>
+            </div>
 
-                <p
-                  class="text-xs font-medium uppercase tracking-wide text-slate-400"
-                >
-                  Inactive Programs
-                </p>
+            <!-- Badge -->
+            <span
+              class="inline-flex shrink-0 items-center gap-1.5
+                    rounded-full bg-emerald-50 px-2.5 py-1
+                    text-[11px] font-medium text-emerald-700"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+              Active
+            </span>
 
-                <p
-                  id="total-inactive"
-                  class="mt-1 text-2xl font-bold tracking-tight text-slate-900"
-                >
-                  0
-                </p>
+          </div>
 
-              </div>
+          <!-- KPI Value -->
+          <div class="mt-6">
+
+            <p
+              id="total-active"
+              class="text-4xl font-light leading-none
+                    tracking-tight tabular-nums text-slate-900"
+            >0</p>
+
+            <div class="mt-4 flex items-center gap-2">
 
               <span
-                class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-semibold text-red-600"
-              >
-                <span
-                  class="h-1.5 w-1.5 rounded-full bg-red-500"
-                ></span>
+                class="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500"
+              ></span>
 
-                Inactive
-              </span>
+              <p class="text-xs text-slate-500">
+                Currently active programs
+              </p>
 
             </div>
 
           </div>
 
-        </div>
+          <!-- Bottom Accent -->
+          <div class="absolute bottom-0 left-0 h-0.5 w-full bg-emerald-100"></div>
+
+        </article>
+
+
+        <!-- INACTIVE PROGRAMS -->
+        <article
+          class="group relative flex min-h-[185px] min-w-0 flex-col
+                justify-between overflow-hidden rounded-2xl
+                border border-slate-200 bg-white p-5
+                shadow-sm transition-all duration-200
+                hover:border-rose-200 hover:shadow-md sm:p-6"
+        >
+
+          <!-- Header -->
+          <div class="flex items-start justify-between gap-3">
+
+            <div class="min-w-0">
+              <h3 class="text-sm font-medium text-slate-700">
+                Inactive Programs
+              </h3>
+
+              <p class="mt-1 text-xs text-slate-400">
+                Academic program status
+              </p>
+            </div>
+
+            <!-- Badge -->
+            <span
+              class="inline-flex shrink-0 items-center gap-1.5
+                    rounded-full bg-rose-50 px-2.5 py-1
+                    text-[11px] font-medium text-rose-700"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
+              Inactive
+            </span>
+
+          </div>
+
+          <!-- KPI Value -->
+          <div class="mt-6">
+
+            <p
+              id="total-inactive"
+              class="text-4xl font-light leading-none
+                    tracking-tight tabular-nums text-slate-900"
+            >0</p>
+
+            <div class="mt-4 flex items-center gap-2">
+
+              <span
+                class="h-1.5 w-1.5 shrink-0 rounded-full bg-rose-500"
+              ></span>
+
+              <p class="text-xs text-slate-500">
+                Currently inactive programs
+              </p>
+
+            </div>
+
+          </div>
+
+          <!-- Bottom Accent -->
+          <div class="absolute bottom-0 left-0 h-0.5 w-full bg-rose-100"></div>
+
+        </article>
+
+      </div>
+
 
 
 
@@ -496,6 +554,7 @@ $pageTitle = "Manage Programs";
 
   <script src="<?= BASE_URL ?>assets/js/admin/manage_program/index.js" type="module"></script>
   <script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>
-<?php $autoLogoutRole = 'admin'; require __DIR__ . '/../partials/auto_logout.php'; ?>
+<?php $autoLogoutRole = 'admin';
+require __DIR__ . '/../partials/auto_logout.php'; ?>
 </body>
 </html>
