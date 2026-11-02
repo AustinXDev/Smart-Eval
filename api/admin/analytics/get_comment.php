@@ -6,9 +6,13 @@ require_once dirname(__DIR__, 3) . '/app/api_bootstrap.php';
 
 require_once __DIR__ . '/../../../app/init.php';
 
+require_once __DIR__ . '/../../../app/config/archive-database.php';
+
 use App\Controllers\teachers\TeacherCommentController;
+use App\Repositories\ArchiveRepo\ArchiveReadRepository;
 use App\Services\TeacherServices\TeacherReportService;
 use App\Repositories\ReportRepositories\TeacherReportRepository;
+use App\Repositories\ArchiveRepo\ArchiveTeacherReportRepository;
 use App\helpers\AnalyticsHelpers;
 
 header('Content-Type: application/json; charset=utf-8');
@@ -17,10 +21,16 @@ try {
 
     $reportRepo = new TeacherReportRepository($pdo);
 
+    $readRepo = new ArchiveReadRepository($archivePdo);
+
+    $archiveReportRepo = new ArchiveTeacherReportRepository($archivePdo);
+
 
     $service = new TeacherReportService(
         $reportRepo,
-        new AnalyticsHelpers()
+        new AnalyticsHelpers(),
+        $archiveReportRepo,
+        $readRepo
     );
 
     $controller = new TeacherCommentController($service);

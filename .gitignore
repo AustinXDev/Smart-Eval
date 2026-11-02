@@ -8,3 +8,22 @@
 .env
 .env.*
 !.env.example
+
+# Runtime files
+/storage/backups/*
+/storage/logs/*
+/storage/tokens/*
+!/storage/backups/.gitkeep
+!/storage/logs/.gitkeep
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# Local development
+.vscode/
+.idea/
+
+# Test output
+/tests/
+/coverage/

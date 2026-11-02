@@ -95,33 +95,52 @@ class EvaluationRepository
             WHEN :nowUpcoming < start_date THEN 'Upcoming'
             ELSE 'Archived' END AS display_status
             FROM evaluation_periods ep) periods";
+
         $params = ['nowStart' => $now, 'nowEnd' => $now, 'nowUpcoming' => $now];
+
         $where = ' WHERE 1=1';
+
         if ($status !== 'All') {
             $where .= ' AND display_status = :status';
             $params['status'] = $status;
         }
+
         if ($search !== '') {
             $where .= " AND (academic_year LIKE :year ESCAPE '!' OR semester LIKE :semester ESCAPE '!' OR target_dept LIKE :dept ESCAPE '!' OR display_status LIKE :statusSearch ESCAPE '!')";
             $pattern = '%' . strtr($search, ['!' => '!!', '%' => '!%', '_' => '!_']) . '%';
+
             foreach (['year', 'semester', 'dept', 'statusSearch'] as $key) {
                 $params[$key] = $pattern;
             }
         }
+
         $total = (int) $this->pdo->query('SELECT COUNT(*) FROM evaluation_periods')->fetchColumn();
+
         $count = $this->pdo->prepare('SELECT COUNT(*)' . $source . $where);
+
         $count->execute($params);
+
         $filtered = (int) $count->fetchColumn();
+
         $stmt = $this->pdo->prepare('SELECT period_id, academic_year, semester, target_dept, display_status' . $source . $where . ' ORDER BY start_date DESC, period_id DESC LIMIT :limit OFFSET :offset');
+
         foreach ($params as $key => $value) {
             $stmt->bindValue(':' . $key, $value, PDO::PARAM_STR);
         }
+
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
         $stmt->execute();
+
         return ['recordsTotal' => $total, 'recordsFiltered' => $filtered, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)];
     }
 
+
+    /**
+     * Find all evaluation period
+     */
     public function findAll(): array
     {
 

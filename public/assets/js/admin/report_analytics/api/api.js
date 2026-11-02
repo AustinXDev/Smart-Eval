@@ -121,3 +121,17 @@ export async function notifyAll(department) {
     };
   }
 }
+
+export async function fetchHistory(department) {
+  try {
+    return await get(
+      `/api/admin/analytics/evaluation-history.php?dept=${encodeURIComponent(dept)}`,
+    );
+  } catch (error) {
+    console.error("Error fetching history:", error);
+    return {
+      status: "error",
+      message: error.message,
+    };
+  }
+}

@@ -1,16 +1,19 @@
 <?php
 
-namespace App\Core;
+declare(strict_types=1);
 
-require_once __DIR__ . '/../config/database.php';
+namespace App\Core;
 
 use App\Controllers\reports\ReportController;
 use App\Services\ReportServices\ReportService;
 use App\Services\AnalyticsServices\AnalyticsService;
+use App\Services\TeacherServices\TeacherReportService;
 use App\Repositories\AnalyticsRepo\AnalyticsRepository;
 use App\Repositories\EvaluationRepo\EvaluationRepository;
-use App\Repositories\ReportRepositories\TeacherReportRepository;
-use App\Services\TeacherServices\TeacherReportService;
+use App\Repositories\ArchiveRepo\ArchiveAnalyticsRepository;
+use App\Repositories\ArchiveRepo\ArchiveReadRepository;
+use App\Repositories\ArchiveRepo\ArchiveTeacherReportRepository;
+use App\Repositories\ReportRepositories\TeacherReportRepository as LiveTeacherReportRepository;
 use App\Resolvers\AnalyticsResolver;
 use App\helpers\AnalyticsHelpers;
 use PDO;
@@ -18,53 +21,60 @@ use PDO;
 class Container
 {
     public function __construct(
-        private PDO $pdo
+        private PDO $livePdo,
+        private PDO $archivePdo
     ) {
     }
 
     public function reportController(): ReportController
     {
-
         return new ReportController(
             $this->reportService()
         );
-
     }
 
     public function reportService(): ReportService
     {
+        // Live repositories
+        $analyticsRepo = new AnalyticsRepository($this->livePdo);
+        $evaluationRepo = new EvaluationRepository($this->livePdo);
 
-        $analyticRepository = new AnalyticsRepository($this->pdo);
-        $evaluationRepository = new EvaluationRepository($this->pdo);
+        // Archive repositories
+        $archiveAnalyticsRepo = new ArchiveAnalyticsRepository(
+            $this->archivePdo
+        );
+
+        $archiveReadRepo = new ArchiveReadRepository(
+            $this->archivePdo
+        );
+
+        $archiveTeacherReportRepo = new ArchiveTeacherReportRepository(
+            $this->archivePdo
+        );
 
         $helper = new AnalyticsHelpers();
 
+        // Supports live and archived analytics.
         $analyticsService = new AnalyticsService(
-            $analyticRepository,
-            new AnalyticsResolver($evaluationRepository),
-            $helper
+            $analyticsRepo,
+            new AnalyticsResolver($evaluationRepo),
+            $helper,
+            $archiveAnalyticsRepo,
+            $archiveReadRepo
         );
 
+        // Supports live and archived teacher reports.
         $teacherReportService = new TeacherReportService(
-            new TeacherReportRepository($this->pdo),
-            $helper
+            new LiveTeacherReportRepository($this->livePdo),
+            $helper,
+            $archiveTeacherReportRepo,
+            $archiveReadRepo
         );
 
         return new ReportService(
-            $analyticRepository,
+            $analyticsRepo,
             $analyticsService,
             $teacherReportService
         );
-
     }
-
-    public function teacherReportExcel(): ReportController
-    {
-
-        return new ReportController(
-            $this->reportService()
-        );
-
-    }
-
 }

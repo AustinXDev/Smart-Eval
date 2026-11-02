@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controllers\reportAnalytics;
 
 use App\Services\AnalyticsServices\AnalyticsService;
@@ -12,26 +14,48 @@ class AnalyticsController
     ) {
     }
 
-    public function getBundle(): array
+    public function getBundle(): ?array
     {
-
-        $periodId = (int) ($_GET['period_id'] ?? 0);
-        $department = trim($_GET['dept'] ?? '');
-
+        $department = trim(
+            (string) ($_GET['dept'] ?? '')
+        );
 
         if ($department === '') {
-
             http_response_code(400);
 
             throw new RuntimeException(
-                "Invalid analytics parameter"
+                'Invalid analytics department.'
             );
-
         }
 
+        // Optional period_id.
+        // Missing or empty means automatic period resolution.
+        $rawPeriodId = $_GET['period_id'] ?? null;
 
-        return $this->service->getAnalyticsBundle($department, $periodId);
+        $periodId = null;
 
+        if ($rawPeriodId !== null && $rawPeriodId !== '') {
+
+            $validatedId = filter_var(
+                $rawPeriodId,
+                FILTER_VALIDATE_INT,
+                ['options' => ['min_range' => 1]]
+            );
+
+            if ($validatedId === false) {
+                http_response_code(400);
+
+                throw new RuntimeException(
+                    'Invalid evaluation period ID.'
+                );
+            }
+
+            $periodId = $validatedId;
+        }
+
+        return $this->service->getAnalyticsBundle(
+            $department,
+            $periodId
+        );
     }
-
 }

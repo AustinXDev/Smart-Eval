@@ -252,16 +252,33 @@ class TeacherReportRepository
 
         $stmt = $this->pdo->prepare("
             SELECT
-                comment
-            FROM evaluation_status
-            WHERE teacher_id = ?
-                AND period_id = ?
-                AND comment IS NOT NULL
-                AND TRIM(comment) <> ''
-            ORDER BY date_taken DESC
+                es.comment
+            FROM evaluation_status es
+
+            WHERE es.period_id = ?
+                AND es.teacher_id = ?
+                AND es.is_submitted = 1
+                AND es.comment IS NOT NULL
+                AND TRIM(es.comment) <> ''
+
+            -- Include only fully submitted students.
+            AND EXISTS (
+                SELECT 1
+                FROM evaluation_status completed
+
+                WHERE completed.student_id = es.student_id
+                    AND completed.period_id = es.period_id
+
+                    GROUP BY completed.student_id
+
+                HAVING COUNT(*) > 0
+                    AND SUM(completed.is_submitted = 1) = COUNT(*)
+            )
+
+            ORDER BY es.date_taken DESC
         ");
 
-        $stmt->execute([$teacherId, $periodId]);
+        $stmt->execute([$periodId, $teacherId]);
 
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
 

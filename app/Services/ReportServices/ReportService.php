@@ -238,31 +238,51 @@ final class ReportService
         }
     }
 
+
     public function renderScoreExcel(
         int $periodId,
         string $department
     ): string {
 
-        $data = $this->analyticsRepo->getTeacherRanking($periodId, $department);
-
-        if ($data === null) {
-            throw new RuntimeException(
-                "No ranking score available in this period"
+        // Validate parameters.
+        if ($periodId <= 0 || trim($department) === '') {
+            throw new \InvalidArgumentException(
+                'A valid evaluation period and department are required.'
             );
         }
 
+        // Retrieve analytics from the correct database.
+        // Live period = live database.
+        // Archived period = archive database.
+        $bundle = $this->analyticsService->getAnalyticsBundle(
+            $department,
+            $periodId
+        );
+
+        // Get teacher ranking records from the analytics bundle.
+        $data = $bundle['teacher_ranking'] ?? [];
+
+        if (empty($data)) {
+            throw new RuntimeException(
+                'No ranking scores available for this evaluation period.'
+            );
+        }
+
+        // Create a temporary CSV stream.
         $stream = fopen('php://temp', 'w+');
 
         if ($stream === false) {
             throw new RuntimeException(
-                "Unable to create CSV stream."
+                'Unable to create CSV stream.'
             );
         }
 
         try {
 
+            // Add UTF-8 BOM for Excel compatibility.
             fwrite($stream, "\xEF\xBB\xBF");
 
+            // CSV headers.
             fputcsv($stream, [
                 'Rank',
                 'Employee ID',
@@ -273,44 +293,55 @@ final class ReportService
 
             $rank = 1;
 
-            // Insert teacher ranking records
+            // Insert teacher ranking records.
             foreach ($data as $teacher) {
+
+                // Prevent spreadsheet formula injection.
+                $employeeId = (string) $teacher['employee_id'];
+                $teacherName = (string) $teacher['full_name'];
+
+                if (preg_match('/^[\s\x00-\x1F]*[=+\-@]/u', $employeeId)) {
+                    $employeeId = "'" . $employeeId;
+                }
+
+                if (preg_match('/^[\s\x00-\x1F]*[=+\-@]/u', $teacherName)) {
+                    $teacherName = "'" . $teacherName;
+                }
 
                 fputcsv($stream, [
                     $rank,
-                    $teacher['employee_id'],
-                    $teacher['full_name'],
+                    $employeeId,
+                    $teacherName,
                     number_format(
                         (float) $teacher['mean_score'],
                         2,
                         '.',
                         ''
                     ),
-                    $teacher['total_evaluated']
+                    (int) $teacher['total_evaluated']
                 ], ',', '"', '');
 
                 $rank++;
             }
 
-            // Return CSV content
+            // Read CSV content.
             rewind($stream);
 
             $csv = stream_get_contents($stream);
 
             if ($csv === false) {
                 throw new RuntimeException(
-                    "Unable to read CSV content."
+                    'Unable to read CSV content.'
                 );
             }
 
             return $csv;
 
-
         } finally {
             fclose($stream);
         }
-
     }
+
 
 
 

@@ -1,12 +1,11 @@
 import { initHistoryTable } from "../../shared/table-config.js";
+import { fetchHistory } from "../api/api.js";
 import { state, dept } from "./state.js";
 
 export async function populateHistoryModal() {
   try {
-    const response = await fetch(
-      `/Smart-Eval/app/Controllers/reportAnalytics/AnalyticsController.php?action=getHistoryList&dept=${dept}`,
-    );
-    const result = await response.json();
+    const result = await fetchHistory(dept);
+
     console.log("History result:", result);
 
     if (result.status === "success") {

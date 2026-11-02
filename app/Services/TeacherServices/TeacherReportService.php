@@ -3,28 +3,48 @@
 namespace App\Services\TeacherServices;
 
 use App\Repositories\ReportRepositories\TeacherReportRepository;
+use App\Repositories\ArchiveRepo\ArchiveTeacherReportRepository;
+use App\Repositories\ArchiveRepo\ArchiveReadRepository;
 use App\helpers\AnalyticsHelpers;
 use RuntimeException;
 
-class TeacherReportService
+final class TeacherReportService
 {
     public function __construct(
         private TeacherReportRepository $teacherReportRepo,
-        private AnalyticsHelpers $helpers
+        private AnalyticsHelpers $helpers,
+        private ArchiveTeacherReportRepository $archiveTeacherReportRepo,
+        private ArchiveReadRepository $archiveReadRepo
     ) {
     }
 
+
     /**
      * Build the complete individual teacher report.
+     * Supports both live and archived evaluation periods.
      */
-
     public function getIndividualTeacherReport(
         int $periodId,
-        int $teacherId,
+        int $teacherId
     ): array {
 
-        # Find evaluation period if exist
-        $period = $this->teacherReportRepo->getPeriodById($periodId);
+        // Validate parameters.
+        if ($periodId <= 0 || $teacherId <= 0) {
+            throw new \InvalidArgumentException(
+                'Invalid evaluation period or teacher ID.'
+            );
+        }
+
+        // Check if the evaluation period was successfully archived.
+        $isArchived = $this->archiveReadRepo->isPeriodArchived($periodId);
+
+        // Select the appropriate repository.
+        $repo = $isArchived
+            ? $this->archiveTeacherReportRepo
+            : $this->teacherReportRepo;
+
+        // Get evaluation period information.
+        $period = $repo->getPeriodById($periodId);
 
         if ($period === null) {
             throw new RuntimeException(
@@ -32,10 +52,8 @@ class TeacherReportService
             );
         }
 
-
-        # Determine students whose required evaluations for the period are complete.
-
-        $validStudentIds = $this->teacherReportRepo->getValidStudentIds($periodId);
+        // Get students who completed their required evaluations.
+        $validStudentIds = $repo->getValidStudentIds($periodId);
 
         if (empty($validStudentIds)) {
             throw new RuntimeException(
@@ -43,10 +61,8 @@ class TeacherReportService
             );
         }
 
-
-        # Get teachers overall performance.
-
-        $summary = $this->teacherReportRepo->getTeacherSummary(
+        // Get teacher's overall performance.
+        $summary = $repo->getTeacherSummary(
             $periodId,
             $teacherId
         );
@@ -57,11 +73,8 @@ class TeacherReportService
             );
         }
 
-
-        # Convert database values to proper type
-
+        // Convert database values to appropriate types.
         $summary['average_score'] = (float) $summary['average_score'];
-
         $summary['total_evaluated'] = (int) $summary['total_evaluated'];
 
         if ($summary['total_evaluated'] <= 0) {
@@ -70,18 +83,22 @@ class TeacherReportService
             );
         }
 
-        $summary['adjective_rating'] = $this->helpers->adjectiveRating($summary['average_score']);
+        // Determine adjective rating.
+        $summary['adjective_rating'] = $this->helpers->adjectiveRating(
+            $summary['average_score']
+        );
 
+        // Get category performance.
+        $categories = $repo->getCategoryBreakdown(
+            $periodId,
+            $teacherId
+        );
 
-        # Category Performance.
-
-        $categories = $this->teacherReportRepo->getCategoryBreakdown($periodId, $teacherId);
-
-
-        # Question-level performance.
-
-        $questions = $this->teacherReportRepo->getQuestionPerformance($periodId, $teacherId);
-
+        // Get question-level performance.
+        $questions = $repo->getQuestionPerformance(
+            $periodId,
+            $teacherId
+        );
 
         $strengths = [];
         $areasForImprovement = [];
@@ -91,69 +108,76 @@ class TeacherReportService
             $score = (float) $question['average_score'];
 
             if ($score < 3.0) {
-
                 $areasForImprovement[] = $question;
-
             } elseif ($score >= 3.5) {
-
                 $strengths[] = $question;
-
             }
-
         }
 
+        // Generate report insights.
         $insights = $this->buildIndividualInsights(
             $summary,
             $categories,
             $questions
         );
 
+        // Return the same structure expected by the PDF template.
         return [
-          'info' => $summary,
+            'info' => $summary,
 
-          'categories' => $categories,
+            'categories' => $categories,
 
-          'questions' => [
-              'all' => $questions,
-              'areas_for_improvement' => $areasForImprovement,
-              'strenghts' => $strengths
-          ],
+            'questions' => [
+                'all' => $questions,
+                'areas_for_improvement' => $areasForImprovement,
+                'strenghts' => $strengths
+            ],
 
-          'insights' => $insights,
+            'insights' => $insights,
 
-          'meta' => [
-            'period' => $period['academic_year'],
-            'teacher' => $summary['full_name'],
-            'valid_student_count' => count($validStudentIds)
-          ]
+            'meta' => [
+                'period' => $period['academic_year'],
+                'teacher' => $summary['full_name'],
+                'valid_student_count' => count($validStudentIds)
+            ]
         ];
-
     }
+
+
 
     public function getCommentList(
         int $teacherId,
         int $periodId
     ): array {
 
-        if ($teacherId <= 0) {
-            throw new RuntimeException(
-                "Invalid teacher ID."
+        // Validate parameters.
+        if ($teacherId <= 0 || $periodId <= 0) {
+            throw new \InvalidArgumentException(
+                'Invalid teacher or evaluation period ID.'
             );
         }
 
-        if ($periodId <= 0) {
-            throw new RuntimeException(
-                "Invalid evaluation period ID."
-            );
-        }
+        // Determine if the evaluation period is archived.
+        $isArchived = $this->archiveReadRepo->isPeriodArchived(
+            $periodId
+        );
 
-        $comments = $this->teacherReportRepo->getComment($periodId, $teacherId);
+        // Select the correct repository.
+        $repo = $isArchived
+            ? $this->archiveTeacherReportRepo
+            : $this->teacherReportRepo;
+
+        // Retrieve comments.
+        $comments = $repo->getComment(
+            $periodId,
+            $teacherId
+        );
 
         return [
-          'comments' => $comments
+            'comments' => $comments
         ];
-
     }
+
 
     /**
      * Prepare evidence-based individual findings for the PDF view.

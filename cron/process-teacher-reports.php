@@ -22,6 +22,10 @@ if ($now >= $windowEnd) {
 // Resolve relative paths from this script, not the cron working directory.
 require_once dirname(__DIR__) . '/app/init.php';
 
+// Load both database connections
+require_once dirname(__DIR__) . '/app/config/database.php';
+require_once dirname(__DIR__) . '/app/config/archive-database.php';
+
 umask(0077);
 $logFile = dirname(__DIR__) . '/storage/logs/teacher-report.log';
 $logDir = dirname($logFile);
@@ -79,7 +83,7 @@ try {
     }
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $container = new Container($pdo);
+    $container = new Container($pdo, $archivePdo);
     $reportService = $container->reportService();
     $notificationRepository = new TeacherNotificationRepository($pdo);
     $emailProvider = ($sendTest || !$dryRun) ? new EmailProvider() : null;

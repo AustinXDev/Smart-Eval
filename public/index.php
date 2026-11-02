@@ -4,10 +4,11 @@
 //exit();
 
 require_once __DIR__ . '/../app/init.php';
+require_once __DIR__ . '/../app/config/archive-database.php';
 
 use App\Core\Container;
 
-$container = new Container($pdo);
+$container = new Container($pdo, $archivePdo);
 
 $request = isset($_GET['url']) ? rtrim($_GET['url'], '/') : '';
 
