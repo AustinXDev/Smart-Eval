@@ -1,47 +1,37 @@
-<!-- =========================================================
-     DESKTOP SIDEBAR
-========================================================= -->
 
+<?php
+require_once __DIR__ . '/../../app/helpers/session.php';
+
+$admin = getAdmin();
+
+$sidebarName = $admin['username'] ?? 'Administrator';
+
+$sidebarRole = ucwords(
+    str_replace('_', ' ', $role ?? 'Administrator')
+);
+?>
+
+<!-- DESKTOP SIDEBAR -->
 <aside
-    class="
-        fixed
-        top-0 bottom-0 left-0
-        z-30
-        hidden lg:flex
-        w-70
-        flex-col
-        bg-white
-        border-r border-slate-200
-        shadow-[2px_0_12px_rgba(15,23,42,0.03)]
-    "
+    aria-label="Administrator sidebar"
+    class="fixed inset-y-0 left-0 z-30
+           hidden w-70 flex-col
+           border-r border-slate-200
+           bg-white lg:flex"
 >
 
-    <!-- =====================================================
-         BRAND HEADER
-    ====================================================== -->
-
+    <!-- BRAND HEADER -->
     <header
-        class="
-            h-16 shrink-0
-            flex items-center
-            px-5
-            border-b border-slate-200
-            bg-white
-        "
+        class="flex h-16 shrink-0 items-center
+               border-b border-slate-100 px-5"
     >
+        <div class="flex min-w-0 items-center gap-3">
 
-        <div class="flex items-center gap-3">
-
-            <!-- Logo -->
             <div
-                class="
-                    flex h-10 w-10
-                    shrink-0
-                    items-center justify-center
-                    rounded-xl
-                    bg-violet-50
-                    border border-violet-100
-                "
+                class="flex h-10 w-10 shrink-0
+                       items-center justify-center
+                       rounded-xl border border-violet-100
+                       bg-violet-50"
             >
                 <img
                     src="<?= BASE_URL ?>assets/images/aite-logo.png"
@@ -50,159 +40,102 @@
                 >
             </div>
 
-
-            <!-- Brand -->
-            <div class="flex flex-col leading-tight">
-
-                <span
-                    class="
-                        text-[16px]
-                        font-bold
-                        tracking-tight
-                        text-slate-800
-                    "
+            <div class="min-w-0">
+                <p
+                    class="truncate text-base font-bold
+                           tracking-tight text-slate-900"
                 >
                     Smart-Eval
-                </span>
+                </p>
 
-                <span
-                    class="
-                        mt-0.5
-                        text-[9px]
-                        font-semibold
-                        tracking-[0.12em]
-                        text-violet-600
-                    "
+                <p
+                    class="mt-0.5 text-[10px] font-semibold
+                           uppercase tracking-wider text-violet-600"
                 >
-                    TEACHER EVALUATION
-                </span>
-
+                    Teacher Evaluation
+                </p>
             </div>
 
         </div>
-
     </header>
 
-
-    <!-- =====================================================
-         NAVIGATION
-    ====================================================== -->
-
+    <!-- NAVIGATION -->
     <nav
-        class="
-            flex-1
-            px-4 py-5
-            overflow-y-auto
-
-            scrollbar-thin
-            scrollbar-thumb-slate-200
-            scrollbar-track-transparent
-        "
+        aria-label="Main navigation"
+        class="min-h-0 flex-1 overflow-y-auto
+               px-3 py-5"
     >
-
-        <!-- Section Label -->
-        <div class="px-3 mb-3">
-
-            <p
-                class="
-                    text-[10px]
-                    font-bold
-                    uppercase
-                    tracking-[0.12em]
-                    text-slate-400
-                "
+        <div class="mb-3 flex items-center gap-3 px-3">
+            <span
+                class="text-[10px] font-bold uppercase
+                       tracking-widest text-slate-400"
             >
                 Main Menu
-            </p>
+            </span>
 
+            <div class="h-px flex-1 bg-slate-100"></div>
         </div>
 
-
-        <!-- Navigation Items -->
         <div class="space-y-1">
-
             <?php require __DIR__ . '/sidebar_nav.php'; ?>
-
         </div>
-
     </nav>
 
-
-    <!-- =====================================================
-         LOGOUT
-    ====================================================== -->
-
+    <!-- ACCOUNT FOOTER -->
     <div
-        class="
-            shrink-0
-            px-4 py-4
-            border-t border-slate-200
-        "
+        class="shrink-0 border-t border-slate-200
+               bg-white px-3 py-4"
     >
 
+        <!-- LOGOUT -->
         <button
             id="logoutBtn"
-            class="
-                group
-                flex items-center gap-3
-                w-full
-                rounded-xl
-                px-3 py-2.5
-                text-sm font-medium
-                text-slate-500
-                transition-all duration-200
-
-                hover:bg-red-50
-                hover:text-red-600
-            "
+            type="button"
             onclick="logout()"
+            class="group flex min-h-11 w-full
+                   items-center gap-3 rounded-xl px-3
+                   text-left text-sm font-medium
+                   text-slate-600 transition-colors
+                   hover:bg-red-50 hover:text-red-600
+                   focus-visible:outline-none
+                   focus-visible:ring-2
+                   focus-visible:ring-red-400"
         >
 
-            <!-- Icon -->
             <span
-                class="
-                    flex h-8 w-8
-                    items-center justify-center
-                    rounded-lg
-                    bg-slate-100
-                    text-slate-500
-                    transition-all duration-200
-
-                    group-hover:bg-red-100
-                    group-hover:text-red-600
-                "
+                class="flex h-9 w-9 shrink-0
+                       items-center justify-center
+                       rounded-lg bg-slate-100 text-slate-500
+                       transition-colors
+                       group-hover:bg-red-100
+                       group-hover:text-red-600"
             >
                 <i
-                    class="
-                        fas fa-sign-out-alt
-                        text-xs
-                        transition-transform duration-200
-                        group-hover:translate-x-0.5
-                    "
+                    class="fas fa-sign-out-alt text-sm"
+                    aria-hidden="true"
                 ></i>
             </span>
 
+            <span class="flex-1">Logout</span>
 
-            <!-- Text -->
-            <span>
-                Logout
-            </span>
-
+            <i
+                class="fas fa-chevron-right text-xs
+                       text-slate-300 transition-colors
+                       group-hover:text-red-400"
+                aria-hidden="true"
+            ></i>
         </button>
-
     </div>
-
 </aside>
 
-
-<!-- Alpine Collapse Plugin -->
+<!-- ALPINE COLLAPSE PLUGIN -->
 <script
     defer
-    src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.15.0/dist/cdn.min.js">
-</script>
+    src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.15.0/dist/cdn.min.js"
+></script>
 
-<!-- Alpine Core -->
+<!-- ALPINE CORE -->
 <script
     defer
-    src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.0/dist/cdn.min.js">
-</script>
+    src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.0/dist/cdn.min.js"
+></script>

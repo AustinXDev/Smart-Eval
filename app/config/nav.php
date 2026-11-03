@@ -55,7 +55,7 @@ $navigation = [
             'label' => 'Dashboard',
             'icon'  => 'fa-solid fa-house',
             'url'   => [
-                ['label' => 'College Dashboard', 'url' => 'dashboard?dept=collge', 'icon' => 'fa-solid fa-graduation-cap'],
+                ['label' => 'College Dashboard', 'url' => 'dashboard?dept=college', 'icon' => 'fa-solid fa-graduation-cap'],
                 ['label' => 'SHS Dashboard',     'url' => 'dashboard?dept=shs',    'icon' => 'fa-solid fa-building-columns'],
             ],
         ],

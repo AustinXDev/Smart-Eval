@@ -1,473 +1,427 @@
+
 <?php
 require_once __DIR__ . '/../../app/helpers/session.php';
+
 $admin = getAdmin();
+
+$displayName = $admin['username']
+    ?? $student['full_name']
+    ?? 'Administrator';
+
+$displayRole = ucwords(
+    str_replace('_', ' ', $role ?? 'Administrator')
+);
 ?>
 
-<!-- =========================================================
-     TOP HEADER
-========================================================= -->
+<!-- TOP HEADER -->
 <header
-  class="fixed top-0 left-0 right-0 lg:left-70 z-40
-         h-16 bg-white/95 backdrop-blur-md
-         border-b border-slate-200
-         shadow-[0_1px_8px_rgba(15,23,42,0.04)]"
->
-  <div class="h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
-
-    <!-- LEFT SIDE -->
-    <div class="flex items-center gap-3 min-w-0">
-
-      <!-- Mobile Menu Button -->
-      <button
-        id="hamburger-btn"
-        type="button"
-        class="lg:hidden flex h-9 w-9 items-center justify-center
-               rounded-lg border border-slate-200
-               bg-white text-slate-600
-               shadow-sm
-               transition-all duration-200
-               hover:bg-violet-50
-               hover:border-violet-200
-               hover:text-violet-600
-               active:scale-95
-               focus:outline-none focus:ring-4 focus:ring-violet-500/10"
-        aria-label="Toggle menu"
-      >
-
-        <!-- Hamburger -->
-        <svg
-          id="hamburger-icon"
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-5 h-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-        </svg>
-
-        <!-- Close -->
-        <svg
-          id="close-icon"
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-5 h-5 hidden"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-
-      </button>
-
-
-      <!-- MOBILE BRANDING -->
-      <div class="flex items-center gap-2.5 lg:hidden min-w-0">
-
-        <div
-          class="flex h-9 w-9 items-center justify-center
-                 rounded-lg bg-violet-50
-                 border border-violet-100"
-        >
-          <img
-            src="<?= BASE_URL ?>assets/images/aite-logo.png"
-            alt="AITE Logo"
-            class="h-7 w-7 object-contain"
-          >
-        </div>
-
-        <div class="flex flex-col leading-tight min-w-0">
-          <h1
-            class="text-sm font-bold tracking-tight text-slate-800 truncate"
-          >
-            Smart-Eval
-          </h1>
-
-          <span class="text-[9px] font-medium text-slate-400 tracking-wide">
-            TEACHER EVALUATION SYSTEM
-          </span>
-        </div>
-
-      </div>
-
-
-      <!-- DESKTOP PAGE INFORMATION -->
-      <div class="hidden lg:flex items-center gap-3">
-
-        <!-- Page Icon -->
-        <div
-          class="flex h-9 w-9 items-center justify-center
-                 rounded-lg bg-violet-50
-                 text-violet-600"
-        >
-          <i class="fas fa-layer-group text-sm"></i>
-        </div>
-
-        <!-- Page Title -->
-        <div class="flex flex-col leading-tight">
-
-          <h2 class="text-sm font-semibold text-slate-800">
-            <?= htmlspecialchars($pageTitle ?? 'Dashboard') ?>
-          </h2>
-
-          <div class="flex items-center gap-1.5 mt-0.5">
-
-            <i class="far fa-calendar text-[9px] text-slate-400"></i>
-
-            <p class="text-[11px] font-medium text-slate-400">
-              <?= date('l, F j, Y') ?>
-            </p>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         USER PROFILE
-    ====================================================== -->
-    <div class="flex items-center gap-3">
-
-      <!-- User Information -->
-      <div class="hidden sm:flex flex-col items-end leading-tight">
-
-        <p class="text-sm font-semibold text-slate-800">
-          <?= htmlspecialchars(
-              $admin['username'] ?? $student['full_name'] ?? 'Unknown'
-          ) ?>
-        </p>
-
-        <div class="flex items-center gap-1.5 mt-0.5">
-
-          <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-
-          <p class="text-[11px] font-medium text-slate-400">
-            <?= htmlspecialchars(ucwords($role ?? 'Administrator')) ?>
-          </p>
-
-        </div>
-
-      </div>
-
-
-      <!-- Avatar -->
-      <div
-        class="relative flex h-10 w-10 items-center justify-center
-               rounded-xl
-               bg-gradient-to-br from-violet-600 to-indigo-600
-               shadow-sm shadow-violet-500/20
-               ring-2 ring-white
-               transition-all duration-200
-               hover:-translate-y-0.5
-               hover:shadow-md hover:shadow-violet-500/20"
-      >
-
-        <i class="fas fa-user text-white text-sm"></i>
-
-        <!-- Online Indicator -->
-        <span
-          class="absolute -right-0.5 -bottom-0.5
-                 h-3 w-3 rounded-full
-                 bg-emerald-500
-                 border-2 border-white"
-        ></span>
-
-      </div>
-
-    </div>
-
-  </div>
-</header>
-
-
-<!-- =========================================================
-     MOBILE OVERLAY
-========================================================= -->
-<div
-  id="mobile-overlay"
-  class="fixed inset-0 z-40 hidden
-         bg-slate-950/40 backdrop-blur-[2px]
-         lg:hidden"
-></div>
-
-
-<!-- =========================================================
-     MOBILE DRAWER
-========================================================= -->
-<aside
-  id="mobile-drawer"
-  class="fixed top-0 left-0 bottom-0 z-50
-         w-[280px] max-w-[85vw]
-         -translate-x-full
-         bg-white
-         border-r border-slate-200
-         shadow-2xl
-         transition-transform duration-300 ease-out
-         lg:hidden"
->
-
-  <!-- DRAWER HEADER -->
-  <div
-    class="h-16 px-5
-           flex items-center
+    class="fixed inset-x-0 top-0 z-40 h-16
            border-b border-slate-200
-           bg-white"
-  >
-
-    <div class="flex items-center gap-3">
-
-      <!-- Logo -->
-      <div
-        class="flex h-10 w-10 items-center justify-center
-               rounded-xl
-               bg-violet-50
-               border border-violet-100"
-      >
-        <img
-          src="<?= BASE_URL ?>assets/images/aite-logo.png"
-          alt="AITE Logo"
-          class="h-8 w-8 object-contain"
-        >
-      </div>
-
-
-      <!-- Brand -->
-      <div class="flex flex-col leading-tight">
-
-        <span
-          class="text-[16px] font-bold tracking-tight text-slate-800"
-        >
-          Smart-Eval
-        </span>
-
-        <span
-          class="text-[9px] font-medium
-                 text-violet-600
-                 tracking-wider"
-        >
-          TEACHER EVALUATION
-        </span>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <!-- USER PROFILE CARD -->
-  <div class="px-4 pt-4">
-
+           bg-white/95 backdrop-blur-md
+           lg:left-70"
+>
     <div
-      class="flex items-center gap-3
-             rounded-xl
-             border border-slate-200
-             bg-slate-50
-             px-3 py-3"
+        class="flex h-full items-center justify-between
+               gap-4 px-4 sm:px-6 lg:px-8"
     >
 
-      <!-- Avatar -->
-      <div
-        class="relative flex h-10 w-10 shrink-0
-               items-center justify-center
-               rounded-lg
-               bg-gradient-to-br
-               from-violet-600 to-indigo-600
-               shadow-sm"
-      >
+        <!-- LEFT SECTION -->
+        <div class="flex min-w-0 items-center gap-3">
 
-        <i class="fas fa-user text-white text-sm"></i>
+            <!-- MOBILE MENU -->
+            <button
+                id="hamburger-btn"
+                type="button"
+                aria-label="Open navigation menu"
+                aria-controls="mobile-drawer"
+                aria-expanded="false"
+                class="flex h-10 w-10 shrink-0 items-center
+                       justify-center rounded-xl
+                       border border-slate-200 bg-white
+                       text-slate-600 transition-colors
+                       hover:border-violet-200
+                       hover:bg-violet-50 hover:text-violet-700
+                       focus-visible:outline-none
+                       focus-visible:ring-2
+                       focus-visible:ring-violet-500
+                       lg:hidden"
+            >
+                <svg
+                    id="hamburger-icon"
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 6h16M4 12h16M4 18h16"
+                    />
+                </svg>
 
-        <span
-          class="absolute -right-1 -bottom-1
-                 h-3 w-3 rounded-full
-                 bg-emerald-500
-                 border-2 border-slate-50"
-        ></span>
+                <svg
+                    id="close-icon"
+                    class="hidden h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                    />
+                </svg>
+            </button>
 
-      </div>
+            <!-- MOBILE BRAND -->
+            <div class="flex min-w-0 items-center gap-2.5 lg:hidden">
+                <div
+                    class="flex h-9 w-9 shrink-0 items-center
+                           justify-center rounded-lg
+                           border border-violet-100 bg-violet-50"
+                >
+                    <img
+                        src="<?= BASE_URL ?>assets/images/aite-logo.png"
+                        alt="AITE Logo"
+                        class="h-7 w-7 object-contain"
+                    >
+                </div>
 
+                <div class="min-w-0">
+                    <h1
+                        class="truncate text-sm font-bold
+                               tracking-tight text-slate-900"
+                    >
+                        Smart-Eval
+                    </h1>
+                    <p
+                        class="truncate text-[10px] font-medium
+                               text-slate-500"
+                    >
+                        Teacher Evaluation
+                    </p>
+                </div>
+            </div>
 
-      <!-- User Info -->
-      <div class="min-w-0">
+            <!-- DESKTOP PAGE INFORMATION -->
+            <div class="hidden min-w-0 items-center gap-3 lg:flex">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center
+                           justify-center rounded-xl
+                           bg-violet-50 text-violet-600"
+                >
+                    <i
+                        class="fas fa-layer-group text-sm"
+                        aria-hidden="true"
+                    ></i>
+                </div>
 
-        <p
-          class="truncate text-sm
-                 font-semibold text-slate-800"
+                <div class="min-w-0">
+                    <h2
+                        class="truncate text-sm font-semibold
+                               text-slate-900"
+                    >
+                        <?= htmlspecialchars($pageTitle ?? 'Dashboard') ?>
+                    </h2>
+
+                    <p
+                        class="mt-0.5 flex items-center gap-1.5
+                               text-xs text-slate-500"
+                    >
+                        <i
+                            class="far fa-calendar"
+                            aria-hidden="true"
+                        ></i>
+                        <?= date('l, F j, Y') ?>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- USER PROFILE -->
+        <div class="flex shrink-0 items-center gap-3">
+
+            <div class="hidden text-right leading-tight sm:block">
+                <p class="max-w-44 truncate text-sm font-semibold text-slate-900">
+                    <?= htmlspecialchars($displayName) ?>
+                </p>
+
+                <p class="mt-1 text-xs font-medium text-slate-500">
+                    <?= htmlspecialchars($displayRole) ?>
+                </p>
+            </div>
+
+            <div class="relative shrink-0">
+                <div
+                    class="flex h-10 w-10 items-center
+                           justify-center rounded-xl
+                           bg-violet-100 text-violet-700"
+                >
+                    <i
+                        class="fas fa-user text-sm"
+                        aria-hidden="true"
+                    ></i>
+                </div>
+
+                <span
+                    class="absolute -right-0.5 -bottom-0.5
+                           h-3 w-3 rounded-full
+                           border-2 border-white bg-emerald-500"
+                    aria-hidden="true"
+                ></span>
+            </div>
+        </div>
+
+    </div>
+</header>
+
+<!-- MOBILE OVERLAY -->
+<div
+    id="mobile-overlay"
+    class="fixed inset-0 z-40 hidden
+           bg-slate-950/50 backdrop-blur-sm
+           lg:hidden"
+></div>
+
+<!-- MOBILE DRAWER -->
+<aside
+    id="mobile-drawer"
+    aria-label="Mobile navigation"
+    aria-hidden="true"
+    inert
+    class="fixed inset-y-0 left-0 z-50
+           flex w-70 max-w-[85vw] flex-col
+           -translate-x-full border-r border-slate-200
+           bg-white shadow-2xl
+           transition-transform duration-300 ease-out
+           lg:hidden"
+>
+
+    <!-- DRAWER BRAND -->
+    <div
+        class="flex h-16 shrink-0 items-center
+               justify-between border-b border-slate-100 px-4"
+    >
+        <div class="flex min-w-0 items-center gap-3">
+            <div
+                class="flex h-10 w-10 shrink-0 items-center
+                       justify-center rounded-xl
+                       border border-violet-100 bg-violet-50"
+            >
+                <img
+                    src="<?= BASE_URL ?>assets/images/aite-logo.png"
+                    alt="AITE Logo"
+                    class="h-8 w-8 object-contain"
+                >
+            </div>
+
+            <div class="min-w-0">
+                <p class="text-base font-bold tracking-tight text-slate-900">
+                    Smart-Eval
+                </p>
+                <p class="text-[10px] font-semibold uppercase
+                          tracking-wider text-violet-600">
+                    Teacher Evaluation
+                </p>
+            </div>
+        </div>
+
+        <button
+            id="mobile-close-btn"
+            type="button"
+            aria-label="Close navigation menu"
+            class="flex h-9 w-9 shrink-0 items-center
+                   justify-center rounded-lg text-slate-500
+                   transition-colors hover:bg-slate-100
+                   hover:text-slate-900
+                   focus-visible:outline-none
+                   focus-visible:ring-2 focus-visible:ring-violet-500"
         >
-          <?= htmlspecialchars(
-              $admin['username'] ?? $student['full_name'] ?? 'Unknown'
-          ) ?>
-        </p>
-
-        <p class="text-[11px] font-medium text-slate-400">
-          <?= htmlspecialchars(ucwords($role ?? 'Administrator')) ?>
-        </p>
-
-      </div>
-
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
     </div>
 
-  </div>
+    <!-- MOBILE NAVIGATION -->
+    <nav
+        id="mobile-nav"
+        aria-label="Mobile main navigation"
+        class="min-h-0 flex-1 overflow-y-auto px-3 py-5"
+    >
+        <div class="mb-3 flex items-center gap-3 px-3">
+            <span
+                class="text-[10px] font-bold uppercase
+                       tracking-widest text-slate-400"
+            >
+                Main Menu
+            </span>
 
+            <div class="h-px flex-1 bg-slate-100"></div>
+        </div>
 
-  <!-- =======================================================
-       MOBILE NAVIGATION
-  ======================================================== -->
-  <div
-    id="mobile-nav"
-    class="flex flex-col
-           h-[calc(100%-132px)]
-           px-4 py-4
-           overflow-y-auto
-           scrollbar-thin
-           scrollbar-thumb-slate-200
-           scrollbar-track-transparent"
-  >
+        <div class="space-y-1">
+            <?php require __DIR__ . '/sidebar_nav.php'; ?>
+        </div>
+    </nav>
 
-    <!-- Navigation -->
-    <div class="flex-1 space-y-1">
-
-      <?php require __DIR__ . '/sidebar_nav.php'; ?>
-
-    </div>
-
-
-    <!-- Divider -->
-    <div class="border-t border-slate-200 my-4"></div>
-
-
-    <!-- Logout -->
-    <div>
-
-      <a
-        id="logoutBtn"
-        class="group flex items-center gap-3
-               rounded-xl
-               px-4 py-2.5
-               text-sm font-medium
-               text-red-500
-               transition-all duration-200
-               hover:bg-red-50
-               hover:text-red-600"
-      >
-
-        <span
-          class="flex h-8 w-8 items-center justify-center
-                 rounded-lg
-                 bg-red-50
-                 text-red-500
-                 transition-colors
-                 group-hover:bg-red-100"
+    <!-- MOBILE ACCOUNT FOOTER -->
+    <div
+        class="shrink-0 border-t border-slate-200
+               bg-white px-3 py-4"
+    >
+        <div
+            class="mb-2 flex items-center gap-3
+                   rounded-xl border border-slate-200
+                   bg-slate-50 px-3 py-3"
         >
-          <i class="fas fa-sign-out-alt text-xs"></i>
-        </span>
+            <div
+                class="flex h-10 w-10 shrink-0 items-center
+                       justify-center rounded-xl
+                       bg-violet-100 text-violet-700"
+            >
+                <i class="fas fa-user text-sm" aria-hidden="true"></i>
+            </div>
 
-        <span>Logout</span>
+            <div class="min-w-0">
+                <p class="truncate text-sm font-semibold text-slate-900">
+                    <?= htmlspecialchars($displayName) ?>
+                </p>
+                <p class="mt-0.5 truncate text-xs text-slate-500">
+                    <?= htmlspecialchars($displayRole) ?>
+                </p>
+            </div>
+        </div>
 
-      </a>
+        <button
+            id="mobileLogoutBtn"
+            type="button"
+            onclick="logout()"
+            class="group flex min-h-11 w-full items-center
+                   gap-3 rounded-xl px-3 text-left
+                   text-sm font-medium text-slate-600
+                   transition-colors hover:bg-red-50
+                   hover:text-red-600
+                   focus-visible:outline-none
+                   focus-visible:ring-2 focus-visible:ring-red-400"
+        >
+            <span
+                class="flex h-9 w-9 items-center justify-center
+                       rounded-lg bg-slate-100 text-slate-500
+                       group-hover:bg-red-100
+                       group-hover:text-red-600"
+            >
+                <i
+                    class="fas fa-sign-out-alt text-sm"
+                    aria-hidden="true"
+                ></i>
+            </span>
 
+            <span>Logout</span>
+        </button>
     </div>
-
-  </div>
-
 </aside>
 
-
-<!-- =========================================================
-     MOBILE DRAWER SCRIPT
-========================================================= -->
+<!-- MOBILE DRAWER SCRIPT -->
 <script>
+(() => {
+    const button = document.getElementById('hamburger-btn');
+    const drawer = document.getElementById('mobile-drawer');
+    const overlay = document.getElementById('mobile-overlay');
+    const closeButton = document.getElementById('mobile-close-btn');
+    const hamburger = document.getElementById('hamburger-icon');
+    const closeIcon = document.getElementById('close-icon');
 
-  const btn = document.getElementById('hamburger-btn');
-  const drawer = document.getElementById('mobile-drawer');
-  const overlay = document.getElementById('mobile-overlay');
+    if (!button || !drawer || !overlay) return;
 
-  const hamburger = document.getElementById('hamburger-icon');
-  const closeIcon = document.getElementById('close-icon');
+    let isOpen = false;
 
+    function setDrawerOpen(open, restoreFocus = false) {
+        isOpen = open;
 
-  function openDrawer() {
+        if (open) {
+            drawer.removeAttribute('inert');
+            drawer.setAttribute('aria-hidden', 'false');
+        } else {
+            if (restoreFocus) button.focus();
+            drawer.setAttribute('inert', '');
+            drawer.setAttribute('aria-hidden', 'true');
+        }
 
-    drawer.classList.remove('-translate-x-full');
+        drawer.classList.toggle('-translate-x-full', !open);
+        overlay.classList.toggle('hidden', !open);
 
-    overlay.classList.remove('hidden');
+        hamburger?.classList.toggle('hidden', open);
+        closeIcon?.classList.toggle('hidden', !open);
 
-    hamburger.classList.add('hidden');
+        document.body.classList.toggle('overflow-hidden', open);
 
-    closeIcon.classList.remove('hidden');
+        button.setAttribute('aria-expanded', String(open));
+        button.setAttribute(
+            'aria-label',
+            open ? 'Close navigation menu' : 'Open navigation menu'
+        );
 
-    document.body.classList.add('overflow-hidden');
-  }
-
-
-  function closeDrawer() {
-
-    drawer.classList.add('-translate-x-full');
-
-    overlay.classList.add('hidden');
-
-    hamburger.classList.remove('hidden');
-
-    closeIcon.classList.add('hidden');
-
-    document.body.classList.remove('overflow-hidden');
-  }
-
-
-  if (btn) {
-
-    btn.addEventListener('click', () => {
-
-      if (drawer.classList.contains('-translate-x-full')) {
-        openDrawer();
-      } else {
-        closeDrawer();
-      }
-
-    });
-
-  }
-
-
-  if (overlay) {
-    overlay.addEventListener('click', closeDrawer);
-  }
-
-
-  // Close drawer when clicking navigation links
-  document.querySelectorAll('#mobile-nav a').forEach(link => {
-
-    link.addEventListener('click', () => {
-
-      closeDrawer();
-
-    });
-
-  });
-
-
-  // Close drawer with Escape
-  document.addEventListener('keydown', (event) => {
-
-    if (event.key === 'Escape') {
-      closeDrawer();
+        if (open) {
+            closeButton?.focus();
+        }
     }
 
-  });
+    button.addEventListener('click', () => {
+        setDrawerOpen(!isOpen);
+    });
 
+    closeButton?.addEventListener('click', () => {
+        setDrawerOpen(false, true);
+    });
+
+    overlay.addEventListener('click', () => {
+        setDrawerOpen(false, true);
+    });
+
+    drawer.querySelectorAll('a[href]').forEach(link => {
+        link.addEventListener('click', () => {
+            setDrawerOpen(false);
+        });
+    });
+
+    drawer.addEventListener('keydown', event => {
+        if (event.key !== 'Tab' || !isOpen) return;
+
+        const focusable = Array.from(
+            drawer.querySelectorAll(
+                'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            )
+        ).filter(element => element.getClientRects().length > 0);
+
+        if (!focusable.length) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && isOpen) {
+            setDrawerOpen(false, true);
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        if (isOpen && window.innerWidth >= 1024) {
+            setDrawerOpen(false);
+        }
+    });
+})();
 </script>
