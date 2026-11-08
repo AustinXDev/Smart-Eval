@@ -10,6 +10,9 @@ use Throwable;
 
 final class ArchiveBackupService
 {
+    // Maximum encrypted backup size: 20 MiB.
+    private const MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024;
+
     public function __construct(
         private PDO $archivePdo,
         private DatabaseExportService $exportService,
@@ -54,54 +57,41 @@ final class ArchiveBackupService
         $encryptedPath = null;
 
         try {
-            // Export archived database records
+            // Export archive records to JSON.
             $export = $this->exportService->exportPeriod(
                 $periodId
             );
 
             $exportPath = $export['file_path'];
 
-            // Encrypt the JSON export
+            // Encrypt JSON backup.
             $encrypted = $this->encryptionService->encryptFile(
                 $exportPath
             );
 
             $encryptedPath = $encrypted['file_path'];
 
-            // Upload encrypted backup
+            // Upload encrypted backup to Google Drive.
             $fileId = $this->googleDriveService->upload(
                 $encryptedPath,
                 $encrypted['file_name'],
                 $folderId
             );
 
-            //Download uploaded file
+            // Download uploaded backup for verification.
             $downloadedData =
                 $this->googleDriveService->download($fileId);
 
-            // Verify remote SHA-256 checksum
-            $remoteChecksum = hash(
-                'sha256',
-                $downloadedData
+            $this->assertChecksum(
+                $downloadedData,
+                $encrypted['checksum_sha256']
             );
 
-            $localChecksum =
-                $encrypted['checksum_sha256'];
-
-            if (!hash_equals(
-                $localChecksum,
-                $remoteChecksum
-            )) {
-                throw new RuntimeException(
-                    'Google Drive backup checksum mismatch.'
-                );
-            }
-
-            // Save verified backup metadata
+            // Save verified backup metadata.
             $this->markVerified(
                 $periodId,
                 $fileId,
-                $localChecksum,
+                $encrypted['checksum_sha256'],
                 $export['manifest']
             );
 
@@ -109,7 +99,8 @@ final class ArchiveBackupService
                 'period_id' => $periodId,
                 'status' => 'verified',
                 'google_drive_file_id' => $fileId,
-                'checksum_sha256' => $localChecksum,
+                'checksum_sha256' =>
+                    $encrypted['checksum_sha256'],
                 'manifest' => $export['manifest']
             ];
 
@@ -122,26 +113,157 @@ final class ArchiveBackupService
             throw $e;
 
         } finally {
-            // Remove temporary plaintext export.
-            if (
-                $exportPath !== null &&
-                is_file($exportPath)
-            ) {
-                @unlink($exportPath);
-            }
+            foreach ([$exportPath, $encryptedPath] as $path) {
+                if (
+                    $path === null ||
+                    !is_file($path)
+                ) {
+                    continue;
+                }
 
-            // Remove local encrypted copy after upload.
-            if (
-                $encryptedPath !== null &&
-                is_file($encryptedPath)
-            ) {
-                @unlink($encryptedPath);
+                if (!unlink($path)) {
+                    error_log(
+                        '[ARCHIVE BACKUP] Unable to delete '
+                        . 'temporary backup file: ' . $path
+                    );
+                }
             }
         }
     }
 
-    private function getArchiveJob(int $periodId): array|false
-    {
+    /**
+     * Download a verified encrypted backup from Google Drive.
+     *
+     * Works even when evaluation records have been removed
+     * from the archive database, provided archive_jobs
+     * and the Google Drive backup were preserved.
+     *
+     * Returns encrypted bytes, not decrypted JSON.
+     */
+    public function downloadVerifiedBackup(
+        int $periodId
+    ): string {
+        if ($periodId <= 0) {
+            throw new RuntimeException(
+                'Invalid evaluation period ID.'
+            );
+        }
+
+        $job = $this->getArchiveJob($periodId);
+
+        if (!$job) {
+            throw new RuntimeException(
+                "Archive job for period {$periodId} not found."
+            );
+        }
+
+        if ($job['status'] !== 'verified') {
+            throw new RuntimeException(
+                'Archive backup is not verified.'
+            );
+        }
+
+        $fileId = $job['google_drive_file_id'] ?? null;
+        $checksum = $job['checksum_sha256'] ?? null;
+
+        if (
+            !is_string($fileId) ||
+            trim($fileId) === '' ||
+            !is_string($checksum) ||
+            preg_match(
+                '/^[a-f0-9]{64}$/i',
+                $checksum
+            ) !== 1
+        ) {
+            throw new RuntimeException(
+                'Archive backup metadata is incomplete.'
+            );
+        }
+
+        $downloadedData =
+            $this->googleDriveService->download($fileId);
+
+        $this->assertChecksum(
+            $downloadedData,
+            $checksum
+        );
+
+        return $downloadedData;
+    }
+
+    /**
+     * Verify an existing Google Drive backup.
+     *
+     * Does not change archive_jobs status or
+     * modify archived evaluation records.
+     */
+    public function verifyExistingBackup(
+        int $periodId
+    ): array {
+        $this->downloadVerifiedBackup($periodId);
+
+        $job = $this->getArchiveJob($periodId);
+
+        return [
+            'period_id' => $periodId,
+            'valid' => true,
+            'status' => 'verified',
+            'google_drive_file_id' =>
+                $job['google_drive_file_id'],
+            'checksum_valid' => true,
+            'message' =>
+                'Existing Google Drive backup checksum verified.'
+        ];
+    }
+
+    /**
+     * Verify encrypted backup size and SHA-256 checksum.
+     */
+    private function assertChecksum(
+        string $encryptedData,
+        string $expectedChecksum
+    ): void {
+        $size = strlen($encryptedData);
+
+        if (
+            $size === 0 ||
+            $size > self::MAX_DOWNLOAD_BYTES
+        ) {
+            throw new RuntimeException(
+                'Encrypted backup exceeds the allowed size '
+                . 'or is empty.'
+            );
+        }
+
+        if (
+            preg_match(
+                '/^[a-f0-9]{64}$/i',
+                $expectedChecksum
+            ) !== 1
+        ) {
+            throw new RuntimeException(
+                'Invalid backup checksum metadata.'
+            );
+        }
+
+        $actualChecksum = hash(
+            'sha256',
+            $encryptedData
+        );
+
+        if (!hash_equals(
+            strtolower($expectedChecksum),
+            $actualChecksum
+        )) {
+            throw new RuntimeException(
+                'Google Drive backup checksum mismatch.'
+            );
+        }
+    }
+
+    private function getArchiveJob(
+        int $periodId
+    ): array|false {
         $stmt = $this->archivePdo->prepare(
             'SELECT *
              FROM archive_jobs
@@ -182,7 +304,6 @@ final class ArchiveBackupService
                  google_drive_file_id = :file_id,
                  checksum_sha256 = :checksum,
                  manifest_json = :manifest,
-                 archived_at = NOW(),
                  error_message = NULL
              WHERE period_id = :period_id'
         );
@@ -215,74 +336,5 @@ final class ArchiveBackupService
             'message' => $message,
             'period_id' => $periodId
         ]);
-    }
-
-
-    public function verifyExistingBackup(int $periodId): array
-    {
-        if ($periodId <= 0) {
-            throw new RuntimeException(
-                'Invalid evaluation period ID.'
-            );
-        }
-
-        $job = $this->getArchiveJob($periodId);
-
-        if (!$job) {
-            throw new RuntimeException(
-                "Archive job for period {$periodId} not found."
-            );
-        }
-
-        if ($job['status'] !== 'verified') {
-            throw new RuntimeException(
-                'Archive backup is not verified.'
-            );
-        }
-
-        $fileId = $job['google_drive_file_id'] ?? null;
-        $expectedChecksum = $job['checksum_sha256'] ?? null;
-
-        if (
-            !is_string($fileId) ||
-            trim($fileId) === '' ||
-            !is_string($expectedChecksum) ||
-            preg_match('/^[a-f0-9]{64}$/i', $expectedChecksum) !== 1
-        ) {
-            throw new RuntimeException(
-                'Archive backup metadata is incomplete.'
-            );
-        }
-
-        // Download the existing encrypted backup.
-        $downloadedData = $this->googleDriveService->download(
-            $fileId
-        );
-
-        // Calculate SHA-256 of downloaded encrypted bytes.
-        $actualChecksum = hash(
-            'sha256',
-            $downloadedData
-        );
-
-        $checksumValid = hash_equals(
-            strtolower($expectedChecksum),
-            $actualChecksum
-        );
-
-        if (!$checksumValid) {
-            throw new RuntimeException(
-                'Existing Google Drive backup checksum mismatch.'
-            );
-        }
-
-        return [
-            'period_id' => $periodId,
-            'valid' => true,
-            'status' => 'verified',
-            'google_drive_file_id' => $fileId,
-            'checksum_valid' => true,
-            'message' => 'Existing Google Drive backup checksum verified.'
-        ];
     }
 }

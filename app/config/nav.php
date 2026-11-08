@@ -48,6 +48,11 @@ $navigation = [
                 ['label' => 'SHS Reports',     'url' => 'reports-analytics?dept=shs',    'icon' => 'fa-solid fa-building-columns'],
             ],
         ],
+        [
+            'label' => 'Archive Management',
+            'icon' => 'fa-solid fa-box-archive',
+            'url' => 'archive-management',
+        ],
     ],
 
     'dean' => [

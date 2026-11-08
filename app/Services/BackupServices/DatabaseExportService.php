@@ -12,7 +12,7 @@ use DateTimeZone;
 
 final class DatabaseExportService
 {
-    private const TABLES = [
+    public const TABLES = [
       'evaluation_periods',
       'question_set_snapshots',
       'question_snapshots',

@@ -93,11 +93,10 @@ final class GoogleDriveService
         return $id;
     }
 
-    public function download(
-        string $fileId
-    ): string {
 
-        if ($fileId === '') {
+    public function download(string $fileId): string
+    {
+        if (trim($fileId) === '') {
             throw new RuntimeException(
                 'Google Drive file ID is required.'
             );
@@ -108,16 +107,22 @@ final class GoogleDriveService
             ['alt' => 'media']
         );
 
-        if ($response instanceof \Psr\Http\Message\ResponseInterface) {
-            return (string) $response->getBody();
+        if (!$response instanceof \Psr\Http\Message\ResponseInterface) {
+            throw new RuntimeException(
+                'Unexpected Google Drive download response type: '
+                . get_debug_type($response)
+            );
         }
 
-        throw new RuntimeException(
-            'Unexpected Google Drive download response type: ' .
-            get_debug_type($response)
-        );
+        $body = (string) $response->getBody();
 
-        return (string) $body;
+        if ($body === '') {
+            throw new RuntimeException(
+                'Downloaded backup is empty.'
+            );
+        }
 
+        return $body;
     }
+
 }

@@ -25,5 +25,12 @@
 .idea/
 
 # Test output
-/tests/
+/tests/*
+!/tests/test-archive/
+/tests/test-archive/*
+!/tests/test-archive/test-management.php
+!/tests/test-archive/verify-restored-period.php
+!/tests/test-archive/test-restore-rollback.php
+!/tests/test-archive/test-management-security.php
+!/tests/test-archive/ARCHIVE_MANAGEMENT.md
 /coverage/

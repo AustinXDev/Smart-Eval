@@ -106,6 +106,10 @@ switch ($request) {
         require_once __DIR__ . '/../views/admin/manage_programs.view.php';
         break;
 
+    case 'archive-management':
+        require_once __DIR__ . '/../views/admin/archive_management.view.php';
+        break;
+
     case 'reports-analytics':
         require_once __DIR__ . '/../views/admin/report_analytics.view.php';
         break;

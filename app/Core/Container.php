@@ -77,4 +77,14 @@ class Container
             $teacherReportService
         );
     }
+    public function archiveManagementController(): \App\Controllers\Archive\ArchiveManagementController
+    {
+        return new \App\Controllers\Archive\ArchiveManagementController(
+            new \App\Services\ArchiveServices\ArchiveManagementService(
+                new ArchiveReadRepository($this->archivePdo),
+                new \App\Repositories\AdminRepo\AdminRepository($this->livePdo),
+                $this->archivePdo
+            )
+        );
+    }
 }
