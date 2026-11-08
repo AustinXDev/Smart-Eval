@@ -5,6 +5,7 @@ namespace App\Services\LoginServices;
 use App\Models\Student;
 use App\Repositories\StudentRepo\StudentRepository;
 use App\Services\TwoFactorServices\TwoFactorService;
+use App\Services\TrustedDeviceServices\TrustedDeviceService;
 use App\Session\SessionManager;
 
 class AuthService
@@ -14,7 +15,8 @@ class AuthService
         private LoginRateLimiter $rateLimiter,
         private EvaluationRedirectResolver $redirectResolver,
         private SessionManager $session,
-        private TwoFactorService $twoFactor
+        private TwoFactorService $twoFactor,
+        private TrustedDeviceService $trustedService
     ) {
     }
 
@@ -45,10 +47,6 @@ class AuthService
 
         }
 
-        if ($student && !$student->isActive) {
-            throw new AuthException('This account is not available.');
-        }
-
         if (
             !$student ||
             !$student->verifyPassword($password)
@@ -68,7 +66,40 @@ class AuthService
 
         }
 
-        //Generate and send 2fa code
+        if (
+            !$student->isActive ||
+            $student->accountStatus !== 'active'
+        ) {
+            throw new AuthException(
+                'This account is not available.'
+            );
+        }
+
+        // Use the immutable student primary key.
+        if ($student->student_pk <= 0) {
+            throw new \RuntimeException(
+                'Invalid student primary key.'
+            );
+        }
+
+        // check whether this browser is trusted.
+        $isTrusted = $this->trustedService->isTrusted(
+            'student',
+            (string) $student->student_pk
+        );
+
+        if ($isTrusted) {
+
+            // skip email OTP and complete authentication
+            return $this->completeLogin(
+                $student,
+                $ip
+            );
+
+        }
+
+        // Browser is not trusted.
+        // Continue with the existing OTP authentication.
         $this->twoFactor->resendCode(
             $student->studentId,
             'login'
@@ -85,14 +116,6 @@ class AuthService
         //Store the IP that started authentication
         $this->session->set(
             '2fa_ip',
-            $ip
-        );
-
-        // Clear login failures because the password was correct
-        $this->rateLimiter->clear($student->studentId);
-
-        $this->rateLimiter->recordSuccess(
-            $student->studentId,
             $ip
         );
 
@@ -128,6 +151,12 @@ class AuthService
         $this->session->remove('2fa_ip');
         $this->session->remove('2fa_expires_at');
 
+        $this->rateLimiter->recordSuccess(
+            $student->studentId,
+            $ip
+        );
+
+
         $this->rateLimiter->clear(
             $student->studentId
         );
@@ -139,4 +168,40 @@ class AuthService
         ];
 
     }
+
+
+    /**
+     * Register a trusted browser after successful
+     * student login OTP verification.
+     */
+    public function rememberTrustedDevice(
+        Student $student,
+        string $deviceName = 'Student Browser'
+    ): void {
+
+        // Ensure the account is still active.
+        if (
+            !$student->isActive ||
+            $student->accountStatus !== 'active'
+        ) {
+            throw new AuthException(
+                'This account is not available.'
+            );
+        }
+
+        // Ensure the permanent primary key is valid.
+        if ($student->student_pk <= 0) {
+            throw new \RuntimeException(
+                'Invalid student primary key.'
+            );
+        }
+
+        // Register the trusted browser using students.id.
+        $this->trustedService->remember(
+            'student',
+            (string) $student->student_pk,
+            $deviceName
+        );
+    }
+
 }

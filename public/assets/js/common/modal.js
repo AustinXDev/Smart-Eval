@@ -275,6 +275,52 @@ class StatusModal {
         color: #C7CEDB;
         cursor: not-allowed;
       }
+
+      /* Trusted browser option */
+      .sma-trust-device {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          margin: 0 0 1.5rem;
+          padding: 14px;
+          text-align: left;
+          background: #F8FAFC;
+          border: 1px solid #E2E8F0;
+          border-radius: 12px;
+          cursor: pointer;
+      }
+
+      .sma-trust-device:hover {
+          border-color: #C4B5FD;
+          background: #FAF8FF;
+      }
+
+      .sma-trust-device input {
+          width: 17px;
+          height: 17px;
+          margin-top: 2px;
+          flex-shrink: 0;
+          accent-color: #6010ff;
+          cursor: pointer;
+      }
+
+      .sma-trust-content {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+      }
+
+      .sma-trust-title {
+          font-size: .82rem;
+          font-weight: 600;
+          color: #1E293B;
+      }
+
+      .sma-trust-description {
+          font-size: .72rem;
+          line-height: 1.5;
+          color: #64748B;
+      }
  
       .sma-spinner {
         display: inline-block;
@@ -368,8 +414,32 @@ class StatusModal {
         <div class="sma-otp-row sma-stagger" id="sma-otp-row"></div>
         <p class="sma-otp-error-msg" id="sma-otp-error-msg">Incorrect code. Try again.</p>
 
+        <!-- TRUSTED BROWSER OPTION -->
+        <label
+            class="sma-trust-device sma-stagger"
+            id="sma-trust-device-container"
+            style="display: none;"
+        >
+            <input
+                type="checkbox"
+                id="sma-trust-device"
+                value="1"
+            >
+
+            <span class="sma-trust-content">
+                <span class="sma-trust-title">
+                    Trust this browser for 365 days
+                </span>
+
+                <span class="sma-trust-description">
+                    Skip email verification on future logins.
+                    Only enable this on your personal device.
+                </span>
+            </span>
+        </label>
+
         <div class="sma-actions sma-stagger">
-          <button class="sma-btn verify" id="sma-verify-submit">Verify</button>
+          <button class="sma-btn verify" id="sma-verify-submit">Verify & Continue</button>
         </div>
         <p class="sma-resend sma-stagger" id="sma-resend">
           Didn't get a code?
@@ -460,9 +530,20 @@ class StatusModal {
   }
 
   static _maybeAutoSubmit() {
+    // Require manual submission when trusted-device
+    // selection is available.
+    if (this._verifyOptions?.allowTrustDevice === true) {
+      return;
+    }
+
     const boxes = document.querySelectorAll(".sma-otp-digit");
-    const full = [...boxes].every((b) => b.value);
-    if (full) this._submitOtp();
+
+    const full =
+      boxes.length > 0 && [...boxes].every((box) => box.value.length === 1);
+
+    if (full) {
+      this._submitOtp();
+    }
   }
 
   static _clearOtpError() {
@@ -488,32 +569,48 @@ class StatusModal {
 
   static async _submitOtp() {
     const code = this._getOtpValue();
-    if (code.length < document.querySelectorAll(".sma-otp-digit").length)
+
+    const requiredLength = document.querySelectorAll(".sma-otp-digit").length;
+
+    if (code.length !== requiredLength) {
       return;
+    }
 
     const btn = document.getElementById("sma-verify-submit");
+
+    if (btn.disabled) {
+      return;
+    }
+
     const originalText = btn.textContent;
+
+    // Read checkbox before verification
+    const trustDevice =
+      this._verifyOptions?.allowTrustDevice === true &&
+      document.getElementById("sma-trust-device")?.checked === true;
+
     btn.disabled = true;
     btn.innerHTML = `<span class="sma-spinner"></span>Verifying…`;
 
     try {
-      const result = this._verifyOptions.onSubmit
-        ? await this._verifyOptions.onSubmit(code)
-        : true;
+      const result = this._verifyOptions?.onSubmit
+        ? await this._verifyOptions.onSubmit(code, trustDevice)
+        : false;
 
-      if (result === false) {
+      if (result !== true) {
         this._showOtpError();
-        btn.disabled = false;
-        btn.textContent = originalText;
         return;
       }
 
-      this.hide("verify-close");
-      if (typeof this._verifyOptions.onSuccess === "function") {
+      this.hide("verify");
+
+      if (typeof this._verifyOptions?.onSuccess === "function") {
         this._verifyOptions.onSuccess(code);
       }
-    } catch (err) {
-      this._showOtpError(err?.message);
+    } catch (error) {
+      this._showOtpError(
+        error?.message || "Verification failed. Please try again.",
+      );
     } finally {
       btn.disabled = false;
       btn.textContent = originalText;
@@ -619,26 +716,48 @@ class StatusModal {
   }
 
   static verify(title, message, options = {}) {
-    const { length = 6 } = options;
+    const { length = 6, allowTrustDevice = false, trustDays = 365 } = options;
+
     this._verifyOptions = options;
 
     const backdrop = document.getElementById("sma-verify");
+
     backdrop.querySelector(".sma-title").textContent = title;
     backdrop.querySelector(".sma-message").textContent = message;
 
     this._buildOtpBoxes(length);
     this._clearOtpError();
 
+    // Trusted device checkbox
+    const trustContainer = document.getElementById(
+      "sma-trust-device-container",
+    );
+
+    const trustCheckbox = document.getElementById("sma-trust-device");
+
+    // Reset checkbox whenever modal opens
+    trustCheckbox.checked = false;
+
+    // Show only when enabled
+    trustContainer.style.display = allowTrustDevice ? "flex" : "none";
+
+    trustContainer.querySelector(".sma-trust-title").textContent =
+      `Trust this browser for ${trustDays} days`;
+
     const resendBtn = document.getElementById("sma-resend-btn");
+
     resendBtn.disabled = false;
     resendBtn.textContent = "Resend";
 
     backdrop.classList.remove("sma-visible");
     void backdrop.offsetWidth;
     backdrop.classList.add("sma-visible");
+
     document.body.style.overflow = "hidden";
 
-    setTimeout(() => document.querySelector(".sma-otp-digit")?.focus(), 400);
+    setTimeout(() => {
+      document.querySelector(".sma-otp-digit")?.focus();
+    }, 400);
   }
 }
 

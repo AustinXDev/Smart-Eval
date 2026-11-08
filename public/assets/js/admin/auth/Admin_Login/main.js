@@ -54,7 +54,12 @@ document.addEventListener("DOMContentLoaded", () => {
           "Verify It's you",
           "Enter the 6-digit code we sent to your registered email.",
           {
-            onSubmit: async (code) => {
+            length: 6,
+
+            allowTrustDevice: true,
+            trustDays: 365,
+
+            onSubmit: async (code, trustDevice) => {
               if (verifyingLoginCode) {
                 return false;
               }
@@ -64,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
               try {
                 const verifyResult = await verifyLoginCode({
                   code,
+                  trust_device: trustDevice,
                 });
 
                 if (verifyResult.status !== "success") {
@@ -121,10 +127,20 @@ document.addEventListener("DOMContentLoaded", () => {
        * Unexpected response
        */
       if (result.status !== "success") {
-        notify("error", result.message);
-
+        notify("error", result.message || "Unable to sign in.");
         return;
       }
+
+      signinBTN.disabled = true;
+      signinBTN.value = "Redirecting...";
+
+      StatusModal.show("Welcome Back", result.message, "success");
+
+      setTimeout(() => {
+        window.location.href = `${window.BASE_URL}${result.redirect}?dept=college`;
+      }, 3000);
+
+      return;
     } catch (error) {
       notify("error", error.message);
     } finally {

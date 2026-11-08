@@ -1,7 +1,5 @@
 <?php
 
-
-
 require_once dirname(__DIR__, 3) . '/app/api_bootstrap.php';
 
 require_once __DIR__ . '/../../../app/init.php';
@@ -9,81 +7,89 @@ require_once __DIR__ . '/../../../app/init.php';
 use App\Controllers\Admin\AdminAuthController;
 use App\Repositories\AdminRepo\AdminRepository;
 use App\Repositories\AdminRepo\AdminTwoFactorRepository;
+use App\Repositories\TrustedDeviceRepo\TrustedDeviceRepository;
+use App\Services\TrustedDeviceServices\TrustedDeviceService;
 use App\Services\Admin\AdminAuthService;
 use App\providers\EmailProvider;
-
 
 header('Content-type: application/json');
 
 try {
 
-  $input = json_decode(
-    file_get_contents('php://input'),
-    true
-  ) ?? [];
+    $input = json_decode(
+        file_get_contents('php://input'),
+        true
+    ) ?? [];
 
-  $code = trim($input['code'] ?? '');
+    $code = trim($input['code'] ?? '');
 
-  $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+    $trustDevice = ($input['trust_device'] ?? false) === true;
 
-  require_once __DIR__ . '/../../../app/config/database.php';
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
 
-
-  /**
-   * Repositories
-   */
-  $adminRepo = new AdminRepository($pdo);
-
-  $adminTwoFactorRepo = new AdminTwoFactorRepository($pdo);
+    require_once __DIR__ . '/../../../app/config/database.php';
 
 
-  /**
-   * Mailer
-   */
-  $mailer = new EmailProvider();
+    /**
+     * Repositories
+     */
+    $adminRepo = new AdminRepository($pdo);
+
+    $adminTwoFactorRepo = new AdminTwoFactorRepository($pdo);
+
+    $trustedDeviceRepo = new TrustedDeviceRepository($pdo);
 
 
-  /**
-   * Services
-   */
-  $authService = new AdminAuthService(
-    $adminRepo,
-    $adminTwoFactorRepo,
-    $mailer
-  );
+    /**
+     * Mailer
+     */
+    $mailer = new EmailProvider();
 
 
-  /**
-   * Controller
-   */
-  $controller = new AdminAuthController(
-    $authService
-  );
+    /**
+     * Services
+     */
 
-  /**
-   * Verify OTP
-   */
-  $response = $controller->verify(
-    $code,
-    $ip
-  );
+    $trustedDeviceService = new TrustedDeviceService($trustedDeviceRepo, $_ENV['APP_KEY']);
 
-  /**
-   * Success
-   */
-  http_response_code(200);
+    $authService = new AdminAuthService(
+        $adminRepo,
+        $adminTwoFactorRepo,
+        $mailer,
+        $trustedDeviceService
+    );
 
-  echo json_encode($response);
+
+    /**
+     * Controller
+     */
+    $controller = new AdminAuthController(
+        $authService
+    );
+
+    /**
+     * Verify OTP
+     */
+    $response = $controller->verify(
+        $code,
+        $ip,
+        $trustDevice
+    );
+
+    /**
+     * Success
+     */
+    http_response_code(200);
+
+    echo json_encode($response);
 
 } catch (Throwable $e) {
 
-  http_response_code(400);
+    http_response_code(400);
 
-  echo json_encode([
-    'status'  => 'error',
-    'message' =>  \App\middleware\ApiSecurity::publicMessage($e)
-  ]);
+    echo json_encode([
+      'status'  => 'error',
+      'message' =>  \App\middleware\ApiSecurity::publicMessage($e)
+    ]);
 
 }
-
-?>

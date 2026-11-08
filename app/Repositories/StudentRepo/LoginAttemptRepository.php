@@ -44,12 +44,31 @@ class LoginAttemptRepository
         $stmt->execute([$studentId, $ip]);
     }
 
-    public function clearForIp(string $studentId): void
+    public function clearForStudentId(string $studentId): void
     {
         $stmt = $this->pdo->prepare("DELETE FROM login_attempts WHERE student_id = ?
       AND success = 0");
         $stmt->execute([$studentId]);
     }
+
+
+    public function clearFailures(
+        string $studentId,
+        string $ip
+    ): void {
+        $stmt = $this->pdo->prepare("
+        DELETE FROM login_attempts
+        WHERE student_id = ?
+          AND ip_address = ?
+          AND success = 0
+    ");
+
+        $stmt->execute([
+            $studentId,
+            $ip
+        ]);
+    }
+
 
 
 }

@@ -1,7 +1,5 @@
 <?php
 
-
-
 require_once dirname(__DIR__, 3) . '/app/api_bootstrap.php';
 
 require_once __DIR__ . '/../../../app/init.php';
@@ -11,13 +9,12 @@ use App\Repositories\StudentRepo\StudentRepository;
 use App\Repositories\StudentRepo\LoginAttemptRepository;
 use App\Repositories\StudentRepo\TwoFactorRepository;
 use App\Repositories\StudentRepo\EvaluationRepository;
-
+use App\Repositories\TrustedDeviceRepo\TrustedDeviceRepository;
 use App\Services\LoginServices\AuthService;
+use App\Services\TrustedDeviceServices\TrustedDeviceService;
 use App\Services\LoginServices\LoginRateLimiter;
 use App\Services\LoginServices\EvaluationRedirectResolver;
-
 use App\Services\TwoFactorServices\TwoFactorService;
-
 use App\providers\EmailProvider;
 use App\Session\SessionManager;
 
@@ -56,6 +53,8 @@ try {
 
     $evaluationRepo = new EvaluationRepository($pdo);
 
+    $trustedDeviceRepo = new TrustedDeviceRepository($pdo);
+
 
     /*
      * Email
@@ -93,12 +92,15 @@ try {
     /*
      * Authentication service
      */
+    $trustedDeviceService = new TrustedDeviceService($trustedDeviceRepo, $_ENV['APP_KEY']);
+
     $auth = new AuthService(
         $students,
         $rateLimiter,
         $redirectResolver,
         $session,
-        $twoFactor
+        $twoFactor,
+        $trustedDeviceService
     );
 
 
@@ -131,6 +133,8 @@ try {
 
     echo json_encode([
         'status' => 'error',
-        'message' => \App\middleware\ApiSecurity::publicMessage($e)
+        'message' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'code' => $e->getCode()
     ]);
 }

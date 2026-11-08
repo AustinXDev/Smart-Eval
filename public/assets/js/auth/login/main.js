@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     const StudentIDValue = studentID.value.trim();
-    const passwordValue = password.value.trim();
+    const passwordValue = password.value;
 
     const validation = validateLoginInputs({
       studentId: StudentIDValue,
@@ -43,19 +43,51 @@ document.addEventListener("DOMContentLoaded", () => {
     signinBTN.disabled = true;
     signinBTN.value = "Signing In...";
 
+    let otpRequired = false;
+    let redirecting = false;
+
+    const handleLoginSuccess = (result) => {
+      if (!result?.redirect) {
+        notify("error", "Login succeeded, but no redirect was provided.");
+        return false;
+      }
+
+      redirecting = true;
+
+      signinBTN.disabled = true;
+      signinBTN.value = "Redirecting...";
+
+      StatusModal.show(
+        "Login Successful",
+        "You have successfully signed in to SMART-EVAL.",
+        "success",
+      );
+
+      setTimeout(() => {
+        window.location.href = `${window.BASE_URL}${result.redirect}`;
+      }, 1500);
+
+      return true;
+    };
+
     try {
       const result = await login({
         student_id: validation.studentId,
         password: validation.password,
       });
 
-      /*
-       * Password is correct.
-       * 2FA verification is required.
-       */
+      // Browser is already trusted.
+      if (result.status === "success") {
+        handleLoginSuccess(result);
+        return;
+      }
+
+      // Browser requires OTP verification.
       if (result.status === "2fa_required") {
-        signinBTN.value = "Sign In";
+        otpRequired = true;
+
         signinBTN.disabled = false;
+        signinBTN.value = "Sign In";
 
         let verifyingLoginCode = false;
         let loginResult = null;
@@ -64,7 +96,11 @@ document.addEventListener("DOMContentLoaded", () => {
           "Verify it's you",
           "Enter the 6-digit code we sent to your registered email.",
           {
-            onSubmit: async (code) => {
+            length: 6,
+            allowTrustDevice: true,
+            trustDays: 365,
+
+            onSubmit: async (code, trustDevice) => {
               if (verifyingLoginCode) {
                 return false;
               }
@@ -74,24 +110,22 @@ document.addEventListener("DOMContentLoaded", () => {
               try {
                 const verifyResult = await verifyLoginCode({
                   code,
+                  trust_device: trustDevice === true,
                 });
 
                 if (verifyResult.status !== "success") {
-                  notify("error", verifyResult.message);
-
+                  notify(
+                    "error",
+                    verifyResult.message || "Unable to verify the code.",
+                  );
                   return false;
                 }
 
-                /*
-                 * Save the result returned by
-                 * completeLogin()
-                 */
                 loginResult = verifyResult;
 
                 return true;
               } catch (error) {
-                notify("error", error.message);
-
+                notify("error", error.message || "Verification failed.");
                 return false;
               } finally {
                 verifyingLoginCode = false;
@@ -100,83 +134,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
             onResend: async () => {
               try {
-                const result = await resendLoginCode();
+                const resendResult = await resendLoginCode();
 
-                console.log("RESEND RESULT:", result);
-
-                if (result.status !== "success") {
-                  notify("error", result.message);
+                if (resendResult.status !== "success") {
+                  notify("error", resendResult.message);
                   return false;
                 }
 
-                notify(
-                  "success",
-                  "A new verification code has been sent to your email.",
-                );
+                notify("success", "A new verification code has been sent.");
 
                 return true;
               } catch (error) {
                 notify("error", error.message);
-
                 return false;
               }
             },
 
             onSuccess: () => {
-              StatusModal.show(
-                "Login Successful",
-                "You're logged in and your teacher evaluation is on record.",
-                "success",
-              );
-
-              signinBTN.disabled = true;
-              signinBTN.value = "Redirecting...";
-
-              setTimeout(() => {
-                if (!loginResult?.redirect) {
-                  console.error("Missing redirect:", loginResult);
-
-                  notify(
-                    "error",
-                    "Login succeeded, but no redirect was provided.",
-                  );
-
-                  signinBTN.disabled = false;
-                  signinBTN.value = "Sign In";
-
-                  return;
-                }
-
-                window.location.href = `${window.BASE_URL}${loginResult.redirect}`;
-              }, 3000);
-
+              handleLoginSuccess(loginResult);
               form.reset();
             },
           },
         );
 
-        /*
-         *
-         * Stop execution here.
-         */
         return;
       }
 
-      /*
-       * Unexpected response
-       */
-      if (result.status !== "success") {
-        notify("error", result.message);
-
-        return;
-      }
+      notify("error", result.message || "Unable to sign in.");
     } catch (error) {
-      notify("error", error.message);
+      notify("error", error.message || "An unexpected error occurred.");
     } finally {
-      /*
-       * Don't reset the button while 2FA is being handled.
-       */
-      if (!document.querySelector(".your-otp-modal-selector")) {
+      if (!otpRequired && !redirecting) {
         signinBTN.disabled = false;
         signinBTN.value = "Sign In";
       }

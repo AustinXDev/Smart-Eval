@@ -6,6 +6,7 @@ use DateTime;
 
 class Student
 {
+    public int $student_pk;
     public string $studentId;
     public string $fullName;
     public string $email;
@@ -30,6 +31,14 @@ class Student
     public static function fromArray(array $row): self
     {
         $student = new self();
+
+        if (!isset($row['id']) || (int) $row['id'] <= 0) {
+            throw new \UnexpectedValueException(
+                'Student primary key is missing or invalid.'
+            );
+        }
+
+        $student->student_pk = (int) $row['id'];
 
         $student->studentId      =
           (string)($row['student_id'] ?? '');

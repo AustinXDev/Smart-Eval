@@ -9,84 +9,98 @@ require_once __DIR__ . '/../../../app/init.php';
 use App\Controllers\Admin\AdminAuthController;
 use App\Repositories\AdminRepo\AdminRepository;
 use App\Repositories\AdminRepo\AdminTwoFactorRepository;
+use App\Repositories\TrustedDeviceRepo\TrustedDeviceRepository;
+use App\Services\TrustedDeviceServices\TrustedDeviceService;
 use App\Services\Admin\AdminAuthService;
 use App\providers\EmailProvider;
 
 header('Content-type: application/json');
 
-try{
+try {
 
-  $input = json_decode(
-    file_get_contents('php://input'),
-    true
-  ) ?? [];
+    $input = json_decode(
+        file_get_contents('php://input'),
+        true
+    ) ?? [];
 
-  $username = trim(
-      $input['admin_username'] ?? ''
-  );
+    $username = trim(
+        $input['admin_username'] ?? ''
+    );
 
-  $password =
-      $input['admin_password'] ?? '';
+    $password =
+        $input['admin_password'] ?? '';
 
-  $ip =
-      $_SERVER['REMOTE_ADDR'] ?? '';
+    $ip =
+        $_SERVER['REMOTE_ADDR'] ?? '';
 
-  require_once __DIR__ .
-      '/../../../app/config/database.php';
+    require_once __DIR__ .
+        '/../../../app/config/database.php';
 
-  /**
-   * Repositories
-   */
-  $admin = new AdminRepository($pdo);
+    /**
+     * Repositories
+     */
+    $admin = new AdminRepository($pdo);
 
-  $twoFactor = new AdminTwoFactorRepository($pdo);
+    $twoFactor = new AdminTwoFactorRepository($pdo);
 
-  /**
-   * Provider
-   */
+    $trustedDeviceRepo = new TrustedDeviceRepository($pdo);
 
-  $mailer = new EmailProvider();
+    /**
+     * Provider
+     */
 
-  /**
-   * Service
-   */
+    $mailer = new EmailProvider();
 
-  $auth = new AdminAuthService(
-    $admin,
-    $twoFactor,
-    $mailer
-  );
 
-  /**
-   * Controller
-   */
-  $controller = new AdminAuthController(
-    $auth
-  );
+    /**
+     * Service
+     */
 
-  /**
-   * Login
-   */
+    $trustedDeviceService = new TrustedDeviceService($trustedDeviceRepo, $_ENV['APP_KEY']);
 
-  $response = $controller->login(
-    $username,
-    $password,
-    $ip
-  );
+    $auth = new AdminAuthService(
+        $admin,
+        $twoFactor,
+        $mailer,
+        $trustedDeviceService
+    );
 
-  http_response_code(200);
+    /**
+     * Controller
+     */
+    $controller = new AdminAuthController(
+        $auth
+    );
 
-  echo json_encode($response);
+    /**
+     * Login
+     */
+
+    $response = $controller->login(
+        $username,
+        $password,
+        $ip
+    );
+
+    http_response_code(200);
+
+    echo json_encode($response);
 
 } catch (Throwable $e) {
 
-  http_response_code(400);
+    error_log(
+        '[ADMIN LOGIN ERROR] ' .
+        get_class($e) . ': ' .
+        $e->getMessage()
+    );
 
-  echo json_encode([
-      'status' => 'error',
-      'message' => \App\middleware\ApiSecurity::publicMessage($e)
-  ]);
+    http_response_code(500);
+
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Unable to complete login. Please try again later.',
+        'file' => $e->getFile(),
+        'code' => $e->getCode()
+    ]);
 
 }
-
-?>

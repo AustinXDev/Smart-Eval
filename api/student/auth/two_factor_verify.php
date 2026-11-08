@@ -10,8 +10,10 @@ use App\Controllers\TwoFactor\TwoFactorController;
 use App\Repositories\StudentRepo\StudentRepository;
 use App\Repositories\StudentRepo\TwoFactorRepository;
 use App\Repositories\StudentRepo\LoginAttemptRepository;
+use App\Repositories\TrustedDeviceRepo\TrustedDeviceRepository;
 use App\Services\TwoFactorServices\TwoFactorService;
 use App\Services\LoginServices\AuthService;
+use App\Services\TrustedDeviceServices\TrustedDeviceService;
 use App\Services\LoginServices\LoginRateLimiter;
 use App\Services\LoginServices\EvaluationRedirectResolver;
 use App\providers\EmailProvider;
@@ -34,12 +36,6 @@ try {
      * Session
      */
     $session = new SessionManager();
-
-
-
-
-
-
 
     $pending = $session->get('2fa_pending');
     $studentId = $session->get('2fa_student_id');
@@ -69,6 +65,8 @@ try {
     $twoFactorRepo = new TwoFactorRepository($pdo);
 
     $loginAttemptRepo = new LoginAttemptRepository($pdo);
+
+    $trustedDeviceRepo = new TrustedDeviceRepository($pdo);
 
     /*
      * Email
@@ -107,12 +105,15 @@ try {
     /*
      * Auth service
      */
+    $trustedDeviceService = new TrustedDeviceService($trustedDeviceRepo, $_ENV['APP_KEY']);
+
     $auth = new AuthService(
         $students,
         $rateLimiter,
         $redirectResolver,
         $session,
-        $twoFactor
+        $twoFactor,
+        $trustedDeviceService
     );
 
     /*
@@ -125,6 +126,8 @@ try {
         $session
     );
 
+    $trustDevice = ($input['trust_device'] ?? false) === true;
+
     /*
      * Purpose is controlled by the server.
      *
@@ -132,7 +135,8 @@ try {
     $response = $controller->verify(
         'login',
         $code,
-        $ip
+        $ip,
+        $trustDevice
     );
 
     http_response_code(200);

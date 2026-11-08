@@ -40,8 +40,8 @@ class LoginRateLimiter
         $this->attempts->recordSuccess($studentId, $ip);
     }
 
-    public function clear(string $ip): void
+    public function clear(string $studentId): void
     {
-        $this->attempts->clearForIp($ip);
+        $this->attempts->clearForStudentId($studentId);
     }
 }

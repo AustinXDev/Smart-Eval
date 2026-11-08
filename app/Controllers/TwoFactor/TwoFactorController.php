@@ -26,7 +26,8 @@ class TwoFactorController
     public function verify(
         string $purpose,
         string $code,
-        string $ip
+        string $ip,
+        bool $trustedDevice = false
     ): array {
 
         /*
@@ -79,9 +80,31 @@ class TwoFactorController
          *
          * Complete the actual login.
          */
-        return $this->auth->completeLogin(
+        $response = $this->auth->completeLogin(
             $student,
             $ip
         );
+
+        /*
+         * Remember this browser only when:
+         * 1. OTP verification succeeded.
+         * 2. Student authentication succeeded.
+         * 3. Student selected "Trust this browser".
+         */
+        if ($trustedDevice) {
+            try {
+                $this->auth->rememberTrustedDevice(
+                    $student,
+                    'Student Browser'
+                );
+            } catch (\Throwable $e) {
+                error_log(
+                    '[STUDENT TRUSTED DEVICE] ' .
+                    $e->getMessage()
+                );
+            }
+        }
+
+        return $response;
     }
 }
