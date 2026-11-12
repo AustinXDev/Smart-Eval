@@ -102,3 +102,178 @@
 #lowestQuestions::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* Standalone teacher ranking */
+.ranking-card {
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 20px rgb(15 23 42 / 4%);
+}
+.ranking-header,
+.ranking-toolbar,
+.ranking-heading,
+.ranking-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ranking-header {
+  justify-content: space-between;
+  padding: 24px;
+  gap: 20px;
+}
+.ranking-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+.ranking-title-row {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.ranking-title-row h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.ranking-count {
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+}
+.ranking-heading p,
+.ranking-toolbar p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #64748b;
+}
+.ranking-export {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 11px 16px;
+  border: 1px solid #ddd6fe;
+  border-radius: 10px;
+  background: #fff;
+  color: #6d28d9;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ranking-export:hover {
+  background: #f5f3ff;
+}
+.ranking-toolbar {
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+.ranking-toolbar p {
+  margin: 0;
+}
+.ranking-search {
+  position: relative;
+  width: 280px;
+  max-width: 100%;
+}
+.ranking-search i {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 13px;
+}
+.ranking-search input {
+  width: 100%;
+  padding: 10px 12px 10px 36px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #fff;
+  color: #334155;
+  font-size: 13px;
+}
+.ranking-card :is(input, button, a, select, [tabindex]):focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 3px;
+}
+.ranking-table-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 0 20px 18px;
+}
+#tbl-ranking {
+  width: 100% !important;
+  min-width: 850px;
+  border-collapse: collapse;
+}
+#teacher-ranking #tbl-ranking thead th {
+  padding: 16px 24px 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #64748b;
+  background-color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+#teacher-ranking #tbl-ranking tbody td {
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+}
+#teacher-ranking #tbl-ranking tbody tr {
+  background: #fff;
+}
+#teacher-ranking #tbl-ranking tbody tr:hover {
+  background: #faf9ff;
+}
+#teacher-ranking #tbl-ranking.no-footer {
+  border-bottom: 0;
+}
+#teacher-ranking .dataTables_info,
+#teacher-ranking .dataTables_paginate {
+  padding-top: 18px;
+  font-size: 12px;
+  color: #64748b;
+}
+#teacher-ranking .dataTables_paginate .paginate_button {
+  border-radius: 8px;
+}
+#teacher-ranking .dataTables_paginate .paginate_button.current {
+  border: 1px solid #ddd6fe;
+  background: #f5f3ff;
+  color: #6d28d9 !important;
+}
+@media (max-width: 640px) {
+  .ranking-header,
+  .ranking-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 18px;
+  }
+  .ranking-heading {
+    align-items: flex-start;
+  }
+  .ranking-search {
+    width: 100%;
+  }
+  .ranking-table-scroll {
+    padding: 0 12px 16px;
+  }
+}

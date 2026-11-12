@@ -4,13 +4,8 @@ import { renderHeaderInfo } from "../modules/render/header.js";
 import { renderParticipationFunnel } from "../modules/render/funnel.js";
 import { renderCharts } from "../modules/render/charts.js";
 import { renderQuestionBreakDown } from "../modules/render/question_breakdown.js";
-import {
-  renderRanking,
-  renderNotEvaluated,
-  renderAbandoned,
-} from "../modules/render/table.js";
+import { renderRanking } from "../modules/render/table.js";
 import { renderHistoricalBanner } from "../modules/render/historical_banner.js";
-import { updateNotifyAllButtonState } from "../modules/binding.js";
 
 function renderEmptyState() {
   renderHeaderInfo(null);
@@ -18,8 +13,6 @@ function renderEmptyState() {
   renderCharts(null);
   renderQuestionBreakDown(null);
   renderRanking(null);
-  renderNotEvaluated(null);
-  renderAbandoned(null);
   state.lastData = null;
 }
 
@@ -85,20 +78,11 @@ export async function fetchAnalytics(deptParam, pidParam, renderTables = true) {
         renderRanking(data.teacher_ranking);
       }
 
-      if (hasChanged(data, "not_evaluated")) {
-        renderNotEvaluated(data.not_evaluated);
-      }
-
-      if (hasChanged(data, "abandoned")) {
-        renderAbandoned(data.abandoned);
-      }
     }
 
     renderHistoricalBanner();
 
     state.lastData = data;
-
-    updateNotifyAllButtonState();
 
     return data;
   } catch (error) {
