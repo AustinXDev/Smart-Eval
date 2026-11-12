@@ -14,6 +14,7 @@ export const chartInstances = {
   trend: null,
   participation: null,
   category: null,
+  ratingDistribution: null,
 };
 
 export const tableInstances = {

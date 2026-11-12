@@ -213,6 +213,16 @@ class AnalyticsService
 
 
         $teacherRanking = $this->getTeacherRankingList($periodId, $department, $isClosed);
+        $ratingDistribution = array_fill_keys(
+            ['Outstanding', 'Very Satisfactory', 'Satisfactory', 'Fair', 'Poor'],
+            0
+        );
+        foreach ($teacherRanking as $teacher) {
+            $rating = AnalyticsHelpers::adjectiveRating(
+                (float) ($teacher['mean_score'] ?? 0)
+            );
+            $ratingDistribution[$rating]++;
+        }
 
 
         $notEvaluatedList = $this->getNoEvaluatedList($periodId, $department, $isClosed);
@@ -249,6 +259,8 @@ class AnalyticsService
           'question_breakdown' => $questionHighlights,
 
           'teacher_ranking' => $teacherRanking,
+
+          'rating_distribution' => $ratingDistribution,
 
           'not_evaluated' => $notEvaluatedList,
 
@@ -296,6 +308,16 @@ class AnalyticsService
                 $periodId,
                 $department
             );
+        $ratingDistribution = array_fill_keys(
+            ['Outstanding', 'Very Satisfactory', 'Satisfactory', 'Fair', 'Poor'],
+            0
+        );
+        foreach ($teacherRanking as $teacher) {
+            $rating = AnalyticsHelpers::adjectiveRating(
+                (float) ($teacher['mean_score'] ?? 0)
+            );
+            $ratingDistribution[$rating]++;
+        }
 
         $notEvaluated = $this->archiveAnalyticsRepo
             ->getArchivedNotEvaluatedList(
@@ -356,6 +378,8 @@ class AnalyticsService
                 ),
 
             'teacher_ranking' => $teacherRanking,
+
+            'rating_distribution' => $ratingDistribution,
             'not_evaluated' => $notEvaluated,
             'abandoned' => $abandoned
         ];

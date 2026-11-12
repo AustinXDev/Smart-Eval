@@ -470,6 +470,7 @@
   }
 
   .question-gap-analysis-container > .section-title {
+    page-break-after: avoid;
     color: #16213E;
     border-bottom-color: #E4E1EC;
   }
@@ -478,25 +479,14 @@
     background-color: #7C3AED;
   }
 
-  .question-gap-columns {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-  }
-
   .question-gap-panel {
-    width: 48%;
-    padding: 0;
-    vertical-align: top;
-    border: 1px solid #E4E1EC;
-  }
-
-  .question-gap-spacer {
-    width: 4%;
-    border: none;
+    width: 100%;
+    margin-bottom: 16px;
+    page-break-inside: auto;
   }
 
   .question-gap-panel-title {
+    page-break-after: avoid;
     padding: 8px 9px;
     color: #16213E;
     font-size: 10px;
@@ -519,6 +509,14 @@
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
+  }
+
+  .question-gap-table thead {
+    display: table-header-group;
+  }
+
+  .question-gap-table tr {
+    page-break-inside: avoid;
   }
 
   .question-gap-table th {

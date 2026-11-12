@@ -65,6 +65,39 @@ if (is_file($imagePath)) {
 
         <?php require __DIR__ . '/sections/participation.php'; ?>
 
+        <?php
+        $ratingDistribution = array_fill_keys(
+            ['Outstanding', 'Very Satisfactory', 'Satisfactory', 'Fair', 'Poor'],
+            0
+        );
+        foreach ($data['teacher_ranking'] ?? [] as $teacher) {
+            $ratingLabel = \App\helpers\AnalyticsHelpers::adjectiveRating(
+                (float) ($teacher['mean_score'] ?? 0)
+            );
+            $ratingDistribution[$ratingLabel]++;
+        }
+        $ratingColors = [
+            'Outstanding' => '#7c3aed',
+            'Very Satisfactory' => '#059669',
+            'Satisfactory' => '#0284c7',
+            'Fair' => '#d97706',
+            'Poor' => '#dc2626',
+        ];
+        $ratingTotal = array_sum($ratingDistribution);
+        ?>
+        <section class="rating-distribution-report">
+            <h2 class="section-title">Rating Distribution</h2>
+            <p class="rating-distribution-caption">Number of teachers in each performance rating.</p>
+            <?php foreach ($ratingDistribution as $ratingLabel => $ratingCount): ?>
+                <?php $ratingWidth = $ratingTotal > 0 ? ($ratingCount / $ratingTotal) * 100 : 0; ?>
+                <div class="rating-report-row">
+                    <span><?= htmlspecialchars($ratingLabel, ENT_QUOTES, 'UTF-8') ?></span>
+                    <div class="rating-report-track"><span style="width:<?= $ratingWidth ?>%;background:<?= $ratingColors[$ratingLabel] ?>;"></span></div>
+                    <strong><?= (int) $ratingCount ?></strong>
+                </div>
+            <?php endforeach; ?>
+        </section>
+
         <?php require __DIR__ . '/sections/faculty-ranking.php'; ?>
 
         <?php require __DIR__ . '/sections/year-participation.php'; ?>

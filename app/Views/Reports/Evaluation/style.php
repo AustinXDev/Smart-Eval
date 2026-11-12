@@ -426,7 +426,14 @@ tr:nth-child(even) td {
     color: #534AB7;
 }
 
-
+.rating-distribution-report { margin: 18px 0; padding: 12px 14px; border: 1px solid #e2dfea; border-radius: 6px; page-break-inside: avoid; }
+.rating-distribution-report .section-title { margin-top: 0; margin-bottom: 4px; }
+.rating-distribution-caption { margin-bottom: 10px; color: #777; font-size: 8px; }
+.rating-report-row { display: table; width: 100%; margin: 7px 0; font-size: 8px; }
+.rating-report-row > span, .rating-report-row > strong { display: table-cell; width: 25%; vertical-align: middle; }
+.rating-report-row > strong { width: 8%; text-align: right; color: #24134f; }
+.rating-report-track { display: table-cell; width: 67%; height: 8px; background: #f0edf5; vertical-align: middle; }
+.rating-report-track span { display: block; height: 8px; }
 
 @page {
     size: A4;

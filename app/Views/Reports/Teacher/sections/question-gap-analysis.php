@@ -20,10 +20,7 @@ $improvements = is_array($questionData['areas_for_improvement'] ?? null)
     <span></span> Question Gap Analysis
   </div>
 
-  <table class="question-gap-columns">
-    <tbody>
-      <tr>
-        <td class="question-gap-panel strength-panel">
+  <div class="question-gap-panel strength-panel">
           <div class="question-gap-panel-title">Strongest Questions</div>
 
           <?php if ($strengths !== []): ?>
@@ -61,11 +58,9 @@ $improvements = is_array($questionData['areas_for_improvement'] ?? null)
           <?php else: ?>
             <p class="question-gap-empty">No strongest questions are available.</p>
           <?php endif; ?>
-        </td>
+  </div>
 
-        <td class="question-gap-spacer"></td>
-
-        <td class="question-gap-panel improvement-panel">
+  <div class="question-gap-panel improvement-panel">
           <div class="question-gap-panel-title">Needs Improvement</div>
 
           <?php if ($improvements !== []): ?>
@@ -103,9 +98,6 @@ $improvements = is_array($questionData['areas_for_improvement'] ?? null)
           <?php else: ?>
             <p class="question-gap-empty">No areas for improvement were identified.</p>
           <?php endif; ?>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  </div>
 
 </div>

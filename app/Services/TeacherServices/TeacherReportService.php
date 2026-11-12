@@ -135,6 +135,8 @@ final class TeacherReportService
 
             'insights' => $insights,
 
+            'comments' => $repo->getComment($periodId, $teacherId) ?? [],
+
             'meta' => [
                 'period' => $period['academic_year'],
                 'teacher' => $summary['full_name'],
