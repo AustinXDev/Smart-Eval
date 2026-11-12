@@ -39,7 +39,11 @@ class EvaluationStatusRepository
 
         $stmt = $this->pdo->prepare("
         UPDATE evaluation_status
-            SET is_submitted = 1
+            -- Stamp the first submission time (date_taken defaults to the seed time).
+            -- MySQL evaluates SET left to right, so this reads the old is_submitted;
+            -- later edits to an already-submitted evaluation keep the original time.
+            SET date_taken = IF(is_submitted = 1, date_taken, NOW()),
+                is_submitted = 1
         WHERE eval_id = ?
         ");
 

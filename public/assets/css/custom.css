@@ -732,3 +732,164 @@ body {
 #programTable_wrapper .dataTables_paginate .paginate_button {
   margin: 0 !important;
 }
+
+/* ============================================================
+   Evaluation Monitoring: pagination
+   Only the current page is filled violet. Colors match
+   stylePagination() in shared/datatable_config.js.
+   ============================================================ */
+/* Typography: Roboto (the app font, imported at the top of this file) for the
+   whole student list (table, info, pagination), with tabular figures so IDs
+   and counts line up. */
+#monitoring-student-table_wrapper {
+  font-family: "Roboto", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#monitoring-student-table {
+  font-size: 13px;
+  line-height: 1.45;
+  color: #334155;
+}
+
+#monitoring-student-table thead th {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+#monitoring-student-table tbody td {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+#monitoring-student-table .ms-id,
+#monitoring-student-table .font-mono {
+  font-family: inherit !important;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+#monitoring-student-table .ms-name {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: #0f172a;
+}
+
+#monitoring-student-table .ms-course {
+  font-size: 13px;
+}
+
+#monitoring-student-table_wrapper .dataTables_info {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #64748b !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Footer row: "Showing x to y" on the left, buttons on the right, vertically
+   centered. Overrides dataTable.css, which pins .dataTables_paginate to the
+   bottom-right corner (position: absolute) and offsets .dataTables_info. */
+#monitoring-student-table_wrapper .dataTables_info {
+  float: none !important;
+  display: flex !important;
+  align-items: center !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 0 16px 20px !important;
+  line-height: 36px !important;
+  text-align: left !important;
+}
+
+#monitoring-student-table_wrapper .dataTables_paginate {
+  position: static !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 20px 16px 0 !important;
+  line-height: 1 !important;
+}
+
+#monitoring-student-table_wrapper .dataTables_paginate > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Phones: stack and center. */
+@media (max-width: 639px) {
+  #monitoring-student-table_wrapper .dataTables_info,
+  #monitoring-student-table_wrapper .dataTables_paginate {
+    justify-content: center !important;
+    width: 100% !important;
+    padding: 0 16px 12px !important;
+  }
+}
+
+/* Every button: white, bordered (not filled). */
+#monitoring-student-table_wrapper .dataTables_paginate .paginate_button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 36px;
+  min-height: 36px;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px;
+  background: #ffffff !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  color: #475569 !important;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-shadow: none !important;
+  cursor: pointer;
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease;
+}
+
+/* Hover (not current, not disabled): light violet. */
+#monitoring-student-table_wrapper .dataTables_paginate .paginate_button:hover:not(.current):not(.disabled) {
+  border-color: #ddd6fe !important;
+  background: #f5f3ff !important;
+  color: #7c3aed !important;
+}
+
+/* Active page: the only filled button. */
+#monitoring-student-table_wrapper .dataTables_paginate .paginate_button.current,
+#monitoring-student-table_wrapper .dataTables_paginate .paginate_button.current:hover {
+  border-color: #7c3aed !important;
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 2px rgba(124, 58, 237, 0.2) !important;
+  cursor: default;
+}
+
+/* Previous / Next when unavailable. */
+#monitoring-student-table_wrapper .dataTables_paginate .paginate_button.disabled,
+#monitoring-student-table_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+  border-color: #f1f5f9 !important;
+  background: #f8fafc !important;
+  color: #cbd5e1 !important;
+  cursor: not-allowed;
+}
+
+/* "…" between page numbers: no box. */
+#monitoring-student-table_wrapper .dataTables_paginate .ellipsis {
+  padding: 0 4px;
+  color: #94a3b8;
+}

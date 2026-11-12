@@ -1,4 +1,5 @@
 <?php
+
 $navigation = [
     'super_admin' => [
         [
@@ -49,6 +50,14 @@ $navigation = [
             ],
         ],
         [
+            'label' => 'Evaluation Monitoring',
+            'icon'  => 'fa-solid fa-chart-pie',
+            'url'   => [
+                ['label' => 'College Monitoring', 'url' => 'evaluation-monitoring?dept=college', 'icon' => 'fa-solid fa-graduation-cap'],
+                ['label' => 'SHS Monitoring', 'url' => 'evaluation-monitoring?dept=shs', 'icon' => 'fa-solid fa-building-columns'],
+            ],
+        ],
+        [
             'label' => 'Archive Management',
             'icon' => 'fa-solid fa-box-archive',
             'url' => 'archive-management',
@@ -72,6 +81,14 @@ $navigation = [
                 ['label' => 'SHS Reports',     'url' => '/reports-analytics?dept=shs',    'icon' => 'fa-solid fa-building-columns'],
             ],
         ],
+        [
+            'label' => 'Evaluation Monitoring',
+            'icon'  => 'fa-solid fa-chart-pie',
+            'url'   => [
+                ['label' => 'College Monitoring', 'url' => 'evaluation-monitoring?dept=college', 'icon' => 'fa-solid fa-graduation-cap'],
+                ['label' => 'SHS Monitoring',     'url' => 'evaluation-monitoring?dept=shs',    'icon' => 'fa-solid fa-building-columns'],
+            ],
+        ],
     ],
 
     'student' => [
@@ -82,4 +99,3 @@ $navigation = [
         ],
     ],
 ];
-?>

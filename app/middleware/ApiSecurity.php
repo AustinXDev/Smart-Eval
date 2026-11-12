@@ -62,7 +62,7 @@ final class ApiSecurity
             return ['GET', 'teacher_read'];
         }
 
-        $read = ['admin/analytics/analytics.php', 'admin/dashboard/dashboard.php', 'admin/analytics/get_comment.php', 'admin/analytics/evaluation-history.php'];
+        $read = ['admin/analytics/analytics.php', 'admin/dashboard/dashboard.php', 'admin/analytics/get_comment.php', 'admin/analytics/evaluation-history.php', 'admin/analytics/participation-monitoring.php'];
 
         if (in_array($endpoint, $read, true)) {
             return ['GET', 'admin_read'];
