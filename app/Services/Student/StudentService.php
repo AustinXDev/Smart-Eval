@@ -68,6 +68,16 @@ class StudentService
     }
 
 
+    /**
+     * Year levels offered per department (same options as the add-student form).
+     *
+     * @return list<string>
+     */
+    private static function yearLevelsFor(string $department): array
+    {
+        return strtolower($department) === 'shs' ? ['11', '12'] : ['1', '2', '3', '4'];
+    }
+
     public function getStudentList(string $department, array $query): array
     {
         $department = trim($department);
@@ -75,21 +85,35 @@ class StudentService
             throw new RuntimeException('Department is required.');
         }
         $counts = $this->studentRepo->getCountByDepartment($department);
+        $yearLevels = self::yearLevelsFor($department);
         if (($query['counts_only'] ?? '') === '1') {
-            return ['counts' => $counts];
+            // Every year level of the department is listed, including empty ones.
+            $byYear = $this->studentRepo->getYearLevelCountsByDepartment($department);
+            return [
+                'counts' => $counts,
+                'year_levels' => array_map(
+                    static fn (string $level): array => ['year_level' => $level, 'total' => $byYear[$level] ?? 0],
+                    $yearLevels
+                ),
+            ];
         }
         $search = $query['search'] ?? [];
         $search = is_array($search) ? ($search['value'] ?? '') : $search;
         $status = $query['status'] ?? 'All';
         $program = $query['program'] ?? 'All';
-        if (!is_string($search) || !is_string($program) || !in_array($status, ['All', 'Active', 'Inactive'], true)) {
+        $yearLevel = $query['year_level'] ?? '';
+        if (
+            !is_string($search) || !is_string($program) || !is_string($yearLevel)
+            || !in_array($status, ['All', 'Active', 'Inactive'], true)
+            || ($yearLevel !== '' && !in_array($yearLevel, $yearLevels, true))
+        ) {
             throw new RuntimeException('Invalid student filters.');
         }
         $page = $this->studentRepo->findPageByDepartment(
             $department,
             max(0, (int) ($query['start'] ?? 0)),
             max(1, min(100, (int) ($query['length'] ?? 5))),
-            trim($search), $status, $program
+            trim($search), $status, $program, $yearLevel
         );
         return [
             'draw' => max(0, (int) ($query['draw'] ?? 0)),

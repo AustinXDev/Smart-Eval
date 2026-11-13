@@ -320,6 +320,20 @@ final class ApiSecurity
 
     }
 
+    /**
+     * Message safe to return to the client. Database and engine errors are
+     * logged and replaced with a generic message; validation messages pass through.
+     * (Restored: 54 API endpoints call this in their catch blocks.)
+     */
+    public static function publicMessage(\Throwable $error): string
+    {
+        if ($error instanceof \PDOException || $error instanceof \Error) {
+            error_log('[API] ' . get_class($error) . ': ' . $error->getMessage());
+            return 'Unable to process the request.';
+        }
+        return $error->getMessage();
+    }
+
     public static function fail(int $status, string $message): never
     {
         http_response_code($status);

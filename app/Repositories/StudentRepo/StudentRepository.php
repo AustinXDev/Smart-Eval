@@ -223,7 +223,8 @@ class StudentRepository
         int $limit,
         string $search,
         string $status,
-        string $program
+        string $program,
+        string $yearLevel = ''
     ): array {
         // Preserve the existing active-student list scope.
         $where = 'p.department = :department AND s.is_active = 1';
@@ -251,6 +252,11 @@ class StudentRepository
             $params['program'] = $program;
         }
 
+        if ($yearLevel !== '') {
+            $where .= ' AND s.year_level = :yearLevel';
+            $params['yearLevel'] = $yearLevel;
+        }
+
         $from = ' FROM students s INNER JOIN programs p ON s.program_id = p.program_id WHERE ' . $where;
         $count = $this->pdo->prepare('SELECT COUNT(*)' . $from);
 
@@ -258,7 +264,7 @@ class StudentRepository
 
         $filtered = (int) $count->fetchColumn();
 
-        $stmt = $this->pdo->prepare('SELECT s.student_id, s.full_name, s.is_active, p.program_name, p.department' . $from . ' ORDER BY s.full_name ASC, s.student_id ASC LIMIT :limit OFFSET :offset');
+        $stmt = $this->pdo->prepare('SELECT s.student_id, s.full_name, s.is_active, s.year_level, s.account_status, s.created_at, p.program_name, p.department' . $from . ' ORDER BY s.full_name ASC, s.student_id ASC LIMIT :limit OFFSET :offset');
 
         foreach ($params as $key => $value) {
             $stmt->bindValue(':' . $key, $value, PDO::PARAM_STR);
@@ -272,6 +278,31 @@ class StudentRepository
 
         return ['students' => $stmt->fetchAll(PDO::FETCH_ASSOC), 'filtered' => $filtered];
 
+    }
+
+    /**
+     * Active students per year level in a department (same scope as the student list).
+     *
+     * @return array<string,int> year_level => total
+     */
+    public function getYearLevelCountsByDepartment(string $department): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT s.year_level, COUNT(*) AS total
+            FROM students s
+            INNER JOIN programs p ON s.program_id = p.program_id
+            WHERE p.department = ? AND s.is_active = 1
+            GROUP BY s.year_level
+        ");
+
+        $stmt->execute([$department]);
+
+        $counts = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $counts[(string) $row['year_level']] = (int) $row['total'];
+        }
+
+        return $counts;
     }
 
     public function getCountByDepartment(
