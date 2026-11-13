@@ -1,1126 +1,432 @@
 import { escapeHTML } from "../../services/escape.js";
-import { nameToInitials } from "../shared/utils.js";
-import {
-  createPieChart,
-  createScoreDoughnutChart,
-  createProgramBarChart,
-} from "../../charts/chart-config.js";
 import { get } from "../../services/http.js";
 import { logout } from "../shared/logout.js";
+import { nameToInitials } from "../shared/utils.js";
+import { countUp } from "../shared/count_up.js";
+import { getAdjectiveRating } from "../report_analytics/modules/helpers/formatters.js";
 
-const queryString = new URL(window.location.href);
-const department = queryString.searchParams.get("dept");
+// Sidebar/header logout buttons call window.logout().
+window.logout = logout;
 
-const POLL_INTERVAL = 30000;
+const LIVE_INTERVAL_MS = 30_000;
+const { department } = window.dashboardConfig;
+const $ = (id) => document.getElementById(id);
 
-let isFetching = false;
-let pollTimer = null;
-let isVisible = true;
-let lastData = null;
+let trendChart = null;
+let loading = false;
+let lastUpdated = null;
+let liveTimer = null;
 
-const chartInstances = {
-  score: null,
-  participation: null,
-  program: null,
-};
+const dateFmt = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" });
+const shortDateFmt = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" });
 
-/* =========================================================
-   HELPERS
-========================================================= */
+// MySQL "Y-m-d H:i:s" (Asia/Manila) -> Date
+function parseDate(value) {
+  if (!value) return null;
+  const date = new Date(String(value).replace(" ", "T"));
+  return Number.isNaN(date.getTime()) ? null : date;
+}
 
-function convertDateStr(date) {
-  if (!date) return "--";
+function setText(id, value) {
+  const el = $(id);
+  if (el) el.textContent = value;
+}
 
-  const dateObj = new Date(date);
+// ================================================================
+// HEADER + ACTIVE EVALUATION CARD
+// ================================================================
 
-  if (Number.isNaN(dateObj.getTime())) {
-    return "--";
+function renderPeriod(period) {
+  const status = $("hdr-status");
+  const dates = $("hdr-dates");
+
+  if (!period) {
+    setText("hdr-year", "No active period");
+    setText("hdr-semester", "—");
+    dates.classList.add("hidden");
+    status.className =
+      "inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700";
+    status.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>Inactive';
+
+    setText("kpi-active", "No Active Period");
+    setText("kpi-active-detail", "No evaluation is currently running");
+    return;
   }
 
-  return dateObj.toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+  const start = parseDate(period.start_date);
+  const end = parseDate(period.end_date);
+  const range = start && end ? `${dateFmt.format(start)} – ${dateFmt.format(end)}` : "";
 
-function safeNumber(value, fallback = 0) {
-  const number = Number(value);
+  setText("hdr-year", `A.Y. ${period.academic_year}`);
+  setText("hdr-semester", period.semester);
+  dates.textContent = range ? `· ${range}` : "";
+  dates.classList.toggle("hidden", !range);
+  status.className =
+    "inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700";
+  status.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-emerald-500 motion-safe:animate-pulse"></span>Active';
 
-  return Number.isFinite(number) ? number : fallback;
-}
-
-function safeString(value, fallback = "--") {
-  if (value === null || value === undefined || value === "") {
-    return fallback;
-  }
-
-  return String(value);
-}
-
-function safeArray(value) {
-  return Array.isArray(value) ? value : [];
-}
-
-function safeObject(value) {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? value
-    : {};
-}
-
-function destroyChart(key) {
-  if (chartInstances[key]) {
-    chartInstances[key].destroy();
-    chartInstances[key] = null;
-  }
-}
-
-function hasChanged(newData, key) {
-  if (!lastData) return true;
-
-  return (
-    JSON.stringify(lastData?.[key] ?? null) !==
-    JSON.stringify(newData?.[key] ?? null)
+  setText("kpi-active", "Active");
+  const daysLeft = end ? Math.ceil((end - Date.now()) / 86_400_000) : null;
+  setText(
+    "kpi-active-detail",
+    `${period.semester} · ${
+      daysLeft === null ? "" : daysLeft > 1 ? `${daysLeft} days left` : daysLeft === 1 ? "Ends within a day" : "Ending"
+    }`,
   );
 }
 
-function showConnectionError() {
-  const el = document.getElementById("connection-error");
+// ================================================================
+// KPI CARDS
+// ================================================================
 
-  if (!el) return;
-
-  el.classList.remove("hidden");
-
-  setTimeout(() => {
-    el.classList.add("hidden");
-  }, 4000);
+function renderCards(cards = {}) {
+  countUp("kpi-students", cards.students_total);
+  countUp("kpi-teachers", cards.teachers_total);
+  countUp("kpi-submitted", cards.submitted_evaluations);
 }
 
-/* =========================================================
-   POLLING
-========================================================= */
+// ================================================================
+// CURRENT EVALUATION OVERVIEW
+// ================================================================
 
-function startPolling() {
-  stopPolling();
+function renderCurrent(period, p) {
+  $("current-body").classList.toggle("hidden", !period);
+  $("current-empty").classList.toggle("hidden", Boolean(period));
+  if (!period || !p) return;
 
-  pollTimer = setInterval(async () => {
-    if (isVisible) {
-      await fetchDashboardBundle();
-      console.log("Dashboard refreshed");
-    }
-  }, POLL_INTERVAL);
-}
+  const start = parseDate(period.start_date);
+  const end = parseDate(period.end_date);
+  setText("cur-name", `A.Y. ${period.academic_year} · ${period.semester}`);
+  setText("cur-dates", start && end ? `${dateFmt.format(start)} – ${dateFmt.format(end)}` : "");
 
-function stopPolling() {
-  if (pollTimer) {
-    clearInterval(pollTimer);
-    pollTimer = null;
-  }
-}
+  countUp("cur-eligible", p.eligible);
+  countUp("cur-eligible-2", p.eligible);
+  countUp("cur-completed", p.completed);
+  countUp("cur-remaining", p.remaining);
+  countUp("cur-participating", p.participating);
+  countUp("cur-legend-completed", p.completed);
+  countUp("cur-legend-incomplete", p.incomplete);
+  countUp("cur-legend-unresponsive", p.unresponsive);
 
-document.addEventListener("visibilitychange", () => {
-  isVisible = !document.hidden;
-
-  if (isVisible) {
-    fetchDashboardBundle();
-    startPolling();
+  if (p.eligible > 0) {
+    countUp("cur-rate", p.participation_rate, { decimals: 1, suffix: "%" });
   } else {
-    stopPolling();
+    $("cur-rate").dataset.countValue = "0";
+    setText("cur-rate", "—");
   }
-});
 
-/* =========================================================
-   FETCH DASHBOARD
-========================================================= */
+  const share = (n) => (p.eligible > 0 ? (n / p.eligible) * 100 : 0);
+  $("cur-bar-completed").style.width = `${share(p.completed)}%`;
+  $("cur-bar-incomplete").style.width = `${share(p.incomplete)}%`;
+  $("cur-progress").setAttribute("aria-valuenow", String(p.participation_rate || 0));
+}
 
-async function fetchDashboardBundle() {
-  if (isFetching) return;
+// ================================================================
+// SUBMISSION TRENDS (Chart.js line)
+// ================================================================
 
-  if (!department) {
-    console.error("Department not found.");
+function renderTrend(trend, period) {
+  const labels = trend?.labels ?? [];
+  const data = trend?.data ?? [];
+  const total = data.reduce((sum, n) => sum + n, 0);
+  const canvas = $("trend-chart");
+  const empty = $("trend-empty");
+
+  if (labels.length) {
+    const first = parseDate(`${labels[0]} 00:00:00`);
+    const last = parseDate(`${labels.at(-1)} 00:00:00`);
+    setText("trend-range", labels.length === 1 ? dateFmt.format(first) : `${shortDateFmt.format(first)} – ${dateFmt.format(last)}`);
+  } else {
+    setText("trend-range", period ? "No data" : "No active period");
+  }
+
+  const showEmpty = total === 0;
+  empty.classList.toggle("hidden", !showEmpty);
+  empty.classList.toggle("flex", showEmpty);
+  canvas.classList.toggle("invisible", showEmpty);
+  setText(
+    "trend-empty-text",
+    period
+      ? "Daily submissions will appear here as students submit evaluations."
+      : "Submission trends are shown for the active evaluation period.",
+  );
+  if (showEmpty || typeof Chart === "undefined") return;
+
+  const display = labels.map((d) => shortDateFmt.format(parseDate(`${d} 00:00:00`)));
+
+  if (trendChart) {
+    trendChart.data.labels = display;
+    trendChart.data.datasets[0].data = data;
+    trendChart.$fullDates = labels;
+    trendChart.update();
     return;
   }
 
-  isFetching = true;
+  const ctx = canvas.getContext("2d");
+  const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+  gradient.addColorStop(0, "rgba(96, 16, 255, 0.22)");
+  gradient.addColorStop(1, "rgba(96, 16, 255, 0)");
 
-  try {
-    /*const url =
-    `/Smart-Eval/api/admin/dashboard/dashboard.php` +
-      `?req=dashboard_bundle` +
-      `&department=${encodeURIComponent(department)}`;*/
-
-    /*const res = await fetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
+  trendChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: display,
+      datasets: [{
+        label: "Submitted evaluations",
+        data,
+        borderColor: "#6010FF",
+        backgroundColor: gradient,
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.35,
+        pointRadius: data.length > 31 ? 0 : 3,
+        pointHoverRadius: 5,
+        pointBackgroundColor: "#ffffff",
+        pointBorderColor: "#6010FF",
+        pointBorderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: "#0f172a",
+          padding: 10,
+          cornerRadius: 8,
+          displayColors: false,
+          callbacks: {
+            title: (items) => {
+              const full = trendChart?.$fullDates?.[items[0].dataIndex];
+              return full ? dateFmt.format(parseDate(`${full} 00:00:00`)) : items[0].label;
+            },
+            label: (item) => `${item.parsed.y} evaluation${item.parsed.y === 1 ? "" : "s"} submitted`,
+          },
+        },
       },
-    });*/
-
-    const response = await get(
-      `admin/dashboard/dashboard.php?department=${encodeURIComponent(department)}`,
-    );
-
-    if (response.status !== "success") {
-      throw new Error(`HTTP ${response.status}`);
-    }
-
-    /*if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`);
-    }*/
-
-    //const response = await res.json();
-
-    console.log("API Response:", response);
-
-    /*
-     * API RESPONSE SHOULD LOOK LIKE:
-     *
-     * {
-     *   status: "success",
-     *   data: {
-     *      cards: {...},
-     *      teacher_ranking: [],
-     *      participation_chart: null,
-     *      score_chart: null,
-     *      program_chart: null,
-     *      categorical_breakdown: []
-     *   }
-     * }
-     */
-
-    if (!response || typeof response !== "object") {
-      throw new Error("Invalid API response.");
-    }
-
-    if (response.status !== "success") {
-      console.warn("API did not return success.");
-
-      renderCards(null);
-      renderParticipationCards(null);
-      renderTeacherRanking([]);
-      renderCharts(null);
-      renderCategoricalBreakdown([]);
-
-      lastData = null;
-
-      return;
-    }
-
-    const data = safeObject(response.data);
-
-    /*
-     * No dashboard data
-     */
-    if (Object.keys(data).length === 0) {
-      console.warn("Dashboard data is empty.");
-
-      renderCards(null);
-      renderParticipationCards(null);
-      renderTeacherRanking([]);
-      renderCharts(null);
-      renderCategoricalBreakdown([]);
-
-      lastData = null;
-
-      return;
-    }
-
-    console.log("Dashboard Data:", data);
-
-    /* -------------------------------------------------------
-       CARDS
-    ------------------------------------------------------- */
-
-    if (hasChanged(data, "cards")) {
-      renderCards(data.cards);
-    }
-
-    /* -------------------------------------------------------
-       PARTICIPATION
-    ------------------------------------------------------- */
-
-    if (hasChanged(data, "participation_chart")) {
-      const participation = safeObject(data.participation_chart);
-      const cards = safeObject(data.cards);
-
-      renderParticipationCards({
-        ...participation,
-
-        total_submitted: safeNumber(cards.total_submitted, 0),
-
-        not_evaluated: safeNumber(cards.not_evaluated, 0),
-      });
-    }
-
-    /* -------------------------------------------------------
-       TEACHER RANKING
-    ------------------------------------------------------- */
-
-    if (hasChanged(data, "teacher_ranking")) {
-      renderTeacherRanking(data.teacher_ranking);
-    }
-
-    /* -------------------------------------------------------
-       CHARTS
-    ------------------------------------------------------- */
-
-    if (
-      hasChanged(data, "score_chart") ||
-      hasChanged(data, "participation_chart") ||
-      hasChanged(data, "program_chart")
-    ) {
-      setTimeout(() => {
-        renderCharts(data);
-      }, 50);
-    }
-
-    /* -------------------------------------------------------
-       CATEGORICAL BREAKDOWN
-    ------------------------------------------------------- */
-
-    if (hasChanged(data, "categorical_breakdown")) {
-      renderCategoricalBreakdown(data.categorical_breakdown);
-    }
-
-    lastData = data;
-  } catch (error) {
-    console.error("Dashboard bundle fetch failed:", error);
-
-    showConnectionError();
-  } finally {
-    isFetching = false;
-  }
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: "#94a3b8", font: { size: 11 }, maxRotation: 0, autoSkipPadding: 12 },
+          title: { display: true, text: "Date", color: "#64748b", font: { size: 11, weight: "600" } },
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: "#f1f5f9" },
+          border: { display: false },
+          ticks: { color: "#94a3b8", font: { size: 11 }, precision: 0 },
+          title: { display: true, text: "Submissions", color: "#64748b", font: { size: 11, weight: "600" } },
+        },
+      },
+    },
+  });
+  trendChart.$fullDates = labels;
 }
 
-/* =========================================================
-   CARDS
-========================================================= */
+// ================================================================
+// TEACHER PERFORMANCE SNAPSHOT
+// ================================================================
 
-function renderCards(cards) {
-  console.log(cards);
-  const set = (id, value) => {
-    const el = document.getElementById(id);
+const RATING_STYLES = {
+  Outstanding: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  "Very Satisfactory": "border-blue-200 bg-blue-50 text-blue-700",
+  Satisfactory: "border-violet-200 bg-violet-50 text-violet-700",
+  Fair: "border-amber-200 bg-amber-50 text-amber-700",
+  Poor: "border-rose-200 bg-rose-50 text-rose-700",
+};
 
-    if (el) {
-      el.textContent = value;
-    }
-  };
+function renderPerformance(perf) {
+  const average = perf?.overall_average ?? null;
+  const ratingEl = $("perf-rating");
 
-  /*
-   * No cards
-   */
-  if (!cards || typeof cards !== "object") {
-    set("totalStudents", "0");
-    set("totalTeachers", "0");
-    set("academic_year", "No active period");
-    set("semester", "--");
-    set("start-date", "--");
-    set("end-date", "--");
-    set("percentage", "0%");
-
-    const fill = document.getElementById("progress-fill");
-
-    if (fill) {
-      fill.style.width = "0%";
-    }
-
-    return;
-  }
-
-  const studentsTotal = safeNumber(cards.students_total, 0);
-
-  const teachersTotal = safeNumber(cards.teacher_total, 0);
-
-  const completedStudent = safeNumber(cards.completed_student, 0);
-
-  set("totalStudents", studentsTotal);
-  set("totalTeachers", teachersTotal);
-
-  /* -------------------------------------------------------
-     Evaluation Period
-  ------------------------------------------------------- */
-
-  const period = safeObject(cards.evaluation_period);
-
-  console.log(cards.evaluation_period);
-
-  if (Object.keys(period).length > 0) {
-    set("academic_year", safeString(period.academic_year, "--"));
-
-    set("semester", safeString(period.semester, "--"));
-
-    set("start-date", convertDateStr(period.start_date));
-
-    set("end-date", convertDateStr(period.end_date));
+  if (average === null) {
+    $("perf-average").dataset.countValue = "0";
+    setText("perf-average", "—");
+    ratingEl.className = "rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-500";
+    ratingEl.textContent = "No Rating";
   } else {
-    set("academic_year", "No active period");
-    set("semester", "--");
-    set("start-date", "--");
-    set("end-date", "--");
+    countUp("perf-average", average, { decimals: 2 });
+    const label = getAdjectiveRating(average);
+    ratingEl.className = `rounded-full border px-2.5 py-1 text-xs font-semibold ${RATING_STYLES[label] ?? ""}`;
+    ratingEl.textContent = label;
   }
 
-  /* -------------------------------------------------------
-     Completion Percentage
-  ------------------------------------------------------- */
-
-  const pct =
-    studentsTotal > 0
-      ? Math.round((completedStudent * 100) / studentsTotal)
-      : 0;
-
-  set("percentage", `${pct}%`);
-
-  const fill = document.getElementById("progress-fill");
-
-  if (fill) {
-    setTimeout(() => {
-      fill.style.width = `${pct}%`;
-    }, 200);
+  const list = $("perf-top");
+  const top = perf?.top_teachers ?? [];
+  if (!top.length) {
+    list.innerHTML = `
+      <li class="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center">
+        <p class="text-sm font-semibold text-slate-600">No ratings yet</p>
+        <p class="mt-1 text-xs text-slate-400">Top teachers appear once students complete their evaluations.</p>
+      </li>`;
+    return;
   }
+
+  const medals = ["bg-amber-100 text-amber-700", "bg-slate-200 text-slate-700", "bg-orange-100 text-orange-700"];
+  list.innerHTML = top
+    .map(
+      (t, i) => `
+      <li class="flex items-center gap-3 rounded-xl border border-slate-100 p-3 transition hover:border-slate-200 hover:bg-slate-50/60">
+        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${medals[i] ?? medals[2]}" title="Rank ${i + 1}">${i + 1}</span>
+        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#6010FF]/10 text-[11px] font-bold text-[#6010FF]">${escapeHTML(nameToInitials(t.full_name))}</span>
+        <span class="min-w-0 flex-1">
+          <span class="block truncate text-sm font-semibold text-slate-900">${escapeHTML(t.full_name)}</span>
+          <span class="block text-xs text-slate-500">${Number(t.total_evaluated) || 0} student${Number(t.total_evaluated) === 1 ? "" : "s"} · ${escapeHTML(getAdjectiveRating(Number(t.mean_score)))}</span>
+        </span>
+        <span class="text-sm font-bold tabular-nums text-slate-900">${Number(t.mean_score).toFixed(2)}</span>
+      </li>`,
+    )
+    .join("");
 }
 
-/* =========================================================
-   PARTICIPATION
-========================================================= */
+// ================================================================
+// RECENT SYSTEM ACTIVITIES
+// ================================================================
 
-function renderParticipationCards(participation) {
-  const set = (id, value) => {
-    const el = document.getElementById(id);
+const ACTIVITY = {
+  submission: {
+    icon: "fa-clipboard-check",
+    chip: "bg-emerald-50 text-emerald-600",
+    text: (a) =>
+      `<strong class="font-semibold text-slate-900">${escapeHTML(a.title)}</strong> submitted ${a.total} teacher evaluation${a.total === 1 ? "" : "s"}`,
+    meta: (a) => a.detail,
+  },
+  student: {
+    icon: "fa-user-plus",
+    chip: "bg-blue-50 text-blue-600",
+    text: (a) => `New student registered: <strong class="font-semibold text-slate-900">${escapeHTML(a.title)}</strong>`,
+    meta: (a) => a.detail,
+  },
+  opened: {
+    icon: "fa-play",
+    chip: "bg-[#6010FF]/10 text-[#6010FF]",
+    text: (a) => `Evaluation period opened: <strong class="font-semibold text-slate-900">A.Y. ${escapeHTML(a.title)}</strong>`,
+    meta: (a) => a.detail,
+  },
+  closed: {
+    icon: "fa-flag-checkered",
+    chip: "bg-slate-100 text-slate-600",
+    text: (a) => `Evaluation period closed: <strong class="font-semibold text-slate-900">A.Y. ${escapeHTML(a.title)}</strong>`,
+    meta: (a) => a.detail,
+  },
+};
 
-    if (el) {
-      el.textContent = value;
-    }
-  };
-
-  const arrow = document.getElementById("evaluated-arrow");
-
-  /*
-   * No participation object
-   */
-  if (!participation || typeof participation !== "object") {
-    set("evaluated-total", "0");
-    set("not-evaluated-total", "0");
-    set("submitted-total", "0");
-
-    if (arrow) {
-      arrow.className =
-        "flex items-center gap-1 bg-gray-100 text-gray-400 text-xs font-medium px-3 py-1.5 rounded-full";
-
-      arrow.textContent = "N/A";
-    }
-
-    return;
-  }
-
-  const finished = safeNumber(participation.finished, 0);
-
-  const notEvaluated = safeNumber(participation.not_evaluated, 0);
-
-  const totalSubmitted = safeNumber(participation.total_submitted, 0);
-
-  set("evaluated-total", finished);
-
-  set("not-evaluated-total", notEvaluated);
-
-  set("submitted-total", totalSubmitted);
-
-  /*
-   * Change percentage
-   */
-
-  const finishedChange = participation.finished_change;
-
-  const percent =
-    finishedChange !== null &&
-    finishedChange !== undefined &&
-    finishedChange !== ""
-      ? `${finishedChange}%`
-      : "N/A";
-
-  if (!arrow) return;
-
-  const isUp = participation.is_up === true;
-
-  if (isUp) {
-    arrow.className =
-      "flex items-center gap-1 bg-green-100 text-green-700 text-xs font-medium px-3 py-1.5 rounded-full";
-
-    arrow.innerHTML = `
-      <svg
-        class="w-3.5 h-3.5"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"
-        />
-      </svg>
-
-      ${percent}
-    `;
-  } else {
-    arrow.className =
-      "flex items-center gap-1 bg-red-100 text-red-700 text-xs font-medium px-3 py-1.5 rounded-full";
-
-    arrow.innerHTML = `
-      <svg
-        class="w-3.5 h-3.5"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M12 2.25a.75.75 0 0 1 .75.75v16.19l6.22-6.22a.75.75 0 1 1 1.06 1.06l-7.5 7.5a.75.75 0 0 1-1.06 0l-7.5-7.5a.75.75 0 1 1 1.06-1.06l6.22 6.22V3a.75.75 0 0 1 .75-.75Z"
-          clip-rule="evenodd"
-        />
-      </svg>
-
-      ${percent}
-    `;
-  }
+function timeAgo(date) {
+  if (!date) return "";
+  const seconds = Math.round((Date.now() - date.getTime()) / 1000);
+  if (seconds < 0) return dateFmt.format(date);
+  if (seconds < 60) return "just now";
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86_400) return `${Math.floor(seconds / 3600)}h ago`;
+  if (seconds < 7 * 86_400) return `${Math.floor(seconds / 86_400)}d ago`;
+  return dateFmt.format(date);
 }
 
-/* =========================================================
-   TEACHER RANKING
-========================================================= */
-
-function renderTeacherRanking(data) {
-  const topInitials = document.getElementById("top_initials");
-  const topName = document.getElementById("highest-teacher-name");
-  const topScore = document.getElementById("avg-score");
-  const tbody = document.getElementById("tbody-ranking");
-
-  const ranking = safeArray(data);
-
-  // ============================================================
-  // FALLBACK
-  // ============================================================
-
-  const showFallback = () => {
-    if (topInitials) {
-      topInitials.textContent = "--";
-    }
-
-    if (topName) {
-      topName.textContent = "No ranking data available";
-    }
-
-    if (topScore) {
-      topScore.textContent = "--";
-    }
-
-    if (tbody) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="5" class="px-6 py-12">
-
-            <div class="flex flex-col items-center justify-center">
-
-              <div
-                class="flex h-12 w-12 items-center justify-center
-                       rounded-2xl bg-slate-100 text-slate-400"
-              >
-                <i class="fas fa-chart-column"></i>
-              </div>
-
-              <p
-                class="mt-3 text-sm font-semibold text-slate-700"
-              >
-                No ranking data available
-              </p>
-
-              <p
-                class="mt-1 text-xs text-slate-400"
-              >
-                Teacher evaluation results will appear here.
-              </p>
-
-            </div>
-
-          </td>
-        </tr>
-      `;
-    }
-  };
-
-  // ============================================================
-  // EMPTY DATA
-  // ============================================================
-
-  if (ranking.length === 0) {
-    showFallback();
-
+function renderActivities(activities = []) {
+  const list = $("activity-list");
+  if (!activities.length) {
+    list.innerHTML = `
+      <li class="px-6 py-10 text-center">
+        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-400"><i class="fa-solid fa-clock-rotate-left text-lg" aria-hidden="true"></i></div>
+        <p class="mt-3 text-sm font-semibold text-slate-700">No recent activity</p>
+        <p class="mt-1 text-xs text-slate-400">Submissions, registrations, and period changes will appear here.</p>
+      </li>`;
     return;
   }
 
-  // ============================================================
-  // TOP TEACHER
-  // ============================================================
-
-  const top = safeObject(ranking[0]);
-
-  const teacherName = safeString(top.teacher_name, "");
-
-  if (!teacherName) {
-    showFallback();
-
-    return;
-  }
-
-  if (topInitials) {
-    topInitials.textContent = nameToInitials(teacherName);
-  }
-
-  if (topName) {
-    topName.textContent = teacherName;
-  }
-
-  if (topScore) {
-    topScore.textContent = safeString(top.overall_mean_score, "--");
-  }
-
-  if (!tbody) return;
-
-  // ============================================================
-  // RENDER RANKING
-  // ============================================================
-
-  tbody.innerHTML = ranking
-    .map((item, i) => {
-      const d = safeObject(item);
-
-      const name = safeString(d.teacher_name, "Unknown Teacher");
-
-      const expected = safeNumber(d.total_expected_students, 0);
-
-      const evaluated = safeNumber(d.total_evaluated_students, 0);
-
-      const score = safeString(d.overall_mean_score, "--");
-
-      // --------------------------------------------------------
-      // COMPLETION
-      // --------------------------------------------------------
-
-      const completion =
-        expected > 0
-          ? Math.min(100, Math.round((evaluated / expected) * 100))
-          : 0;
-
-      // --------------------------------------------------------
-      // RANK STYLE
-      // --------------------------------------------------------
-
-      let rankMarkup = "";
-
-      if (i === 0) {
-        rankMarkup = `
-          <div
-            class="flex h-8 w-8 items-center justify-center
-                   rounded-xl bg-violet-600
-                   text-xs font-bold text-white
-                   shadow-sm shadow-violet-600/20"
-          >
-            1
-          </div>
-        `;
-      } else if (i === 1) {
-        rankMarkup = `
-          <div
-            class="flex h-8 w-8 items-center justify-center
-                   rounded-xl bg-slate-200
-                   text-xs font-bold text-slate-600"
-          >
-            2
-          </div>
-        `;
-      } else if (i === 2) {
-        rankMarkup = `
-          <div
-            class="flex h-8 w-8 items-center justify-center
-                   rounded-xl bg-slate-100
-                   text-xs font-bold text-slate-500"
-          >
-            3
-          </div>
-        `;
-      } else {
-        rankMarkup = `
-          <div
-            class="flex h-8 w-8 items-center justify-center
-                   rounded-xl
-                   text-xs font-semibold text-slate-400"
-          >
-            ${i + 1}
-          </div>
-        `;
-      }
-
-      // --------------------------------------------------------
-      // TOP TEACHER BADGE
-      // --------------------------------------------------------
-
-      const topBadge =
-        i === 0
-          ? `
-            <span
-              class="inline-flex items-center gap-1
-                     rounded-full bg-violet-50
-                     px-2 py-0.5 text-[9px]
-                     font-bold uppercase tracking-wide
-                     text-violet-600"
-            >
-              <i class="fas fa-crown text-[8px]"></i>
-              Top
-            </span>
-          `
-          : "";
-
-      // --------------------------------------------------------
-      // SCORE
-      // --------------------------------------------------------
-
-      let scoreClass = "bg-emerald-50 text-emerald-700 ring-emerald-100";
-
-      const numericScore = parseFloat(score);
-
-      if (!isNaN(numericScore)) {
-        if (numericScore < 3) {
-          scoreClass = "bg-rose-50 text-rose-700 ring-rose-100";
-        } else if (numericScore < 4) {
-          scoreClass = "bg-amber-50 text-amber-700 ring-amber-100";
-        }
-      }
-
-      // ========================================================
-      // ROW
-      // ========================================================
-
+  list.innerHTML = activities
+    .map((a) => {
+      const kind = ACTIVITY[a.type];
+      if (!kind) return "";
+      const when = parseDate(a.occurred_at);
       return `
-        <tr
-          class="
-            group border-b border-slate-100
-            last:border-0
-            transition-colors duration-150
-            hover:bg-violet-50/30
-            ${i === 0 ? "bg-violet-50/20" : "bg-white"}
-          "
-        >
-
-          <!-- ==================================================
-               RANK
-          =================================================== -->
-          <td class="w-16 px-4 py-4">
-
-            ${rankMarkup}
-
-          </td>
-
-
-          <!-- ==================================================
-               TEACHER
-          =================================================== -->
-          <td class="px-4 py-4">
-
-            <div class="flex min-w-0 items-center gap-3">
-
-              <!-- Avatar -->
-              <div
-                class="
-                  flex h-10 w-10 shrink-0
-                  items-center justify-center
-                  rounded-xl
-                  bg-gradient-to-br
-                  from-violet-100 to-indigo-100
-                  text-xs font-bold
-                  text-violet-700
-                  ring-1 ring-violet-100
-                  transition-transform duration-150
-                  group-hover:scale-105
-                "
-              >
-                ${escapeHTML(nameToInitials(name))}
-              </div>
-
-
-              <!-- Name -->
-              <div class="min-w-0">
-
-                <div
-                  class="flex flex-wrap items-center gap-2"
-                >
-
-                  <span
-                    class="
-                      truncate
-                      text-sm font-semibold
-                      text-slate-800
-                    "
-                  >
-                    ${escapeHTML(name)}
-                  </span>
-
-                  ${topBadge}
-
-                </div>
-
-
-                <p
-                  class="mt-0.5 text-[11px] text-slate-400"
-                >
-                  Faculty evaluation
-                </p>
-
-              </div>
-
-            </div>
-
-          </td>
-
-
-          <!-- ==================================================
-               EVALUATED
-          =================================================== -->
-          <td class="px-4 py-4">
-
-            <div class="min-w-[100px]">
-
-              <div
-                class="
-                  mb-1.5 flex items-center
-                  justify-between gap-2
-                "
-              >
-
-                <span
-                  class="
-                    text-sm font-semibold
-                    text-slate-700
-                  "
-                >
-                  ${evaluated}
-                </span>
-
-                <span
-                  class="
-                    text-[10px] font-semibold
-                    text-slate-400
-                  "
-                >
-                  ${completion}%
-                </span>
-
-              </div>
-
-
-              <!-- Progress -->
-              <div
-                class="
-                  h-1.5 w-full overflow-hidden
-                  rounded-full bg-slate-100
-                "
-              >
-
-                <div
-                  class="
-                    h-full rounded-full
-                    bg-violet-500
-                    transition-all duration-500
-                  "
-                  style="width: ${completion}%"
-                ></div>
-
-              </div>
-
-            </div>
-
-          </td>
-
-
-          <!-- ==================================================
-               SCORE
-          =================================================== -->
-          <td class="px-4 py-4 text-right">
-
-            <div class="flex justify-center">
-
-              <span
-                class="
-                  inline-flex min-w-[58px]
-                  items-center justify-center
-                  rounded-xl px-2.5 py-1.5
-                  text-xs font-bold
-                  ring-1 ring-inset
-                  ${scoreClass}
-                "
-              >
-                ${score}
-              </span>
-
-            </div>
-
-          </td>
-
-        </tr>
-      `;
+        <li class="flex items-start gap-3 px-5 py-3.5 sm:px-6">
+          <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${kind.chip}"><i class="fas ${kind.icon} text-xs" aria-hidden="true"></i></span>
+          <span class="min-w-0 flex-1">
+            <span class="block text-[13px] leading-snug text-slate-600">${kind.text(a)}</span>
+            <span class="mt-0.5 block text-xs text-slate-400">${escapeHTML(kind.meta(a) || "")}${kind.meta(a) ? " · " : ""}<time datetime="${escapeHTML(a.occurred_at)}" title="${when ? escapeHTML(when.toLocaleString()) : ""}">${timeAgo(when)}</time></span>
+          </span>
+        </li>`;
     })
     .join("");
 }
 
-/* =========================================================
-   CHARTS
-========================================================= */
+// ================================================================
+// LOAD + LIVE UPDATES
+// ================================================================
 
-function renderCharts(data) {
-  const scoreCanvas = document.getElementById("scoreChart");
+function setLive(state) {
+  const styles = {
+    live: ["bg-emerald-400", "bg-emerald-500", "Live", true],
+    paused: ["bg-slate-300", "bg-slate-400", "Paused", false],
+    offline: ["bg-rose-400", "bg-rose-500", "Reconnecting", true],
+  };
+  const [ping, dot, label, pulse] = styles[state];
+  $("live-ping").className = `absolute inline-flex h-full w-full rounded-full opacity-75 ${ping} ${pulse ? "motion-safe:animate-ping" : "hidden"}`;
+  $("live-dot").className = `relative inline-flex h-2 w-2 rounded-full ${dot}`;
+  setText("live-label", label);
+}
 
-  const participationCanvas = document.getElementById("participationChart");
+function renderLastUpdated() {
+  if (!lastUpdated) return;
+  const seconds = Math.max(0, Math.round((Date.now() - lastUpdated) / 1000));
+  setText("last-updated", seconds < 5 ? "just now" : seconds < 60 ? `${seconds}s ago` : `${Math.floor(seconds / 60)}m ago`);
+}
 
-  const programCanvas = document.getElementById("programChart");
+async function loadDashboard() {
+  if (loading) return;
+  loading = true;
 
-  /*
-   * Destroy existing charts first
-   */
-  destroyChart("score");
-  destroyChart("participation");
-  destroyChart("program");
-
-  /*
-   * No data
-   */
-  if (!data || typeof data !== "object") {
-    return;
-  }
-
-  /* -------------------------------------------------------
-     SCORE CHART
-  ------------------------------------------------------- */
-
-  const scoreChart = safeObject(data.score_chart);
-
-  const scoreLabels = safeArray(scoreChart.labels);
-
-  const scoreData = safeArray(scoreChart.data).map((value) =>
-    safeNumber(value, 0),
-  );
-
-  if (scoreCanvas && scoreLabels.length > 0 && scoreData.length > 0) {
-    const ctx = scoreCanvas.getContext("2d");
-
-    if (ctx) {
-      chartInstances.score = createScoreDoughnutChart(
-        ctx,
-        scoreLabels,
-        scoreData,
-      );
+  try {
+    const response = await get(`admin/dashboard/dashboard.php?department=${encodeURIComponent(department)}`);
+    if (response?.status !== "success" || !response.data) {
+      throw new Error(response?.message || "Invalid dashboard response.");
     }
-  }
 
-  /* -------------------------------------------------------
-     PARTICIPATION CHART
-  ------------------------------------------------------- */
+    const d = response.data;
+    renderPeriod(d.period);
+    renderCards(d.cards);
+    renderCurrent(d.period, d.participation);
+    renderTrend(d.trend, d.period);
+    renderPerformance(d.performance);
+    renderActivities(d.activities);
 
-  const participationChart = safeObject(data.participation_chart);
-
-  const participationLabels = safeArray(participationChart.labels);
-
-  const participationData = safeArray(participationChart.data).map((value) =>
-    safeNumber(value, 0),
-  );
-
-  if (
-    participationCanvas &&
-    participationLabels.length > 0 &&
-    participationData.length > 0
-  ) {
-    const ctx = participationCanvas.getContext("2d");
-
-    if (ctx) {
-      chartInstances.participation = createPieChart(
-        ctx,
-        participationLabels,
-        participationData,
-      );
-    }
-  }
-
-  /* -------------------------------------------------------
-     PROGRAM CHART
-  ------------------------------------------------------- */
-
-  const programChart = safeObject(data.program_chart);
-
-  const programLabels = safeArray(programChart.labels);
-
-  const programFinished = safeArray(programChart.finished).map((value) =>
-    safeNumber(value, 0),
-  );
-
-  const programNotFinished = safeArray(programChart.not_finished).map((value) =>
-    safeNumber(value, 0),
-  );
-
-  const programTotals = safeArray(programChart.totals).map((value) =>
-    safeNumber(value, 0),
-  );
-
-  if (programCanvas && programLabels.length > 0) {
-    const ctx = programCanvas.getContext("2d");
-
-    if (ctx) {
-      chartInstances.program = createProgramBarChart(
-        ctx,
-        programLabels,
-        programFinished,
-        programNotFinished,
-        programTotals,
-      );
-    }
+    $("error-state").classList.add("hidden");
+    $("error-state").classList.remove("flex");
+    setLive(document.visibilityState === "visible" ? "live" : "paused");
+    lastUpdated = Date.now();
+    renderLastUpdated();
+  } catch (error) {
+    console.error("Dashboard load failed:", error);
+    $("error-state").classList.remove("hidden");
+    $("error-state").classList.add("flex");
+    setLive("offline");
+  } finally {
+    loading = false;
   }
 }
 
-/* =========================================================
-   CATEGORICAL BREAKDOWN
-========================================================= */
-
-function renderCategoricalBreakdown(data) {
-  const container = document.getElementById("categorical-breakdown");
-
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  const categories = safeArray(data);
-
-  if (categories.length === 0) {
-    container.innerHTML = `
-      <div
-        class="px-4 py-6 text-center
-        text-gray-400 text-sm"
-      >
-        No categorical breakdown data available.
-      </div>
-    `;
-
-    return;
-  }
-
-  const COLORS = [
-    "#6366f1",
-    "#0ea5e9",
-    "#10b981",
-    "#f59e0b",
-    "#ec4899",
-    "#8b5cf6",
-  ];
-
-  const MAX_SCORE = 5;
-
-  categories.forEach((item, i) => {
-    const cat = safeObject(item);
-
-    const category = safeString(cat.category, "Unknown Category");
-
-    const avg = safeNumber(cat.cat_avg, 0);
-
-    const barPct = Math.min(
-      100,
-      Math.max(0, Math.round((avg / MAX_SCORE) * 100)),
-    );
-
-    const color = COLORS[i % COLORS.length];
-
-    const row = document.createElement("div");
-
-    row.innerHTML = `
-      <div
-        class="flex items-center
-        justify-between mb-1.5"
-      >
-        <span
-          class="text-xs font-medium
-          text-gray-700"
-        >
-          ${escapeHTML(category)}
-        </span>
-
-        <span
-          class="text-[11px] font-semibold
-          tabular-nums"
-          style="color:${color}"
-        >
-          ${avg.toFixed(2)}
-
-          <span
-            class="text-gray-300
-            font-normal"
-          >
-            / ${MAX_SCORE}.00
-          </span>
-        </span>
-      </div>
-
-      <div
-        class="w-full h-2 bg-gray-100
-        rounded-full overflow-hidden mb-4"
-      >
-        <div
-          class="h-full rounded-full"
-          style="
-            width:0%;
-            background-color:${color};
-            transition:
-              width 700ms
-              cubic-bezier(
-                0.34,
-                1.56,
-                0.64,
-                1
-              ) ${i * 80}ms;
-          "
-          data-width="${barPct}"
-        >
-        </div>
-      </div>
-    `;
-
-    container.appendChild(row);
-
-    const bar = row.querySelector("[data-width]");
-
-    if (bar) {
-      setTimeout(
-        () => {
-          bar.style.width = `${barPct}%`;
-        },
-        i * 80 + 100,
-      );
-    }
-  });
+function startLive() {
+  clearInterval(liveTimer);
+  liveTimer = setInterval(() => {
+    if (document.visibilityState === "visible") loadDashboard();
+  }, LIVE_INTERVAL_MS);
 }
 
-/* =========================================================
-   INITIALIZE
-========================================================= */
-
-document.addEventListener("DOMContentLoaded", async () => {
-  if (!department) {
-    console.error("Department not found in URL.");
-
-    renderCards(null);
-    renderParticipationCards(null);
-    renderTeacherRanking([]);
-    renderCharts(null);
-    renderCategoricalBreakdown([]);
-
-    return;
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    loadDashboard();
+    startLive();
+  } else {
+    clearInterval(liveTimer);
+    setLive("paused");
   }
-
-  await fetchDashboardBundle();
-
-  startPolling();
-  window.logout = logout;
 });
+
+$("retry-dashboard").addEventListener("click", loadDashboard);
+setInterval(renderLastUpdated, 1000);
+
+loadDashboard();
+startLive();

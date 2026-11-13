@@ -34,3 +34,10 @@
 !/tests/test-archive/test-management-security.php
 !/tests/test-archive/ARCHIVE_MANAGEMENT.md
 /coverage/
+
+# Skills
+.vscode/
+.agents/
+.claude/
+.impeccable/
+/PRODUCT.md/
