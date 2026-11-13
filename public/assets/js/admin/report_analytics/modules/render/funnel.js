@@ -1,7 +1,4 @@
-function setText(id, value) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = value;
-}
+import { countUp } from "../../../shared/count_up.js";
 
 function setWidth(id, percent) {
   const el = document.getElementById(id);
@@ -30,14 +27,12 @@ export function renderParticipationFunnel(data) {
       `;
     }
 
-    setText("totalEnrolled", "0");
-    setText("totalStudents", "0");
-    setText("totalNeverStarted", "0");
-    setText("totalAbandoned", "0");
-    setText("totalCompleted", "0");
-    setText("completionRate", "0%");
-    setText("abandonedRate", "0%");
-    setText("neverStartedRate", "0%");
+    ["totalEnrolled", "totalStudents", "totalNeverStarted", "totalAbandoned", "totalCompleted"].forEach(
+      (id) => countUp(id, 0),
+    );
+    ["completionRate", "abandonedRate", "neverStartedRate"].forEach((id) =>
+      countUp(id, 0, { decimals: 1, suffix: "%" }),
+    );
     setWidth("funnel-fill-TotalEnrolled", 0);
     setWidth("funnel-fill-Unresponsive", 0);
     setWidth("funnel-fill-InProgress", 0);
@@ -50,11 +45,11 @@ export function renderParticipationFunnel(data) {
   const incomplete = Number(data.total_incomplete) || 0;
   const completed = Number(data.total_completed) || 0;
 
-  setText("totalEnrolled", total);
-  setText("totalStudents", total);
-  setText("totalNeverStarted", unresponsive);
-  setText("totalAbandoned", incomplete);
-  setText("totalCompleted", completed);
+  countUp("totalEnrolled", total);
+  countUp("totalStudents", total);
+  countUp("totalNeverStarted", unresponsive);
+  countUp("totalAbandoned", incomplete);
+  countUp("totalCompleted", completed);
 
   const unresponsiveRate = total > 0 ? (unresponsive / total) * 100 : 0;
   const incompleteRate = total > 0 ? (incomplete / total) * 100 : 0;
@@ -65,7 +60,9 @@ export function renderParticipationFunnel(data) {
   setWidth("funnel-fill-InProgress", incompleteRate);
   setWidth("funnel-fill-Completed", completionRate);
 
-  setText("completionRate", `${completionRate.toFixed(1)}%`);
-  setText("abandonedRate", `${incompleteRate.toFixed(1)}%`);
-  setText("neverStartedRate", `${unresponsive.toFixed(1)}%`);
+  const rate = { decimals: 1, suffix: "%" };
+  countUp("completionRate", completionRate, rate);
+  countUp("abandonedRate", incompleteRate, rate);
+  // Was `unresponsive.toFixed(1)`: showed the student count with a % sign.
+  countUp("neverStartedRate", unresponsiveRate, rate);
 }

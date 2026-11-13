@@ -10,6 +10,7 @@ import {
   formatYearLevel,
 } from "../helpers/formatters.js";
 import { growthRateUI, meanScoreUi } from "../helpers/score_ui.js";
+import { countUp } from "../../../shared/count_up.js";
 
 function renderTrendChart(data) {
   const container = document.getElementById("trendChart");
@@ -156,7 +157,7 @@ export function renderCharts(data) {
   const totalTarget = document.getElementById("rating-distribution-total");
   const chartCanvas = document.getElementById("ratingDistributionChart");
 
-  if (totalTarget) totalTarget.textContent = total;
+  countUp(totalTarget, total);
 
   if (total === 0) {
     if (target) {

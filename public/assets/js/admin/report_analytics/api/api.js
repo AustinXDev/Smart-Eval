@@ -6,8 +6,10 @@ import { renderCharts } from "../modules/render/charts.js";
 import { renderQuestionBreakDown } from "../modules/render/question_breakdown.js";
 import { renderRanking } from "../modules/render/table.js";
 import { renderHistoricalBanner } from "../modules/render/historical_banner.js";
+import { renderAnalyticsOverview } from "../modules/render/overview.js";
 
 function renderEmptyState() {
+  renderAnalyticsOverview(null);
   renderHeaderInfo(null);
   renderParticipationFunnel(null);
   renderCharts(null);
@@ -51,6 +53,10 @@ export async function fetchAnalytics(deptParam, pidParam, renderTables = true) {
 
     if (data.period && hasChanged(data, "period")) {
       renderHeaderInfo(data, data.period);
+    }
+
+    if (hasChanged(data, "overview")) {
+      renderAnalyticsOverview(data.overview);
     }
 
     if (data.funnel && hasChanged(data, "funnel")) {

@@ -2,7 +2,8 @@
 // KPI CARDS, PERIOD CONTEXT, AND PARTICIPATION DONUT
 // ================================================================
 
-const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+import { countUp } from "../shared/count_up.js";
+
 const numberFormat = new Intl.NumberFormat();
 
 function pct(value, total) {
@@ -18,29 +19,8 @@ function setText(id, value) {
   if (el) el.textContent = value;
 }
 
-// Count from the previously shown value to the new one.
-function animateNumber(id, target) {
-  const el = document.getElementById(id);
-  if (!el) return;
-
-  const from = Number(el.dataset.value) || 0;
-  el.dataset.value = String(target);
-
-  if (reduceMotion || from === target) {
-    el.textContent = numberFormat.format(target);
-    return;
-  }
-
-  const start = performance.now();
-  const duration = 700;
-  const step = (now) => {
-    const t = Math.min(1, (now - start) / duration);
-    const eased = 1 - Math.pow(1 - t, 3);
-    el.textContent = numberFormat.format(Math.round(from + (target - from) * eased));
-    if (t < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
+// Count from the previously shown value to the new one (shared helper).
+const animateNumber = (id, target) => countUp(id, target);
 
 export function renderPeriod(period) {
   const state = document.getElementById("period-state");
