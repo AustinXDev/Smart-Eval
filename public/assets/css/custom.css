@@ -893,3 +893,35 @@ body {
   padding: 0 4px;
   color: #94a3b8;
 }
+
+/* ============================================================
+   FLOATING ACTION BUTTONS (shared/floating_actions.js)
+   Hidden while the page header is on screen; slide in after it
+   scrolls out of view.
+   ============================================================ */
+.fab-group .fab-button {
+  opacity: 0;
+  transform: translateY(12px) scale(0.96);
+  pointer-events: none;
+  transition: opacity 180ms ease-out, transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+.fab-group.fab-visible .fab-button {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* Secondary buttons follow the primary slightly later. */
+.fab-group.fab-visible .fab-button:not(:last-child) {
+  transition-delay: 40ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fab-group .fab-button,
+  .fab-group.fab-visible .fab-button {
+    transition: opacity 1ms linear;
+    transform: none;
+  }
+}

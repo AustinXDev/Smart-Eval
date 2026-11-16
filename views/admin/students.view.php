@@ -298,6 +298,14 @@ window.API_URL = <?= json_encode($_ENV['APP_API'] ?? '', JSON_HEX_TAG | JSON_HEX
 <script src="<?= BASE_URL ?>assets/js/admin/students/table.js" type="module"></script>
 <script src="<?= BASE_URL ?>assets/js/admin/students/index.js" type="module"></script>
 <script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>
+<!-- Floating Add button: appears after the page header scrolls out of view -->
+<script type="module">
+  import { initFloatingActions } from "<?= BASE_URL ?>assets/js/admin/shared/floating_actions.js";
+  initFloatingActions([
+      { target: ".add-btn", label: "Add Student", icon: "fa-plus" },
+      { target: ".csv-btn", label: "Import CSV", icon: "fa-file-csv" },
+    ]);
+</script>
 
 <?php $autoLogoutRole = 'admin';
 require __DIR__ . '/../partials/auto_logout.php'; ?>

@@ -354,5 +354,13 @@ $skeleton = '<span class="inline-block h-8 w-16 animate-pulse rounded-md bg-slat
   </script>
   <script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>
   <script type="module" src="<?= BASE_URL ?>assets/js/admin/evaluation_monitoring/index.js"></script>
+  <?php if ($canNotify): ?>
+  <!-- Floating Notify All button: appears after the page header scrolls out of view.
+       It mirrors #notify-all (disabled state, "Queuing…", cooldown and count labels). -->
+  <script type="module">
+    import { initFloatingActions } from "<?= BASE_URL ?>assets/js/admin/shared/floating_actions.js";
+    initFloatingActions([{ target: "#notify-all", label: "Notify All", icon: "fa-paper-plane" }]);
+  </script>
+  <?php endif; ?>
 </body>
 </html>

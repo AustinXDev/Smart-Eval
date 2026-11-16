@@ -201,6 +201,11 @@ $control = 'h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm
 
   <script src="<?= BASE_URL ?>assets/js/admin/manage_questionnaires/index.js" type="module"></script>
   <script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>
+<!-- Floating Add button: appears after the page header scrolls out of view -->
+<script type="module">
+  import { initFloatingActions } from "<?= BASE_URL ?>assets/js/admin/shared/floating_actions.js";
+  initFloatingActions([{ target: ".addSet", label: "Add New Set", icon: "fa-plus" }]);
+</script>
 <?php $autoLogoutRole = 'admin'; require __DIR__ . '/../partials/auto_logout.php'; ?>
 </body>
 </html>

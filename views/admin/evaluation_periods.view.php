@@ -251,6 +251,11 @@ $lineSkeleton = static fn (string $w): string => '<span class="inline-block h-3 
 
 <script src="<?= BASE_URL ?>assets/js/admin/evaluation_periods/index.js" type="module"></script>
 <script src="<?= BASE_URL ?>assets/js/common/modal.js"></script>
+<!-- Floating Add button: appears after the page header scrolls out of view -->
+<script type="module">
+  import { initFloatingActions } from "<?= BASE_URL ?>assets/js/admin/shared/floating_actions.js";
+  initFloatingActions([{ target: ".createPeriodBtn", label: "Create New Period", icon: "fa-calendar-plus" }]);
+</script>
 
 <?php $autoLogoutRole = 'admin'; require __DIR__ . '/../partials/auto_logout.php'; ?>
 </body>
