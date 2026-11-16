@@ -107,18 +107,19 @@ $pageTitle = "Reports & Analytics";
                   </div>
             
                   <div class="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2">
+                    <!-- Period state: same strip as Evaluation Monitoring (filled by modules/render/header.js) -->
                     <span class="inline-flex items-center gap-2 text-xs font-medium text-slate-500">
                       <i class="far fa-calendar text-[#6010FF]" aria-hidden="true"></i>
-                      Current View
+                      <span id="period-label">Active Period</span>
                     </span>
                     <span class="hidden h-4 w-px bg-slate-200 sm:block" aria-hidden="true"></span>
-                    <span id="evaluationPeriod" class="text-xs font-semibold text-slate-800">Evaluation Period</span>
+                    <span id="evaluationPeriod" class="text-xs font-semibold text-slate-800"><span class="inline-block h-3 w-20 animate-pulse rounded bg-slate-100 align-middle"></span></span>
                     <span class="text-xs text-slate-300" aria-hidden="true">/</span>
-                    <span id="semester" class="text-xs font-semibold text-slate-800">Semester</span>
-                    <div id="status" class="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                      <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 motion-safe:animate-pulse"></span>
-                      Live
-                    </div>
+                    <span id="semester" class="text-xs font-semibold text-slate-800"><span class="inline-block h-3 w-16 animate-pulse rounded bg-slate-100 align-middle"></span></span>
+                    <span id="status" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-500">
+                      <span class="h-1.5 w-1.5 rounded-full bg-slate-300"></span>
+                      Loading
+                    </span>
                   </div>
                 </div>
             

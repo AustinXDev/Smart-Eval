@@ -2,6 +2,7 @@ import { escapeHTML } from "../../services/escape.js";
 import { createDataTable } from "../shared/datatable_config.js";
 import { formatYearLevel } from "../report_analytics/modules/helpers/formatters.js";
 import { getTeachersByDepartment, getTeacherHandles } from "./api/api.js";
+import { countUp } from "../shared/count_up.js";
 
 let department;
 let table;
@@ -458,9 +459,9 @@ function renderCounts(counts) {
   const active = Number(counts.active) || 0;
   const inactive = Number(counts.inactive) || 0;
 
-  setText("total-teachers", total.toLocaleString());
-  setText("total-active", active.toLocaleString());
-  setText("total-inactive", inactive.toLocaleString());
+  countUp("total-teachers", total);
+  countUp("total-active", active);
+  countUp("total-inactive", inactive);
   setText("total-active-share", percent(active, total));
   setText("total-inactive-share", percent(inactive, total));
 }

@@ -1,5 +1,6 @@
 import { escapeHTML } from "../../../services/escape.js";
 import { fetchAllSets, fetchAllQuestions } from "../api/api.js";
+import { countUp } from "../../shared/count_up.js";
 import { setAllQuestions, getAllQuestions } from "./questionState.js";
 import {
   showTableLoader,
@@ -66,10 +67,10 @@ function renderSetKpis(stats, sets = []) {
     ? Number(stats.total_questions) || 0
     : sets.reduce((sum, s) => sum + (Number(s.total_questions) || 0), 0);
 
-  setText("kpi-sets", total.toLocaleString());
-  setText("kpi-in-use", inUse.toLocaleString());
+  countUp("kpi-sets", total);
+  countUp("kpi-in-use", inUse);
   setText("kpi-in-use-share", total > 0 ? `${((inUse / total) * 100).toFixed(1)}%` : "");
-  setText("kpi-questions", questions.toLocaleString());
+  countUp("kpi-questions", questions);
   setText("kpi-questions-share", total > 0 ? `${(questions / total).toFixed(1)} per set` : "");
 }
 

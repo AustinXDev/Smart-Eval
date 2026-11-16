@@ -3,6 +3,7 @@ import { createDataTable } from "../shared/datatable_config.js";
 import { fetchAllPrograms } from "../shared/program_api.js";
 import { formatYearLevel } from "../report_analytics/modules/helpers/formatters.js";
 import { getStudentsByDepartment } from "./api/api.js";
+import { countUp } from "../shared/count_up.js";
 
 let department;
 let table;
@@ -374,9 +375,9 @@ export async function loadStudentCard() {
     const active = Number(counts.active) || 0;
     const inactive = Number(counts.inactive) || 0;
 
-    setText("total-students", total.toLocaleString());
-    setText("total-active", active.toLocaleString());
-    setText("total-inactive", inactive.toLocaleString());
+    countUp("total-students", total);
+    countUp("total-active", active);
+    countUp("total-inactive", inactive);
     setText("total-active-share", percent(active, total));
     setText("total-inactive-share", percent(inactive, total));
 
@@ -386,7 +387,7 @@ export async function loadStudentCard() {
 
     years.forEach(({ year_level: level, total: n }) => {
       const value = Number(n) || 0;
-      setText(`year-${level}`, value.toLocaleString());
+      countUp(`year-${level}`, value);
       setText(`year-${level}-share`, percent(value, yearTotal));
       const bar = document.getElementById(`year-${level}-bar`);
       if (bar)

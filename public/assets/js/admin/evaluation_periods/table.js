@@ -1,6 +1,7 @@
 import { escapeHTML } from "../../services/escape.js";
 import { createDataTable } from "../shared/datatable_config.js";
 import { getDashboardData, getEvaluationPeriods } from "./api/api.js";
+import { countUp } from "../shared/count_up.js";
 
 let table;
 let latestDraw = 0;
@@ -362,7 +363,13 @@ function renderCard(key, period) {
     start && end ? `${dateFmt.format(start)} – ${dateFmt.format(end)}` : "",
   );
 
-  setText(`${key}ProgressText`, total > 0 ? `${rate.toFixed(1)}%` : "—");
+  if (total > 0) {
+    countUp(`${key}ProgressText`, rate, { decimals: 1, suffix: "%" });
+  } else {
+    const el = document.getElementById(`${key}ProgressText`);
+    if (el) el.dataset.countValue = "0";
+    setText(`${key}ProgressText`, "—");
+  }
   setText(
     `${key}ProgressCount`,
     `${finished.toLocaleString()} of ${total.toLocaleString()} students`,
