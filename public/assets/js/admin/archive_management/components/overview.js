@@ -1,6 +1,7 @@
 import { fetchOverview } from "../api/api.js";
 import { byId, announce, setOptions } from "./ui.js";
 import * as render from "./archiveRender.js";
+import { countUp } from "../../shared/count_up.js";
 
 let overviewRequest = 0;
 export async function loadOverview() {
@@ -11,8 +12,13 @@ export async function loadOverview() {
     if (current !== overviewRequest) return;
     for (const element of document.querySelectorAll("[data-metric]")) {
       const value = data.metrics[element.dataset.metric];
-      element.textContent =
-        value === null ? "Unavailable" : render.count(value);
+      if (value === null || !Number.isFinite(Number(value))) {
+        element.dataset.countValue = "0";
+        element.textContent = value === null ? "Unavailable" : render.count(value);
+      } else {
+        // Same count-up as the other management pages.
+        countUp(element, Number(value));
+      }
     }
     setOptions("archive-year", data.filters.years, String, String);
     setOptions("archive-semester", data.filters.semesters, String, String);

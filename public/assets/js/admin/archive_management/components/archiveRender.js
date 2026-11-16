@@ -36,51 +36,52 @@ export function department(value) {
 }
 
 export function period(row) {
-  return `<div class="min-w-40"><p class="font-semibold text-slate-800">${text(row.academic_year)}</p>
-    <p class="mt-1 text-xs text-slate-500">${text(row.semester)} · Period #${text(row.period_id)}</p></div>`;
+  return `<div class="min-w-40"><p class="ms-name font-semibold text-slate-900">${text(row.academic_year)}</p>
+    <p class="mt-0.5 text-xs text-slate-500">${text(row.semester)} · Period #${text(row.period_id)}</p></div>`;
 }
 
 export function badge(status) {
   const statuses = {
-    verified: ["Verified", "bg-emerald-50 text-emerald-800"],
-    pending: ["Pending", "bg-amber-50 text-amber-800"],
-    processing: ["Processing", "bg-blue-50 text-blue-800"],
-    failed: ["Failed", "bg-red-50 text-red-800"],
+    verified: ["Verified", "bg-emerald-50 text-emerald-700 ring-emerald-600/15", "bg-emerald-500"],
+    pending: ["Pending", "bg-amber-50 text-amber-700 ring-amber-600/15", "bg-amber-500"],
+    processing: ["Processing", "bg-blue-50 text-blue-700 ring-blue-600/15", "bg-blue-500"],
+    failed: ["Failed", "bg-rose-50 text-rose-700 ring-rose-600/15", "bg-rose-500"],
   };
-  const [label, classes] = statuses[status] ?? [
+  const [label, classes, dot] = statuses[status] ?? [
     "Missing job",
-    "bg-slate-100 text-slate-600",
+    "bg-slate-50 text-slate-600 ring-slate-500/10",
+    "bg-slate-400",
   ];
-  return `<span class="inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${classes}">${label}</span>`;
+  return `<span class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ring-inset ${classes}"><span class="h-1.5 w-1.5 rounded-full ${dot}"></span>${label}</span>`;
 }
 
 const actionClass =
-  "min-h-11 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-violet-700 hover:bg-violet-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500";
+  "inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition-colors duration-150 hover:border-[#6010FF]/30 hover:bg-[#6010FF]/5 hover:text-[#6010FF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6010FF]";
 
 export function archiveActions(row) {
   return `
     <div class="flex items-start justify-end gap-2">
     
-      <button type="button" data-view-period="${text(row.period_id)}" class="${actionClass}" aria-label="View details for period ${text(row.period_id)}">View Details</button>
+      <button type="button" data-view-period="${text(row.period_id)}" class="${actionClass}" aria-label="View details for period ${text(row.period_id)}"><i class="fa-solid fa-eye text-[11px]" aria-hidden="true"></i>View Details</button>
 
       <details class="group relative shrink-0">
 
-        <summary class="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500" aria-label="More actions for period ${text(row.period_id)}">
+        <summary class="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors duration-150 hover:border-[#6010FF]/30 hover:bg-[#6010FF]/5 hover:text-[#6010FF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6010FF]" aria-label="More actions for period ${text(row.period_id)}">
           <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i></summary>
 
-          <div class="absolute right-0 top-full z-50 mt-2 min-w-40 space-y-1 rounded-lg border border-slate-200 bg-white p-2 shadow-lg">
+          <div class="absolute right-0 top-full z-50 mt-2 min-w-44 space-y-0.5 rounded-xl border border-slate-200 bg-white p-1.5 text-left shadow-lg">
 
           <button 
             type="button" 
             data-verify-period="${text(row.period_id)}" 
             ${row.backup_status === "verified" ? "" : "disabled"}
-            class="min-h-11 w-full rounded px-3 text-left text-xs font-medium text-violet-700 hover:bg-violet-50 disabled:cursor-not-allowed disabled:text-slate-400"
+            class="flex min-h-10 w-full items-center rounded-lg px-3 text-left text-xs font-medium text-slate-700 hover:bg-[#6010FF]/5 hover:text-[#6010FF] disabled:cursor-not-allowed disabled:text-slate-400 disabled:hover:bg-transparent"
             title="${row.backup_status === "verified" ? "Check the stored encrypted backup checksum" : "A previously verified backup is required"}">Verify Backup</button>
 
           <button 
             type="button" 
             data-delete-period="${text(row.period_id)}"
-            class="min-h-11 w-full rounded px-3 text-left text-xs hover:bg-red-50 text-red-500" 
+            class="flex min-h-10 w-full items-center rounded-lg px-3 text-left text-xs font-medium text-rose-600 hover:bg-rose-50 disabled:cursor-not-allowed disabled:text-slate-400" 
             title="Deletion requires an approved retention policy and audited recovery safeguards.">Delete Archive</button>
 
         </div>
@@ -89,7 +90,7 @@ export function archiveActions(row) {
 }
 
 export function logAction(row) {
-  return `<button type="button" data-view-log="${text(row.operation_id)}" class="${actionClass}" aria-label="View recovery entry ${text(row.operation_id)}">View Details</button>`;
+  return `<button type="button" data-view-log="${text(row.operation_id)}" class="${actionClass}" aria-label="View recovery entry ${text(row.operation_id)}"><i class="fa-solid fa-eye text-[11px]" aria-hidden="true"></i>View Details</button>`;
 }
 
 export function fields(items) {
@@ -144,11 +145,12 @@ export function archiveDetails(row) {
 
 export function restoreStatus(status) {
   const styles = {
-    completed: "bg-emerald-50 text-emerald-800",
-    failed: "bg-red-50 text-red-800",
-    processing: "bg-amber-50 text-amber-800",
+    completed: ["bg-emerald-50 text-emerald-700 ring-emerald-600/15", "bg-emerald-500"],
+    failed: ["bg-rose-50 text-rose-700 ring-rose-600/15", "bg-rose-500"],
+    processing: ["bg-amber-50 text-amber-700 ring-amber-600/15", "bg-amber-500"],
   };
-  return `<span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${styles[status] || "bg-slate-100 text-slate-600"}">${text(status)}</span>`;
+  const [classes, dot] = styles[status] || ["bg-slate-50 text-slate-600 ring-slate-500/10", "bg-slate-400"];
+  return `<span class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold capitalize ring-1 ring-inset ${classes}"><span class="h-1.5 w-1.5 rounded-full ${dot}"></span>${text(status)}</span>`;
 }
 
 export function logDetails(row) {

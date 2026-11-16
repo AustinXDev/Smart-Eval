@@ -15,6 +15,20 @@ export const LOG_FILTERS = ["period_id", "department", "search"];
 
 export const tableInstances = { archive: null, logs: null };
 
+function emptyState(icon, title, text) {
+  return `
+    <div class="flex flex-col items-center justify-center py-12 text-center">
+      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-400">
+        <i class="fa-solid ${icon} text-lg" aria-hidden="true"></i>
+      </div>
+      <p class="mt-3 text-sm font-semibold text-slate-700">${title}</p>
+      <p class="mt-1 text-xs text-slate-500">${text}</p>
+    </div>`;
+}
+
+const departmentTag = (value) =>
+  `<span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">${render.department(value)}</span>`;
+
 function tableOptions(id, loadRecords, prefix, names, columns) {
   let latestDraw = 0;
   const stateId = prefix === "archive" ? "records-state" : "logs-state";
@@ -26,13 +40,26 @@ function tableOptions(id, loadRecords, prefix, names, columns) {
     pageLength: 10,
     columns,
     language: {
-      emptyTable:
-        '<div class="py-10 text-center text-sm text-slate-500">No records to display. Check the filters or status message above.</div>',
-      zeroRecords: "No matching records. Try adjusting the filters.",
+      emptyTable: emptyState(
+        "fa-box-open",
+        "No records to display",
+        "Check the filters or the status message above.",
+      ),
+      zeroRecords: emptyState(
+        "fa-magnifying-glass",
+        "No matching records",
+        "Try adjusting the filters.",
+      ),
+      loadingRecords:
+        '<div class="py-12 text-center text-sm text-slate-400">Loading records…</div>',
       info: "Showing _START_ to _END_ of _TOTAL_ records",
-      infoEmpty: "No records",
-      infoFiltered: "(from _MAX_ total)",
-      paginate: { previous: "Previous", next: "Next" },
+      infoEmpty: "Showing 0 to 0 of 0 records",
+      infoFiltered: "",
+      paginate: {
+        previous:
+          '<span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-chevron-left text-[9px]"></i><span>Previous</span></span>',
+        next: '<span class="inline-flex items-center gap-1.5"><span>Next</span><i class="fa-solid fa-chevron-right text-[9px]"></i></span>',
+      },
     },
     ajax: async (req, callback) => {
       latestDraw = req.draw;
@@ -71,10 +98,16 @@ function tableOptions(id, loadRecords, prefix, names, columns) {
       }
     },
     createdRow: (row) => {
-      row.classList.add("border-b", "border-slate-100", "hover:bg-slate-50");
+      row.classList.add(
+        "border-b",
+        "border-slate-100",
+        "transition-colors",
+        "duration-150",
+        "hover:bg-slate-50/70",
+      );
       row
         .querySelectorAll("td")
-        .forEach((cell) => cell.classList.add("px-4", "py-3", "align-top"));
+        .forEach((cell) => cell.classList.add("px-5", "py-3.5", "align-middle"));
     },
   };
 }
@@ -82,7 +115,7 @@ function tableOptions(id, loadRecords, prefix, names, columns) {
 const ordinal = {
   data: null,
   render: (_value, _type, _row, meta) =>
-    meta.settings._iDisplayStart + meta.row + 1,
+    `<span class="tabular-nums text-xs font-semibold text-slate-400">${meta.settings._iDisplayStart + meta.row + 1}</span>`,
 };
 
 export function initArchiveTable() {
@@ -97,7 +130,7 @@ export function initArchiveTable() {
       [
         ordinal,
         { data: null, render: (_v, _t, row) => render.period(row) },
-        { data: "target_dept", render: render.department },
+        { data: "target_dept", render: departmentTag },
         {
           data: "archived_at",
           render: render.date,
@@ -107,9 +140,9 @@ export function initArchiveTable() {
         {
           data: null,
           render: (_v, _t, row) =>
-            `<div class="min-w-36 space-y-1 text-xs leading-5 text-slate-600"><p>${render.count(row.students)} students · ${render.count(row.teachers)} teachers</p><p>${render.count(row.submissions)} submissions</p></div>`,
+            `<div class="min-w-36 text-xs leading-5 text-slate-500"><p><span class="font-semibold tabular-nums text-slate-800">${render.count(row.students)}</span> students · <span class="font-semibold tabular-nums text-slate-800">${render.count(row.teachers)}</span> teachers</p><p><span class="font-semibold tabular-nums text-slate-800">${render.count(row.submissions)}</span> submissions</p></div>`,
         },
-        { data: null, render: (_v, _t, row) => render.archiveActions(row) },
+        { data: null, className: "text-right", render: (_v, _t, row) => render.archiveActions(row) },
       ],
     ),
   );
@@ -128,7 +161,7 @@ export function initLogTable() {
         className: "whitespace-nowrap",
       },
       { data: null, render: (_v, _t, row) => render.period(row) },
-      { data: "target_dept", render: render.department },
+      { data: "target_dept", render: departmentTag },
       {
         data: null,
         render: (_v, _t, row) =>
@@ -145,7 +178,7 @@ export function initLogTable() {
         render: (_v, _t, row) =>
           `<div class="min-w-36 max-w-xs break-words text-xs leading-5">${render.text(row.source)}<br>${row.records_restored == null ? "Count not recorded" : render.count(row.records_restored) + " records restored"}</div>`,
       },
-      { data: null, render: (_v, _t, row) => render.logAction(row) },
+      { data: null, className: "text-right", render: (_v, _t, row) => render.logAction(row) },
     ]),
   );
   return tableInstances.logs;
