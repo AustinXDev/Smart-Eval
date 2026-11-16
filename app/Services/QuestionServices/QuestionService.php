@@ -302,6 +302,17 @@ class QuestionService
     }
 
 
+    /**
+     * KPI totals for Manage Questionnaires.
+     */
+    public function getSetStats(): array
+    {
+
+        return $this->questionRepo->getSetStats();
+
+    }
+
+
     public function getQuestionById(
         array $data
     ): array {

@@ -61,6 +61,14 @@ class QuestionController
     }
 
 
+    public function getSetStats(): array
+    {
+
+        return $this->service->getSetStats();
+
+    }
+
+
     public function getActiveSet(): array
     {
 

@@ -19,274 +19,218 @@ export async function loadQuestionSetList() {
     const res = await fetchAllSets();
 
     if (res.status !== "success") {
-      console.error("Failed to load question sets");
-      return;
+      throw new Error(res.message || "Failed to load question sets");
     }
 
     const sets = res.data ?? [];
 
     setAllQuestions(sets);
+    renderSetKpis(res.stats, sets);
 
-    renderSetList(sets);
+    // Keep any search the user typed while the list was loading.
+    const query =
+      document.getElementById("questionnaireSearch")?.value.trim().toLowerCase() ?? "";
+    renderSetList(filterSets(sets, query), { filtered: query !== "" });
   } catch (err) {
     console.error("Failed to load question sets", err);
 
-    container.innerHTML = `
-      <div class="
-        col-span-full
-        flex flex-col
-        items-center
-        justify-center
-        rounded-2xl
-        border border-red-100
-        bg-white
-        px-6 py-14
-        text-center
-      ">
+    ["kpi-sets", "kpi-in-use", "kpi-questions"].forEach((id) => setText(id, "—"));
+    setText("table-count", "0");
 
-        <div class="
-          mb-4
-          flex h-12 w-12
-          items-center justify-center
-          rounded-xl
-          bg-red-50
-          text-red-500
-        ">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-        </div>
-
-        <p class="
-          text-sm
-          font-semibold
-          text-slate-700
-        ">
-          Unable to load questionnaire sets
-        </p>
-
-        <p class="
-          mt-1
-          text-xs
-          text-slate-400
-        ">
-          Please try again.
-        </p>
-
-        <button
-          type="button"
-          class="
-            mt-4
-            inline-flex
-            items-center
-            gap-2
-            rounded-lg
-            bg-violet-600
-            px-4 py-2
-            text-xs
-            font-semibold
-            text-white
-            transition
-            hover:bg-violet-700
-          "
-          onclick="location.reload()"
-        >
-          <i class="fa-solid fa-plus"></i>
-          Add Question Set
-        </button>
-
-      </div>
-    `;
+    container.innerHTML = stateBlock({
+      icon: "fa-circle-exclamation",
+      tone: "error",
+      title: "Questionnaire sets could not be loaded",
+      text: "Check your connection and try again.",
+      button:
+        '<button type="button" class="mt-4 inline-flex h-9 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-[#6010FF]/30 hover:bg-[#6010FF]/5 hover:text-[#6010FF]" onclick="location.reload()"><i class="fas fa-rotate-right text-[11px]" aria-hidden="true"></i>Try again</button>',
+    });
   }
 }
 
-export function renderSetList(sets) {
+function setText(id, value) {
+  const node = document.getElementById(id);
+  if (node) node.textContent = value;
+}
+
+// KPI cards. Figures come from QuestionRepositories::getSetStats() (the
+// "stats" key of get_sets.php); a server without it falls back to counting
+// the sets list it returned.
+function renderSetKpis(stats, sets = []) {
+  const fromServer = stats && typeof stats === "object";
+  const total = fromServer ? Number(stats.total_sets) || 0 : sets.length;
+  const inUse = fromServer
+    ? Number(stats.sets_in_use) || 0
+    : sets.filter((s) => s.active_evaluation_using_set).length;
+  const questions = fromServer
+    ? Number(stats.total_questions) || 0
+    : sets.reduce((sum, s) => sum + (Number(s.total_questions) || 0), 0);
+
+  setText("kpi-sets", total.toLocaleString());
+  setText("kpi-in-use", inUse.toLocaleString());
+  setText("kpi-in-use-share", total > 0 ? `${((inUse / total) * 100).toFixed(1)}%` : "");
+  setText("kpi-questions", questions.toLocaleString());
+  setText("kpi-questions-share", total > 0 ? `${(questions / total).toFixed(1)} per set` : "");
+}
+
+function filterSets(sets, query) {
+  return query
+    ? sets.filter((s) => String(s.set_name ?? "").toLowerCase().includes(query))
+    : sets;
+}
+
+export function renderSetList(sets, { filtered = false } = {}) {
   const container = document.querySelector(".cards-container");
   if (!container) return;
 
+  setText("table-count", String((sets ?? []).length));
+
   if (!sets || sets.length === 0) {
-    container.innerHTML = renderEmptyState();
+    container.innerHTML = filtered ? renderNoMatchState() : renderEmptyState();
     return;
   }
 
   container.innerHTML = sets.map(renderSetCard).join("");
 }
 
-function renderEmptyState() {
+function stateBlock({ icon, tone = "neutral", title, text, button = "" }) {
+  const iconTone =
+    tone === "error" ? "bg-rose-50 text-rose-500" : "bg-slate-50 text-slate-400";
   return `
-    <div class="
-      col-span-full
-      flex flex-col
-      items-center
-      justify-center
-      rounded-2xl
-      border border-dashed
-      border-slate-200
-      bg-white
-      px-6 py-16
-      text-center
-    ">
-
-      <div class="
-        flex h-14 w-14
-        items-center justify-center
-        rounded-2xl
-        bg-violet-50
-        text-violet-500
-      ">
-        <i class="fa-solid fa-clipboard-question text-lg"></i>
+    <div class="col-span-full flex flex-col items-center justify-center py-12 text-center">
+      <div class="flex h-12 w-12 items-center justify-center rounded-xl ${iconTone}">
+        <i class="fa-solid ${icon} text-lg" aria-hidden="true"></i>
       </div>
+      <p class="mt-3 text-sm font-semibold text-slate-700">${title}</p>
+      <p class="mt-1 max-w-sm text-xs text-slate-500">${text}</p>
+      ${button}
+    </div>`;
+}
 
-      <h3 class="
-        mt-4
-        text-sm
-        font-semibold
-        text-slate-700
-      ">
-        No questionnaire sets yet
-      </h3>
+function renderEmptyState() {
+  return stateBlock({
+    icon: "fa-clipboard-question",
+    title: "No questionnaire sets yet",
+    text: "Create your first questionnaire set to start adding evaluation questions.",
+    button:
+      '<button type="button" class="addSet mt-4 inline-flex h-9 items-center gap-2 rounded-xl bg-[#6010FF] px-4 text-xs font-semibold text-white shadow-sm transition hover:brightness-110"><i class="fas fa-plus text-[11px]" aria-hidden="true"></i>Add New Set</button>',
+  });
+}
 
-      <p class="
-        mt-1
-        max-w-sm
-        text-xs
-        leading-5
-        text-slate-400
-      ">
-        Create your first questionnaire set to start adding
-        evaluation questions.
-      </p>
-
-      <button
-        type="button"
-        class="
-          addSet
-          mt-5
-          inline-flex
-          items-center
-          gap-2
-          rounded-xl
-          bg-violet-600
-          px-4 py-2.5
-          text-xs
-          font-semibold
-          text-white
-          shadow-sm
-          transition
-          hover:bg-violet-700
-          hover:shadow-md
-        "
-      >
-        <i class="fa-solid fa-plus"></i>
-        Add New Set
-      </button>
-
-    </div>
-  `;
+function renderNoMatchState() {
+  return stateBlock({
+    icon: "fa-magnifying-glass",
+    title: "No sets match your search",
+    text: "Try a different set name.",
+    button:
+      '<button type="button" data-clear-set-search class="mt-4 inline-flex h-9 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-[#6010FF]/30 hover:bg-[#6010FF]/5 hover:text-[#6010FF]"><i class="fas fa-filter-circle-xmark text-[11px]" aria-hidden="true"></i>Clear search</button>',
+  });
 }
 
 export function initQuestionSetSearch(inputId) {
   const input = document.getElementById(inputId);
   if (!input) return;
 
+  const clearBtn = document.getElementById("clear-search");
   let debounceTimer;
 
+  const apply = () => {
+    const query = input.value.trim().toLowerCase();
+    renderSetList(filterSets(getAllQuestions() ?? [], query), { filtered: query !== "" });
+  };
+
+  const syncClearButton = () => {
+    const hasValue = input.value.length > 0;
+    clearBtn?.classList.toggle("hidden", !hasValue);
+    clearBtn?.classList.toggle("inline-flex", hasValue);
+  };
+
+  const clear = () => {
+    input.value = "";
+    syncClearButton();
+    apply();
+  };
+
   input.addEventListener("input", () => {
+    syncClearButton();
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-      const query = input.value.trim().toLowerCase();
-      const allSets = getAllQuestions();
+    debounceTimer = setTimeout(apply, 200);
+  });
 
-      const filtered = query
-        ? allSets.filter((s) => s.set_name.toLowerCase().includes(query))
-        : allSets;
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && input.value) clear();
+  });
 
-      renderSetList(filtered);
-    }, 200);
+  clearBtn?.addEventListener("click", () => {
+    clear();
+    input.focus();
+  });
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest("[data-clear-set-search]")) clear();
   });
 }
 
 function renderSetCard(s) {
-  const badge = s.active_evaluation_using_set
-    ? "In Used"
-    : `Used ${s.total_periods_using_set} time${s.total_periods_using_set !== 1 ? "s" : ""}`;
+  const inUse = Boolean(s.active_evaluation_using_set);
+  const timesUsed = Number(s.total_periods_using_set) || 0;
+  const questions = Number(s.total_questions) || 0;
+  const id = escapeHTML(String(s.set_id));
+  const name = escapeHTML(s.set_name);
 
-  const createdDate = new Date(s.created_at).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const created = new Date(String(s.created_at ?? "").replace(" ", "T"));
+  const createdDate = Number.isNaN(created.getTime())
+    ? "—"
+    : created.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+
+  const badge = inUse
+    ? '<span class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/15" title="An active evaluation period uses this set"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>In use</span>'
+    : `<span class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600 ring-1 ring-inset ring-slate-500/10"><span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>Used ${timesUsed} time${timesUsed === 1 ? "" : "s"}</span>`;
 
   return `
-    <div class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
-      <div class="absolute left-0 top-0 h-1 w-full bg-amber-400"></div>
+    <article class="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-[#6010FF]/[0.04] via-white to-white p-4 shadow-sm transition duration-200 hover:border-[#6010FF]/30 hover:shadow-md sm:p-5">
+      <span class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-[#6010FF] to-[#6010FF]/10"></span>
 
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex min-w-0 items-center gap-4">
-          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 3v5h5" />
-            </svg>
-          </div>
-
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex min-w-0 items-start gap-3">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#6010FF]/10 text-[#6010FF] ring-1 ring-[#6010FF]/15">
+            <i class="fas fa-clipboard-list text-sm" aria-hidden="true"></i>
+          </span>
           <div class="min-w-0">
-            <h2 class="truncate text-base font-bold text-slate-800">${escapeHTML(s.set_name)}</h2>
-            <p class="mt-1 text-sm text-slate-500">
-              <span class="font-medium text-slate-700">${s.total_questions}</span>
-              Total Questions
-            </p>
+            <h4 class="truncate text-sm font-semibold text-slate-900" title="${name}">${name}</h4>
+            <p class="mt-0.5 text-xs text-slate-500">Question set</p>
           </div>
         </div>
-
-        <span class="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-600">
-          ${badge}
-        </span>
+        ${badge}
       </div>
 
-      <div class="my-5 h-px bg-slate-100"></div>
-
-      <div class="flex items-center justify-between gap-4">
+      <dl class="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4">
         <div>
-          <p class="text-xs font-medium uppercase tracking-wide text-slate-400">Date Created</p>
-          <p class="mt-1 text-sm font-medium text-slate-700">${createdDate}</p>
+          <dt class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Questions</dt>
+          <dd class="mt-1 text-xl font-bold tabular-nums tracking-tight text-slate-900">${questions}</dd>
         </div>
-
-        <div class="text-right">
-          <p class="text-xs font-medium uppercase tracking-wide text-slate-400">Questions</p>
-          <p class="mt-1 text-sm font-bold text-slate-800">${s.total_questions}</p>
+        <div>
+          <dt class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Created</dt>
+          <dd class="mt-1.5 text-sm font-medium tabular-nums text-slate-700">${createdDate}</dd>
         </div>
-      </div>
+      </dl>
 
-      <div class="mt-5 flex items-center gap-2 border-t border-slate-100 pt-4">
-        <button
-          data-set-id="${s.set_id}"
-          class="manageQuestion inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-          Manage
+      <div class="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4">
+        <button type="button" data-set-id="${id}"
+          class="manageQuestion inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-xl bg-[#6010FF] px-4 text-xs font-semibold text-white shadow-sm transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6010FF] focus-visible:ring-offset-2">
+          <i class="fas fa-list-check text-[11px]" aria-hidden="true"></i>
+          Manage questions
         </button>
-
-        <button
-          data-set-id="${s.set_id}"
-          data-set-name="${escapeHTML(s.set_name)}"
-          class="editSet inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-300">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5h2M5 19l1.5-6L16 4.5a2.121 2.121 0 013 3L9.5 17.5 5 19z" />
-          </svg>
-          Edit
+        <button type="button" data-set-id="${id}" data-set-name="${name}" title="Edit set" aria-label="Edit set: ${name}"
+          class="editSet flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors duration-150 hover:border-[#6010FF]/30 hover:bg-[#6010FF]/5 hover:text-[#6010FF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6010FF]">
+          <i class="fas fa-pen text-xs" aria-hidden="true"></i>
         </button>
-
-        <button
-          data-set-id="${s.set_id}"
-          data-set-name="${escapeHTML(s.set_name)}"
-          class="deleteSet inline-flex items-center justify-center rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-red-500 transition hover:border-red-200 hover:bg-red-100 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
-          title="Delete">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M10 11v6M14 11v6M9 7V5h6v2m-8 0l1 14h6l1-14" />
-          </svg>
+        <button type="button" data-set-id="${id}" data-set-name="${name}" title="Delete set" aria-label="Delete set: ${name}"
+          class="deleteSet flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors duration-150 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6010FF]">
+          <i class="fas fa-trash-alt text-xs" aria-hidden="true"></i>
         </button>
       </div>
-    </div>
+    </article>
   `;
 }
 

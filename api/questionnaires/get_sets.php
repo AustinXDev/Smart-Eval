@@ -28,7 +28,9 @@ try {
 
     echo json_encode([
       'status' => 'success',
-      'data' => $questionSets
+      'data' => $questionSets,
+      // KPI totals for Manage Questionnaires (other callers only read "data").
+      'stats' => $controller->getSetStats()
     ]);
 
 } catch (\Throwable $e) {

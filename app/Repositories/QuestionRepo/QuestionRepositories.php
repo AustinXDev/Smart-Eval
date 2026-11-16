@@ -94,6 +94,54 @@ class QuestionRepositories
 
 
     /**
+     * Totals for the Manage Questionnaires KPI cards. Same scope as
+     * findAllActiveWithStats(): active sets, active questions, and an
+     * active evaluation period for "in use".
+     *
+     * @return array{total_sets:int, sets_in_use:int, total_questions:int}
+     */
+    public function getSetStats(): array
+    {
+        $stmt = $this->pdo->prepare("
+        SELECT
+            (
+                SELECT COUNT(*)
+                FROM question_sets
+                WHERE is_active = 1
+            ) AS total_sets,
+
+            (
+                SELECT COUNT(DISTINCT qs.set_id)
+                FROM question_sets qs
+                INNER JOIN evaluation_periods ep
+                    ON ep.set_id = qs.set_id
+                    AND ep.is_active = 1
+                WHERE qs.is_active = 1
+            ) AS sets_in_use,
+
+            (
+                SELECT COUNT(*)
+                FROM questions q
+                INNER JOIN question_sets qs
+                    ON qs.set_id = q.set_id
+                    AND qs.is_active = 1
+                WHERE q.is_active = 1
+            ) AS total_questions
+    ");
+
+        $stmt->execute();
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+        return [
+            'total_sets' => (int) ($row['total_sets'] ?? 0),
+            'sets_in_use' => (int) ($row['sets_in_use'] ?? 0),
+            'total_questions' => (int) ($row['total_questions'] ?? 0),
+        ];
+    }
+
+
+    /**
      * Find all active question sets withs stats
      */
     public function findAllActiveWithStats(): array
