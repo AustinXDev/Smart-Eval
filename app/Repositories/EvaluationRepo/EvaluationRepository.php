@@ -122,7 +122,7 @@ class EvaluationRepository
 
         $filtered = (int) $count->fetchColumn();
 
-        $stmt = $this->pdo->prepare('SELECT period_id, academic_year, semester, target_dept, display_status' . $source . $where . ' ORDER BY start_date DESC, period_id DESC LIMIT :limit OFFSET :offset');
+        $stmt = $this->pdo->prepare('SELECT period_id, academic_year, semester, target_dept, start_date, end_date, display_status' . $source . $where . ' ORDER BY start_date DESC, period_id DESC LIMIT :limit OFFSET :offset');
 
         foreach ($params as $key => $value) {
             $stmt->bindValue(':' . $key, $value, PDO::PARAM_STR);
@@ -222,6 +222,8 @@ class EvaluationRepository
             ep.semester,
             ep.target_dept,
             ep.is_active,
+            ep.start_date,
+            ep.end_date,
 
             COUNT(DISTINCT s.student_id) AS total_students,
 
@@ -273,7 +275,9 @@ class EvaluationRepository
             ep.academic_year,
             ep.semester,
             ep.target_dept,
-            ep.is_active
+            ep.is_active,
+            ep.start_date,
+            ep.end_date
 
         ORDER BY ep.start_date DESC
       ");
