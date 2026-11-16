@@ -1,5 +1,5 @@
 import { openModal, closeModal } from "../../modal/modal.js";
-import { loadCard, loadTeacherHandles } from "../teachers/table.js";
+import { loadTeacherHandles } from "../teachers/table.js";
 import { getTeacher } from "./api/api.js";
 import { populateProgramSelect } from "./components/programSelect.js";
 import {
@@ -57,7 +57,9 @@ function handleViewClick(viewBtn) {
 
   getTeacher(teacherId).then((teacher) => {
     renderViewDetails(teacher);
-    if (teacher?.teacher_id) loadTeacherHandles(teacher.teacher_id);
+    // The details response already carries the handles; render them directly
+    // (no second request). The row's id is used for later refreshes.
+    if (teacher) loadTeacherHandles(teacherId, teacher.handles);
   });
 
   openModal("viewDetails");
@@ -91,6 +93,4 @@ function handleDeleteClick(deleteBtn) {
   requestDeleteTeacher(deleteBtn.dataset.teacherId);
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  loadCard();
-});
+// The KPI cards are loaded by table.js on page ready.

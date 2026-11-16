@@ -1,6 +1,12 @@
 import { post, get } from "../../../services/http.js";
 
 export async function getTeachersByDepartment(department, params = {}) {
+  // Never send a request the API will reject; name the caller's problem instead.
+  if (!department) {
+    throw new Error(
+      "Missing department: open this page from the sidebar (College or SHS).",
+    );
+  }
   const query = new URLSearchParams({ department, ...params });
   return get(`teacher/get_teachers.php?${query}`);
 }
@@ -12,6 +18,11 @@ export async function getTeacherHandles(teacherId) {
 
 export async function getTeacher(teacherId) {
   try {
+    const id = Number(teacherId);
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new Error(`Missing teacher ID (received "${teacherId}").`);
+    }
+
     const response = await get(
       `teacher/get_teachers.php?id=${encodeURIComponent(teacherId)}`,
     );

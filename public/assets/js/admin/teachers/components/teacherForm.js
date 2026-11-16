@@ -150,6 +150,7 @@ async function submitAddHandle(formData, form) {
       form.reset();
       loadTeacherHandles(getCurrentTeacherId());
       loadCard();
+      loadTeachers(); // refresh the list's handle count
     } else {
       StatusModal.show("Error", data.message, "error");
     }
@@ -198,6 +199,7 @@ async function submitDeleteHandle({ teacherId, loadId }) {
       StatusModal.show("Success", message, "success");
       loadTeacherHandles(teacherId);
       if (force) loadCard();
+      loadTeachers(); // refresh the list's handle count
     } else {
       StatusModal.show("Error", message, "error");
     }

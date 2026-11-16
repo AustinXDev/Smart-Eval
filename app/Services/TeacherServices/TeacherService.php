@@ -539,6 +539,8 @@ class TeacherService
             'recordsTotal' => (int) $counts['total'],
             'recordsFiltered' => $page['filtered'],
             'data' => $page['teachers'],
+            // Same counts as ?counts_only=1, so the KPI cards update with every list load.
+            'counts' => $counts,
         ];
     }
 

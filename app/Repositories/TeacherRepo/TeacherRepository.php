@@ -500,7 +500,18 @@ class TeacherRepository
         $count = $this->pdo->prepare('SELECT COUNT(*)' . $from);
         $count->execute($params);
         $filtered = (int) $count->fetchColumn();
-        $stmt = $this->pdo->prepare('SELECT teacher_id, employee_id, full_name, department, image_path, is_active' . $from . ' ORDER BY is_active DESC, full_name ASC, teacher_id ASC LIMIT :limit OFFSET :offset');
+
+        // Active teaching loads (program + year level), same rows as findHandlesByTeacher().
+        $handles = '
+            (SELECT COUNT(*) FROM teacher_load tl
+              WHERE tl.teacher_id = teachers.teacher_id AND tl.is_active = 1) AS handle_count,
+            (SELECT GROUP_CONCAT(CONCAT(p.program_code, \' \', tl.year_level) ORDER BY p.program_code, tl.year_level SEPARATOR \', \')
+               FROM teacher_load tl INNER JOIN programs p ON p.program_id = tl.program_id
+              WHERE tl.teacher_id = teachers.teacher_id AND tl.is_active = 1) AS handle_list';
+        // created_at is added by scripts/sql/2026_11_14_add_teachers_created_at.sql.
+        $createdAt = $this->hasColumn('teachers', 'created_at') ? 'created_at' : 'NULL AS created_at';
+
+        $stmt = $this->pdo->prepare('SELECT teacher_id, employee_id, full_name, department, image_path, is_active, ' . $createdAt . ',' . $handles . $from . ' ORDER BY is_active DESC, full_name ASC, teacher_id ASC LIMIT :limit OFFSET :offset');
         foreach ($params as $key => $value) {
             $stmt->bindValue(':' . $key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
         }
@@ -508,6 +519,27 @@ class TeacherRepository
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
         return ['teachers' => $stmt->fetchAll(PDO::FETCH_ASSOC), 'filtered' => $filtered];
+    }
+
+    /**
+     * Whether a column exists, so new columns can roll out before their migration runs.
+     */
+    private function hasColumn(string $table, string $column): bool
+    {
+        static $cache = [];
+        $key = $table . '.' . $column;
+
+        if (!array_key_exists($key, $cache)) {
+            $stmt = $this->pdo->prepare('
+                SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?
+                LIMIT 1
+            ');
+            $stmt->execute([$table, $column]);
+            $cache[$key] = (bool) $stmt->fetchColumn();
+        }
+
+        return $cache[$key];
     }
 
     public function findAllByDepartment(

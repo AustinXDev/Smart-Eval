@@ -35,12 +35,20 @@ const ACCOUNT_STATUS = {
   },
 };
 
-const dateFmt = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" });
+const dateFmt = new Intl.DateTimeFormat(undefined, {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
 
 $(document).ready(async function () {
   const wrapper = document.getElementById("tableWrapper");
 
   department = wrapper ? wrapper.dataset.department : "";
+
+  // KPI cards load first and on their own, so a failure in the table,
+  // filters or course list can never leave them stuck on the skeleton.
+  loadStudentCard();
 
   // ============================================================
   // DATATABLE (server-side, same pattern as Evaluation Monitoring)
@@ -100,7 +108,9 @@ $(document).ready(async function () {
         }
       },
       createdRow: styleStudentRow,
-      columnDefs: [{ className: "whitespace-nowrap", targets: [0, 3, 4, 5, 6] }],
+      columnDefs: [
+        { className: "whitespace-nowrap", targets: [0, 3, 4, 5, 6] },
+      ],
       language: {
         emptyTable: emptyState(
           "fa-user-graduate",
@@ -128,7 +138,11 @@ $(document).ready(async function () {
     "Search students",
   );
 
-  bindFilters();
+  try {
+    bindFilters();
+  } catch (error) {
+    console.error("Student filters could not be initialised:", error);
+  }
 
   // ============================================================
   // LOAD PROGRAMS (course filter)
@@ -140,7 +154,9 @@ $(document).ready(async function () {
     const programs = await fetchAllPrograms(department);
 
     programs.forEach((program) => {
-      const programName = program.program_name.trim();
+      const programName = String(program.program_name ?? "").trim();
+      if (!programName) return;
+
       const option = document.createElement("option");
 
       option.value = program.program_name;
@@ -149,12 +165,6 @@ $(document).ready(async function () {
       select.appendChild(option);
     });
   }
-
-  // ============================================================
-  // INITIAL LOAD
-  // ============================================================
-
-  await loadStudentCard();
 });
 
 // ================================================================
@@ -231,7 +241,9 @@ function syncYearCards() {
   el.yearCards().forEach((card) => {
     const active = card.dataset.yearCard === selected;
     card.setAttribute("aria-pressed", String(active));
-    card.querySelector("[data-year-filtered]")?.classList.toggle("hidden", !active);
+    card
+      .querySelector("[data-year-filtered]")
+      ?.classList.toggle("hidden", !active);
   });
 }
 
@@ -346,7 +358,8 @@ function setText(id, value) {
   if (node) node.textContent = value;
 }
 
-const percent = (part, whole) => (whole > 0 ? `${((part / whole) * 100).toFixed(1)}%` : "");
+const percent = (part, whole) =>
+  whole > 0 ? `${((part / whole) * 100).toFixed(1)}%` : "";
 
 export async function loadStudentCard() {
   try {
@@ -376,12 +389,16 @@ export async function loadStudentCard() {
       setText(`year-${level}`, value.toLocaleString());
       setText(`year-${level}-share`, percent(value, yearTotal));
       const bar = document.getElementById(`year-${level}-bar`);
-      if (bar) bar.style.width = yearTotal > 0 ? `${(value / yearTotal) * 100}%` : "0%";
+      if (bar)
+        bar.style.width =
+          yearTotal > 0 ? `${(value / yearTotal) * 100}%` : "0%";
     });
   } catch (error) {
     console.error("Error loading student counts:", error);
 
     STATUS_IDS.forEach((id) => setText(id, "—"));
-    el.yearCards().forEach((card) => setText(`year-${card.dataset.yearCard}`, "—"));
+    el.yearCards().forEach((card) =>
+      setText(`year-${card.dataset.yearCard}`, "—"),
+    );
   }
 }
