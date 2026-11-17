@@ -41,14 +41,16 @@ class RegistrationService
         );
 
 
-        if ($this->students->hasActiveToken(
+        // A link was already sent and has not expired yet: tell the student
+        // where to look and when a new link can be requested. Not an error.
+        $activeExpiry = $this->students->findActiveTokenExpiry(
             $studentId,
             $email,
             $now->format('Y-m-d H:i:s'),
-        )) {
-            throw new RegistrationException(
-                'If your details are correct, you will receive an activation email shortly.'
-            );
+        );
+
+        if ($activeExpiry !== null) {
+            return $this->alreadySentResponse($activeExpiry, $now);
         }
 
         $token = bin2hex(random_bytes(32));
@@ -99,6 +101,31 @@ class RegistrationService
             'status' => 'success',
             'message' =>
                 'Activation email sent successfully. Please check your inbox.'
+        ];
+    }
+
+    /**
+     * Response for a student whose activation link is still valid.
+     * e.g. "… You can request a new link after 9:15 PM."
+     * The date is added when the link expires on another day.
+     */
+    private function alreadySentResponse(
+        string $expiresAt,
+        DateTimeImmutable $now
+    ): array {
+        $timezone = new DateTimeZone('Asia/Manila');
+        $expires = new DateTimeImmutable($expiresAt, $timezone);
+
+        $when = $expires->format('Y-m-d') === $now->format('Y-m-d')
+            ? $expires->format('g:i A')
+            : $expires->format('M j, g:i A');
+
+        return [
+            'status' => 'pending',
+            'message' => "An activation link was already sent to this email. "
+                . "Check your inbox and spam folder. "
+                . "You can request a new link after {$when}.",
+            'retry_after' => $expires->format(DATE_ATOM),
         ];
     }
 }

@@ -391,6 +391,38 @@ class StudentRepository
      * Check if the student already has
      * a valid activation token.
      */
+    /**
+     * Expiry time ("Y-m-d H:i:s", Asia/Manila) of the student's unexpired
+     * activation link, or null when there is none. Same conditions as
+     * hasActiveToken().
+     */
+    public function findActiveTokenExpiry(
+        string $studentId,
+        string $email,
+        string $now
+    ): ?string {
+        $stmt = $this->pdo->prepare("
+            SELECT token_expires
+            FROM students
+            WHERE student_id = ?
+              AND email = ?
+              AND activation_token IS NOT NULL
+              AND token_expires > ?
+              AND account_status = 'pending'
+            LIMIT 1
+        ");
+
+        $stmt->execute([
+            $studentId,
+            $email,
+            $now
+        ]);
+
+        $expires = $stmt->fetchColumn();
+
+        return $expires === false || $expires === null ? null : (string) $expires;
+    }
+
     public function hasActiveToken(
         string $studentId,
         string $email,

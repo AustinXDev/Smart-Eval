@@ -414,8 +414,11 @@ $student = $_SESSION['student'];
                                     </button>
 
 
-                                    <a
-                                        href="../../app/auth/logout.php"
+                                    <!-- Signs the student out, then returns to the student login
+                                         (handled by the script at the end of this page). -->
+                                    <button
+                                        type="button"
+                                        id="go-back-btn"
                                         class="
                                             inline-flex
                                             flex-1
@@ -442,7 +445,7 @@ $student = $_SESSION['student'];
                                     >
                                         <i class="fa-solid fa-arrow-left text-xs"></i>
                                         Go Back
-                                    </a>
+                                    </button>
 
                                 </div>
 
@@ -643,6 +646,27 @@ $student = $_SESSION['student'];
     </script> 
 
     <script src="<?= BASE_URL ?>assets/js/evaluation/evaluation_summary/index.js" type="module"></script>
+
+    <!-- Go Back: sign the student out (same endpoint as auto-logout), then open the student login. -->
+    <script type="module">
+        import { post } from "<?= BASE_URL ?>assets/js/services/http.js";
+
+        const goBack = document.getElementById("go-back-btn");
+
+        goBack?.addEventListener("click", async () => {
+            goBack.disabled = true;
+            goBack.classList.add("opacity-60", "cursor-wait");
+
+            try {
+                await post("student/auth/logout.php", {});
+            } catch (error) {
+                // Still leave the page; the login page handles any remaining session.
+                console.error("Logout failed:", error);
+            }
+
+            window.location.href = <?= json_encode(BASE_URL . 'login') ?>;
+        });
+    </script>
 <?php $autoLogoutRole = 'student';
 require __DIR__ . '/../partials/auto_logout.php'; ?>
 </body>

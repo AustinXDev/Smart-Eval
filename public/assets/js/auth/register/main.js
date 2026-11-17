@@ -44,12 +44,18 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const result = await register(credentials);
 
+      // An activation link was already sent and is still valid: not an error.
+      if (result.status === "pending") {
+        StatusModal.show("Check your email", result.message, "success");
+        return;
+      }
+
       if (result.status !== "success") {
         notify("error", result.message);
         return;
       }
 
-      StatusModal.show("Registration Complete", result.message, result.status);
+      StatusModal.show("Activation Email Sent", result.message, result.status);
       form.reset();
     } catch (error) {
       console.error("Error:", error);
