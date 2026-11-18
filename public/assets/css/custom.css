@@ -825,3 +825,649 @@ body {
     transform: none;
   }
 }
+
+/* ============================================================
+   MODALS (views/partials/modals/*)
+   One look for every admin modal: white card, header with icon,
+   title, subtitle and close (x); sections split by dashed lines;
+   footer with the secondary action left and primary right.
+   Phones: the modal becomes a bottom sheet with stacked buttons.
+
+   <div id="..." class="se-modal hidden" role="dialog" aria-modal="true">
+     <div class="se-modal__panel se-modal__panel--md">
+       <header class="se-modal__header"> icon + title + close </header>
+       <div class="se-modal__body"> .se-modal__section ... </div>
+       <footer class="se-modal__footer"> buttons </footer>
+     </div>
+   </div>
+
+   Visibility is still toggled with the Tailwind "hidden" class.
+   ============================================================ */
+
+.se-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.45);
+  font-family: "Roboto", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tailwind puts "hidden" in a CSS layer, so it must be restated here. */
+.se-modal.hidden {
+  display: none;
+}
+
+.se-modal__panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 560px;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25);
+  color: #334155;
+  font-size: 13px;
+  text-align: left;
+  animation: se-modal-in 180ms ease-out;
+}
+
+.se-modal__panel--sm { max-width: 420px; }
+.se-modal__panel--md { max-width: 560px; }
+.se-modal__panel--lg { max-width: 720px; }
+.se-modal__panel--xl { max-width: 960px; }
+
+@keyframes se-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Header ---------- */
+
+.se-modal__header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.se-modal__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 14px;
+}
+
+.se-modal__icon--danger {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.se-modal__heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.se-modal__title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.se-modal__subtitle {
+  margin: 2px 0 0;
+  color: #94a3b8;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.se-modal__close {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: -2px -6px 0 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #0f172a;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.se-modal__close:hover {
+  background: #f1f5f9;
+}
+
+/* ---------- Body + sections ---------- */
+
+.se-modal__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px;
+}
+
+/* A <form> wrapping body + footer must pass the scroll down. */
+.se-modal__form {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.se-modal__section + .se-modal__section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.se-modal__section-title {
+  margin: 0 0 14px;
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.se-modal__section-hint {
+  margin: -10px 0 14px;
+  color: #94a3b8;
+  font-size: 12.5px;
+}
+
+/* Confirmation / message text. */
+.se-modal__message {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ---------- Fields ---------- */
+
+.se-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.se-grid > .se-span-2 {
+  grid-column: 1 / -1;
+}
+
+.se-stack > * + * {
+  margin-top: 14px;
+}
+
+.se-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.se-required {
+  color: #ef4444;
+}
+
+.se-help {
+  margin-top: 6px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.se-input,
+.se-select,
+.se-textarea {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #0f172a;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.se-textarea {
+  height: auto;
+  min-height: 96px;
+  padding: 10px 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.se-input::placeholder,
+.se-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.se-input:hover,
+.se-select:hover,
+.se-textarea:hover {
+  border-color: #cbd5e1;
+}
+
+.se-input:focus,
+.se-select:focus,
+.se-textarea:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+}
+
+.se-input:disabled,
+.se-input[readonly],
+.se-select:disabled,
+.se-textarea:disabled {
+  background-color: #f8fafc;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+/* Input with a leading icon: <div class="se-input-icon"><i></i><input class="se-input"></div> */
+.se-input-icon {
+  position: relative;
+}
+
+.se-input-icon > i {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.se-input-icon > .se-input,
+.se-input-icon > .se-select {
+  padding-left: 36px;
+}
+
+/* ---------- Footer + buttons ---------- */
+
+.se-modal__footer {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid #f1f5f9;
+  background: #ffffff;
+}
+
+/* Secondary action pinned left (like "Save as Draft"); the rest stays right. */
+.se-modal__footer .se-push-left {
+  margin-right: auto;
+}
+
+.se-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.se-btn:focus-visible,
+.se-modal__close:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+}
+
+.se-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.se-btn--primary {
+  background: linear-gradient(to bottom, #7230ff, #6010ff);
+  color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(96, 16, 255, 0.25), 0 2px 4px -2px rgba(96, 16, 255, 0.25);
+  transition: filter 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.se-btn--primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+  box-shadow: 0 10px 15px -3px rgba(96, 16, 255, 0.3), 0 4px 6px -4px rgba(96, 16, 255, 0.3);
+}
+
+.se-btn--primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.se-btn--primary:focus-visible {
+  outline-color: #6010ff;
+}
+
+.se-btn--secondary {
+  border-color: #e2e8f0;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.se-btn--secondary:hover:not(:disabled) {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.se-btn--danger {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.se-btn--danger:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+/* ---------- Small screens: bottom sheet ---------- */
+
+@media (max-width: 639px) {
+  .se-modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .se-modal__panel {
+    max-width: none;
+    max-height: 92vh;
+    max-height: 92dvh;
+    border-bottom: 0;
+    border-radius: 16px 16px 0 0;
+    animation-name: se-sheet-in;
+  }
+
+  .se-modal__header,
+  .se-modal__body,
+  .se-modal__footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .se-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Buttons stack full width, primary on top. */
+  .se-modal__footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    padding-bottom: 16px;
+  }
+
+  .se-modal__footer .se-btn {
+    width: 100%;
+  }
+
+  .se-modal__footer .se-push-left {
+    margin-right: 0;
+  }
+}
+
+@keyframes se-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .se-modal__panel {
+    animation: none;
+  }
+}
+
+/* Callout inside a modal: <div class="se-note se-note--info"><i></i><div><p class="se-note__title"></p><p></p></div></div> */
+.se-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.se-note > i {
+  margin-top: 2px;
+  font-size: 13px;
+}
+
+.se-note p {
+  margin: 0;
+}
+
+.se-note__title {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.se-note--info {
+  border-color: #dbeafe;
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+.se-note--warn {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.se-note--danger {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.se-note--info .se-note__title,
+.se-note--warn .se-note__title,
+.se-note--danger .se-note__title {
+  color: inherit;
+}
+
+/* Radio / checkbox card:
+   <label class="se-choice"><input type="radio" ...><span class="se-choice__card">...</span></label> */
+.se-choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.se-choice {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+.se-choice > input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.se-choice__card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 500;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+}
+
+/* The round indicator on the right. */
+.se-choice__card::after {
+  content: "";
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  box-sizing: border-box;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.se-choice__text {
+  min-width: 0;
+}
+
+.se-choice__title {
+  display: block;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.se-choice__hint {
+  display: block;
+  margin-top: 1px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.se-choice__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.se-choice:hover .se-choice__card {
+  border-color: #cbd5e1;
+}
+
+.se-choice > input:checked + .se-choice__card {
+  border-color: #7c3aed;
+  background: #faf5ff;
+}
+
+.se-choice > input:checked + .se-choice__card::after {
+  border: 5px solid #7c3aed;
+}
+
+.se-choice > input:checked + .se-choice__card .se-choice__icon {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.se-choice > input:focus-visible + .se-choice__card {
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+}
+
+@media (max-width: 639px) {
+  .se-choices--stack {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Read-only value shown like an input (view modals):
+   <dd id="..." class="se-value"></dd>
+   Block + line-height (not flex) so the text is centred vertically
+   and long values still end with "..." when JS sets textContent. */
+.se-value {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 40px;
+  margin: 0;
+  padding: 0 12px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 38px; /* 40px minus the 1px borders */
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+
+.se-value:empty::before {
+  content: "\2014"; /* em dash while empty */
+  color: #94a3b8;
+}
+
+.se-input-icon > .se-value {
+  padding-left: 36px;
+}
+
+/* Short labels (e.g. "1st Semester") stay on one line; longer hints may wrap. */
+.se-choice__card {
+  white-space: nowrap;
+}
+
+.se-choice__text {
+  white-space: normal;
+}

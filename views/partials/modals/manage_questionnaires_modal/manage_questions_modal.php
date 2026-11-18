@@ -1,634 +1,88 @@
-<!-- MANAGE QUESTIONS MODAL -->
-<div id="manageQuestionsModal"
-  class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden">
+<?php $questionCategories = require __DIR__ . '/../shared/question_categories.php'; ?>
+<!-- Manage questions of a set (manage_questionnaires JS: #addQuestionForm, #set_id_input,
+     questionRender.js fills #questionList inside #questionTable) -->
+<div id="manageQuestionsModal" class="se-modal hidden" role="dialog" aria-modal="true" aria-labelledby="manageQuestionsTitle">
+  <div class="se-modal__panel se-modal__panel--xl">
 
-  <!-- Modal -->
-  <div
-    class="
-      flex w-full max-w-5xl
-      max-h-[92vh]
-      flex-col
-      overflow-hidden
-      rounded-2xl
-      border border-slate-200
-      bg-white
-      shadow-2xl shadow-slate-900/20
-    "
-  >
-
-    <!-- =====================================================
-         MODAL HEADER
-    ====================================================== -->
-    <div
-      class="
-        flex shrink-0
-        items-center justify-between
-        border-b border-slate-200
-        bg-white
-        px-5 py-4
-        sm:px-6
-      "
-    >
-
-      <!-- Title -->
-      <div class="flex items-center gap-3">
-
-        <!-- Icon -->
-        <div
-          class="
-            flex h-10 w-10
-            shrink-0
-            items-center justify-center
-            rounded-xl
-            bg-violet-50
-            text-violet-600
-          "
-        >
-          <i class="fas fa-list-check text-sm"></i>
-        </div>
-
-        <!-- Text -->
-        <div>
-
-          <h2
-            class="
-              text-base
-              font-semibold
-              tracking-tight
-              text-slate-900
-              sm:text-lg
-            "
-          >
-            Manage Questions
-          </h2>
-
-          <p class="mt-0.5 text-xs text-slate-400">
-            Manage questions for this evaluation set
-          </p>
-
-        </div>
-
+    <header class="se-modal__header">
+      <span class="se-modal__icon" aria-hidden="true">
+        <i class="fa-solid fa-list-check"></i>
+      </span>
+      <div class="se-modal__heading">
+        <h2 id="manageQuestionsTitle" class="se-modal__title">Manage Questions</h2>
+        <p class="se-modal__subtitle">Add and edit the questions in this evaluation set.</p>
       </div>
-
-
-      <!-- Close -->
-      <button
-        type="button"
-        data-close-modal="manageQuestionsModal"
-        class="
-          flex h-9 w-9
-          items-center justify-center
-          rounded-lg
-          text-slate-400
-          transition-all duration-200
-          hover:bg-slate-100
-          hover:text-slate-700
-          focus:outline-none
-          focus:ring-4
-          focus:ring-slate-500/10
-        "
-        aria-label="Close modal"
-      >
-        <i class="fas fa-xmark text-sm"></i>
+      <button type="button" data-close-modal="manageQuestionsModal" class="se-modal__close" aria-label="Close">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
       </button>
+    </header>
 
-    </div>
+    <div class="se-modal__body">
 
+      <!-- Add question -->
+      <section class="se-modal__section">
+        <h3 class="se-modal__section-title">Add Question</h3>
 
-    <!-- =====================================================
-         MODAL BODY
-    ====================================================== -->
-    <div
-      class="
-        flex min-h-0
-        flex-1
-        flex-col
-        gap-5
-        overflow-y-auto
-        bg-slate-50/60
-        p-5
-        sm:p-6
-      "
-    >
+        <form id="addQuestionForm">
+          <input type="hidden" name="set_id" id="set_id_input">
 
-      <!-- ===================================================
-           ADD QUESTION CARD
-      ==================================================== -->
-      <section
-        class="
-          shrink-0
-          rounded-2xl
-          border border-slate-200
-          bg-white
-          shadow-sm
-        "
-      >
-
-        <!-- Card Header -->
-        <div
-          class="
-            flex flex-col
-            gap-3
-            border-b border-slate-100
-            px-5 py-4
-            sm:flex-row
-            sm:items-center
-            sm:justify-between
-            sm:px-6
-          "
-        >
-
-          <div class="flex items-center gap-3">
-
-            <div
-              class="
-                flex h-9 w-9
-                items-center justify-center
-                rounded-lg
-                bg-violet-50
-                text-violet-600
-              "
-            >
-              <i class="fas fa-circle-plus text-sm"></i>
+          <div class="grid grid-cols-1 items-end gap-3 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_auto]">
+            <div>
+              <label for="question_name" class="se-label">Question Text <span class="se-required">*</span></label>
+              <input type="text" id="question_name" name="question_name" class="se-input" placeholder="Enter evaluation question..." required>
             </div>
 
             <div>
-
-              <h3 class="text-sm font-semibold text-slate-900">
-                Add Question
-              </h3>
-
-              <p class="mt-0.5 text-xs text-slate-400">
-                Create a new evaluation question
-              </p>
-
+              <label for="question_category" class="se-label">Category <span class="se-required">*</span></label>
+              <select id="question_category" name="categories" class="se-select" required>
+                <option value="" disabled selected>Select Category</option>
+                <?php foreach ($questionCategories as $category): ?>
+                  <option value="<?= htmlspecialchars($category, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($category, ENT_QUOTES, 'UTF-8') ?></option>
+                <?php endforeach; ?>
+              </select>
             </div>
 
-          </div>
-
-        </div>
-
-
-        <!-- Form -->
-        <form
-          id="addQuestionForm"
-          action="POST"
-          class="p-5 sm:p-6"
-        >
-
-          <input
-            type="hidden"
-            name="set_id"
-            id="set_id_input"
-          >
-
-
-          <div
-            class="
-              grid
-              grid-cols-1
-              gap-4
-              lg:grid-cols-3
-            "
-          >
-
-            <!-- QUESTION -->
-            <div class="lg:col-span-2">
-
-              <label
-                for="question_name"
-                class="
-                  mb-1.5
-                  block
-                  text-xs
-                  font-semibold
-                  text-slate-600
-                "
-              >
-                Question Text
-                <span class="text-red-500">*</span>
-              </label>
-
-              <input
-                type="text"
-                id="question_name"
-                name="question_name"
-                placeholder="Enter evaluation question..."
-                class="
-                  h-11
-                  w-full
-                  rounded-xl
-                  border border-slate-200
-                  bg-white
-                  px-3.5
-                  text-sm
-                  text-slate-700
-                  placeholder:text-slate-400
-                  outline-none
-                  transition-all duration-200
-                  hover:border-slate-300
-                  focus:border-violet-400
-                  focus:ring-4
-                  focus:ring-violet-500/10
-                "
-                required
-              >
-
-            </div>
-
-
-            <!-- CATEGORY -->
-            <div>
-
-              <label
-                for="question_category"
-                class="
-                  mb-1.5
-                  block
-                  text-xs
-                  font-semibold
-                  text-slate-600
-                "
-              >
-                Category
-                <span class="text-red-500">*</span>
-              </label>
-
-              <div class="relative">
-
-                <select
-                  id="question_category"
-                  name="categories"
-                  class="
-                    h-11
-                    w-full
-                    appearance-none
-                    rounded-xl
-                    border border-slate-200
-                    bg-white
-                    px-3.5
-                    pr-10
-                    text-sm
-                    text-slate-700
-                    outline-none
-                    transition-all duration-200
-                    hover:border-slate-300
-                    focus:border-violet-400
-                    focus:ring-4
-                    focus:ring-violet-500/10
-                  "
-                  required
-                >
-
-                  <option
-                    value=""
-                    disabled
-                    selected
-                  >
-                    Select Category
-                  </option>
-
-                  <option value="Punctuality">
-                    Punctuality
-                  </option>
-
-                  <option value="Communication Skills">
-                    Communication Skills
-                  </option>
-
-                  <option value="Subject Mastery">
-                    Subject Mastery
-                  </option>
-
-                  <option value="Teaching Effectiveness">
-                    Teaching Effectiveness
-                  </option>
-
-                  <option value="Professionalism">
-                    Professionalism
-                  </option>
-
-                  <option value="Classroom Management">
-                    Classroom Management
-                  </option>
-
-                  <option value="Assessment & Feedback">
-                    Assessment & Feedback
-                  </option>
-
-                  <option value="Student Engagement">
-                    Student Engagement
-                  </option>
-
-                  <option value="Fairness & Inclusivity">
-                    Fairness & Inclusivity
-                  </option>
-
-                </select>
-
-                <div
-                  class="
-                    pointer-events-none
-                    absolute inset-y-0 right-3
-                    flex items-center
-                    text-slate-400
-                  "
-                >
-                  <i class="fas fa-chevron-down text-[10px]"></i>
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <!-- FORM ACTIONS -->
-          <div
-            class="
-              mt-5
-              flex
-              justify-end
-              border-t border-slate-100
-              pt-4
-            "
-          >
-
-            <button
-              type="submit"
-              class="
-                group
-                inline-flex
-                h-10
-                items-center
-                justify-center
-                gap-2
-                rounded-xl
-                bg-violet-600
-                px-4
-                text-xs
-                font-semibold
-                text-white
-                shadow-sm
-                shadow-violet-600/20
-                transition-all duration-200
-                hover:-translate-y-0.5
-                hover:bg-violet-700
-                hover:shadow-md
-                hover:shadow-violet-600/20
-                focus:outline-none
-                focus:ring-4
-                focus:ring-violet-500/15
-                active:translate-y-0
-                active:scale-[0.98]
-              "
-            >
-
-              <span
-                class="
-                  flex h-5 w-5
-                  items-center justify-center
-                  rounded-md
-                  bg-white/15
-                  transition-colors
-                  group-hover:bg-white/20
-                "
-              >
-                <i class="fas fa-plus text-[9px]"></i>
-              </span>
-
+            <button type="submit" class="se-btn se-btn--primary">
+              <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
               Add Question
-
             </button>
-
           </div>
-
         </form>
-
       </section>
 
-
-      <!-- ===================================================
-           QUESTION LIST
-      ==================================================== -->
-      <section
-        class="
-          flex
-          min-h-0
-          flex-1
-          flex-col
-          overflow-hidden
-          rounded-2xl
-          border border-slate-200
-          bg-white
-          shadow-sm
-        "
-      >
-
-        <!-- List Header -->
-        <div
-          class="
-            flex shrink-0
-            flex-col
-            gap-3
-            border-b border-slate-200
-            px-5 py-4
-            sm:flex-row
-            sm:items-center
-            sm:justify-between
-            sm:px-6
-          "
-        >
-
-          <!-- Title -->
-          <div class="flex items-center gap-3">
-
-            <div
-              class="
-                flex h-9 w-9
-                items-center justify-center
-                rounded-lg
-                bg-slate-50
-                text-slate-500
-              "
-            >
-              <i class="fas fa-list text-xs"></i>
-            </div>
-
-            <div>
-
-              <h3 class="text-sm font-semibold text-slate-900">
-                Question List
-              </h3>
-
-              <p class="mt-0.5 text-xs text-slate-400">
-                Questions included in this evaluation set
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <!-- Count -->
-          <span
-            id="questionCount"
-            class="
-              inline-flex
-              w-fit
-              items-center
-              gap-1.5
-              rounded-full
-              bg-violet-50
-              px-2.5 py-1
-              text-[10px]
-              font-semibold
-              text-violet-600
-            "
-          >
-            <span
-              class="h-1.5 w-1.5 rounded-full bg-violet-500"
-            ></span>
-
-            <span id="questionCountNumber">
-              0
-            </span>
-
-            Questions
+      <!-- Question list -->
+      <section class="se-modal__section">
+        <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h3 class="se-modal__section-title" style="margin:0">Question List</h3>
+          <span id="questionCount" class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+            <span id="questionCountNumber">0</span> Questions
           </span>
-
         </div>
 
-
-        <!-- Table Wrapper -->
-        <div
-          class="
-            min-h-0
-            flex-1
-            overflow-auto
-          "
-        >
-
-          <table
-          id="questionTable"
-            class="
-              w-full
-              min-w-[650px]
-              text-left
-              text-sm
-            "
-          >
-
-            <!-- Table Head -->
-            <thead
-              class="
-                sticky top-0 z-10
-                border-b border-slate-200
-                bg-slate-50/95
-                text-[10px]
-                uppercase
-                tracking-wider
-                text-slate-500
-                backdrop-blur-sm
-              "
-            >
-
-              <tr>
-
-                <th
-                  class="
-                    px-5 py-3.5
-                    font-semibold
-                  "
-                >
-                  Question
-                </th>
-
-                <th
-                  class="
-                    w-[180px]
-                    px-5 py-3.5
-                    font-semibold
-                  "
-                >
-                  Category
-                </th>
-
-                <th
-                  class="
-                    w-[130px]
-                    px-5 py-3.5
-                    text-center
-                    font-semibold
-                  "
-                >
-                  Actions
-                </th>
-
-              </tr>
-
-            </thead>
-
-
-            <!-- Table Body -->
-            <tbody
-              id="questionList"
-              class="divide-y divide-slate-100"
-            >
-
-              <!-- Fill by JS -->
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-
-        <!-- Table Footer -->
-        <div
-          class="
-            shrink-0
-            border-t border-slate-100
-            bg-slate-50/50
-            px-5 py-3
-            sm:px-6
-          "
-        >
-
-          <div
-            class="
-              flex
-              items-center
-              justify-between
-              text-[11px]
-              text-slate-400
-            "
-          >
-
-            <span>
-              Evaluation questions
-            </span>
-
-            <span class="inline-flex items-center gap-1.5">
-
-              <span
-                class="h-1.5 w-1.5 rounded-full bg-violet-500"
-              ></span>
-
-              Standard Faculty Evaluation
-
-            </span>
-
+        <div class="overflow-hidden rounded-xl border border-slate-200">
+          <div class="max-h-[50vh] overflow-auto">
+            <table id="questionTable" class="w-full min-w-[560px] text-left text-sm">
+              <thead class="sticky top-0 z-10 bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500">
+                <tr>
+                  <th class="px-4 py-2.5 font-semibold">Question</th>
+                  <th class="px-4 py-2.5 font-semibold">Category</th>
+                  <th class="px-4 py-2.5 text-right font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="questionList" class="divide-y divide-slate-100 bg-white">
+                <!-- JS fills this -->
+              </tbody>
+            </table>
           </div>
-
         </div>
-
       </section>
 
     </div>
+
+    <footer class="se-modal__footer">
+      <p class="se-push-left text-xs text-slate-500">Changes are saved as you add or edit questions.</p>
+      <button type="button" data-close-modal="manageQuestionsModal" class="se-btn se-btn--secondary">Done</button>
+    </footer>
 
   </div>
-
 </div>

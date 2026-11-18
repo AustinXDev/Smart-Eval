@@ -1,45 +1,49 @@
-  <div id="commentModal"
-    class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
- 
-    <div class="bg-gray-100 rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden max-h-[90vh] flex flex-col">
- 
-      <!-- HEADER -->
-      <div class="bg-[#0F172A] px-6 py-4 flex justify-between items-center border-b-2 border-purple-600 flex-shrink-0">
-        <div>
-          <h2 class="text-white text-lg font-semibold">Teacher comment</h2>
-          <p class="text-gray-400 text-xs mt-0.5">View feedback and remarks from student evaluations</p>
-        </div>
-        <button id="closeComment" class="closeModal text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+<!-- Teacher comments (shared/table-config.js fills #initial, #tName, #mean, #comment-container) -->
+<div id="commentModal" class="se-modal hidden" role="dialog" aria-modal="true" aria-labelledby="commentModalTitle">
+  <div class="se-modal__panel se-modal__panel--lg">
+
+    <header class="se-modal__header">
+      <span class="se-modal__icon" aria-hidden="true">
+        <i class="fa-regular fa-comments"></i>
+      </span>
+      <div class="se-modal__heading">
+        <h2 id="commentModalTitle" class="se-modal__title">Teacher Comments</h2>
+        <p class="se-modal__subtitle">Feedback and remarks from student evaluations.</p>
       </div>
- 
-      <!-- BODY -->
-      <div class="overflow-y-auto p-5 flex flex-col gap-4">
- 
-        <div class="flex justify-between items-center">
-          <div class="flex gap-3 items-center">
-            <div class="flex justify-center items-center w-12 h-12 bg-indigo-800 rounded-full">
-              <span class="text-white font-bold" id="initial"></span>
-            </div>
-            <div class="">
-              <span class="font-semibold" id="tName"></span>
-              <p class="text-xs">Mean Score: <span id="mean" class="text-indigo-800 font-bold"></span></p>
+      <button id="closeComment" type="button" class="closeModal se-modal__close" aria-label="Close">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <div class="se-modal__body">
+
+      <section class="se-modal__section">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex min-w-0 items-center gap-3">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#16213E] text-sm font-semibold text-white">
+              <span id="initial"></span>
+            </span>
+            <div class="min-w-0">
+              <p id="tName" class="truncate text-sm font-semibold text-slate-900"></p>
+              <p class="text-xs text-slate-500">Mean Score: <span id="mean" class="font-semibold text-violet-700"></span></p>
             </div>
           </div>
 
-          <div>
-            <button class="btn-export btn-export-comment" id="btn-export-ranking">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 10v3h10v-3M8 2v7M5 6l3 3 3-3"/>
-              </svg>
-              Export to Excel
-            </button>
-          </div>
+          <button type="button" class="btn-export btn-export-comment se-btn se-btn--secondary" id="btn-export-ranking">
+            <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 10v3h10v-3M8 2v7M5 6l3 3 3-3"/>
+            </svg>
+            Export to Excel
+          </button>
         </div>
+      </section>
 
-        <div class="border-t border-gray-300 mb-3"></div>
+      <section class="se-modal__section">
+        <h3 class="se-modal__section-title">Comments</h3>
+        <div id="comment-container" class="flex flex-col gap-2"></div>
+      </section>
 
-        <div id="comment-container" class="flex flex-col gap-2">
-        </div>
- 
     </div>
+
   </div>
+</div>

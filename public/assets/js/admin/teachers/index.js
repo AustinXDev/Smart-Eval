@@ -81,11 +81,11 @@ async function handleEditClick(editBtn) {
   initImagePreview("editTeacherPhotoInput", "editTeacherPhotoPreview", {
     defaultSrc: `uploads/teachers/${teacher.image_path}`,
     maxSizeMB: 5,
-    fileNameId: "fileName",
-    placeholderId: "photoPlaceholder",
-    checkId: "photoCheck",
+    // The edit modal's own elements (these used to point at the Add modal).
+    fileNameId: "editTeacherFileName",
+    checkId: "editPhotoCheck",
     formId: "editTeacherForm",
-    emptyFileNameText: "No file selected",
+    emptyFileNameText: "No new photo selected",
   });
 }
 

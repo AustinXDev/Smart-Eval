@@ -1,71 +1,23 @@
-<!-- CSV Upload Loading Overlay -->
-<div
-  id="uploadLoading"
-  class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-sm"
-  role="status"
-  aria-live="polite"
-  aria-label="Uploading CSV file"
->
+<!-- CSV upload in progress (opened/closed by students/components/csvUpload.js) -->
+<div id="uploadLoading" class="se-modal hidden" role="status" aria-live="polite" aria-label="Uploading CSV file">
+  <div class="se-modal__panel se-modal__panel--sm">
 
-  <!-- Loading Card -->
-  <div
-    class="w-full max-w-xs rounded-2xl border border-white/40 bg-white p-7 text-center shadow-2xl shadow-slate-900/20"
-  >
+    <header class="se-modal__header">
+      <span class="se-modal__icon" aria-hidden="true">
+        <i class="fa-solid fa-circle-notch fa-spin"></i>
+      </span>
+      <div class="se-modal__heading">
+        <h2 class="se-modal__title">Uploading CSV</h2>
+        <p class="se-modal__subtitle">Please wait while we import your students.</p>
+      </div>
+    </header>
 
-    <!-- Spinner Container -->
-    <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center">
-
-      <!-- Soft Glow -->
-      <div
-        class="absolute h-14 w-14 rounded-full bg-violet-500/20 blur-xl"
-      ></div>
-
-      <!-- Spinner -->
-      <div
-        class="relative h-12 w-12 animate-spin rounded-full border-[3px] border-slate-200 border-t-violet-600"
-      ></div>
-
-    </div>
-
-
-    <!-- Loading Text -->
-    <div>
-
-      <h3
-        class="text-base font-semibold tracking-tight text-slate-900"
-      >
-        Uploading CSV
-      </h3>
-
-      <p
-        class="mt-1 text-sm leading-5 text-slate-500"
-      >
-        Please wait while we import your students.
-      </p>
-
-    </div>
-
-
-    <!-- Animated Dots -->
-    <div
-      class="mt-4 flex items-center justify-center gap-1"
-      aria-hidden="true"
-    >
-
-      <span
-        class="h-1.5 w-1.5 animate-bounce rounded-full bg-violet-500 [animation-delay:-0.3s]"
-      ></span>
-
-      <span
-        class="h-1.5 w-1.5 animate-bounce rounded-full bg-violet-500 [animation-delay:-0.15s]"
-      ></span>
-
-      <span
-        class="h-1.5 w-1.5 animate-bounce rounded-full bg-violet-500"
-      ></span>
-
+    <div class="se-modal__body">
+      <div class="h-1.5 overflow-hidden rounded-full bg-slate-100" aria-hidden="true">
+        <div class="h-full w-1/3 animate-pulse rounded-full bg-violet-500"></div>
+      </div>
+      <p class="se-help">Keep this page open until the import finishes.</p>
     </div>
 
   </div>
-
 </div>

@@ -1,10 +1,31 @@
-<div id="confirmationModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-100 hidden">
-  <div class="bg-white rounded-lg p-5 w-96">
-    <h2 id="modalTitle" class="text-lg font-semibold">Confirm Action</h2>
-    <p id="modalMessage" class="mt-2 text-gray-600">Are you sure you want to proceed?</p>
-    <div class="mt-5 flex justify-end gap-3">
-      <button id="cancelBtn" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-      <button id="confirmBtn" class="px-4 py-2 bg-red-500 text-white rounded">Yes</button>
+<?php
+/**
+ * Shared confirmation dialog.
+ * JS (assets/js/modal/modal.js showConfirmation, and page scripts) fills
+ * #modalTitle / #modalMessage and wires #confirmBtn / #cancelBtn.
+ */
+?>
+<div id="confirmationModal" class="se-modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalMessage">
+  <div class="se-modal__panel se-modal__panel--sm">
+
+    <header class="se-modal__header">
+      <span class="se-modal__icon se-modal__icon--danger" aria-hidden="true">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </span>
+      <div class="se-modal__heading">
+        <h2 id="modalTitle" class="se-modal__title">Confirm Action</h2>
+        <p class="se-modal__subtitle">Please review before continuing.</p>
+      </div>
+    </header>
+
+    <div class="se-modal__body">
+      <p id="modalMessage" class="se-modal__message">Are you sure you want to proceed?</p>
     </div>
+
+    <footer class="se-modal__footer">
+      <button id="cancelBtn" type="button" class="se-btn se-btn--secondary">Cancel</button>
+      <button id="confirmBtn" type="button" class="se-btn se-btn--danger">Yes</button>
+    </footer>
+
   </div>
 </div>
