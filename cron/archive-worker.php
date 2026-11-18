@@ -12,6 +12,8 @@ require_once __DIR__ . '/../app/config/database.php';
 require_once __DIR__ . '/../app/config/archive-database.php';
 
 use App\Repositories\ArchiveRepo\ArchiveRepository;
+use App\Repositories\LogRepo\ActivityLogRepository;
+use App\Services\LoggingServices\ActivityLogService;
 use App\Services\BackupServices\GoogleDriveService;
 use App\Services\BackupServices\ArchiveBackupService;
 use App\Services\ArchiveServices\ArchiveCleanupService;
@@ -44,6 +46,12 @@ function cronLog(string $message): void
 }
 
 $lockHandle = null;
+$summary = null;
+
+// Activity log (System tab). Counts only.
+$jobLog = isset($pdo) && $pdo instanceof PDO
+    ? new ActivityLogService(new ActivityLogRepository($pdo))
+    : null;
 
 cronLog('Archive started.');
 
@@ -202,6 +210,33 @@ try {
         . " | Failed: {$summary['failed']}"
     );
 
+    // Only log runs that had periods to archive.
+    if ($summary['eligible'] > 0 || $summary['failed'] > 0) {
+        $completed = (int) $summary['completed'];
+
+        $jobLog?->logJob(
+            'archive',
+            match (true) {
+                $summary['failed'] > 0 && $completed === 0 => 'backup_failed',
+                $summary['failed'] > 0                     => 'backup_with_errors',
+                default                                    => 'backup_completed',
+            },
+            sprintf(
+                'Archived and backed up %d evaluation period%s (%d skipped, %d failed)',
+                $completed,
+                $completed === 1 ? '' : 's',
+                $summary['skipped'],
+                $summary['failed']
+            ),
+            [
+                'eligible'  => $summary['eligible'],
+                'completed' => $summary['completed'],
+                'skipped'   => $summary['skipped'],
+                'failed'    => $summary['failed'],
+            ]
+        );
+    }
+
     if ($summary['failed'] > 0) {
         throw new RuntimeException(
             "{$summary['failed']} archive period(s) failed."
@@ -216,6 +251,16 @@ try {
     );
 
     cronLog('[ERROR] ' . $e->getMessage());
+
+    // A failed summary was already logged above; log only errors before or during the run.
+    if ($summary === null) {
+        $jobLog?->logJob(
+            'archive',
+            'job_failed',
+            'Archive backup worker stopped with an error',
+            ['error' => get_class($e)]
+        );
+    }
 
     exit(1);
 

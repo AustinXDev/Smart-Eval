@@ -12,8 +12,9 @@ use App\Repositories\LogRepo\ActivityLogRepository;
  *   $logger->log('teachers', 'create', 'Added teacher Maria Santos (00-0012)',
  *       targetType: 'teacher', targetId: '21', department: 'college');
  *
- * The actor (admin, student, or system for CLI/cron) is taken from the
- * session unless one is passed. Logging never throws: a failure is written
+ * The actor (admin or student) is taken from the session unless one is passed.
+ * System entries are written only by the background jobs through logJob();
+ * log() ignores anything it cannot tie to an admin or student. Logging never throws: a failure is written
  * to the PHP error log so it can never break the action being logged.
  *
  * Privacy: callers must not pass passwords, tokens, codes, or anything that
@@ -25,6 +26,15 @@ class ActivityLogService
     // Secrets (passwords, tokens, one-time codes) and anything that could
     // expose an evaluation (answers, scores, comments, ratings).
     private const SENSITIVE_KEY = '/password|passwd|token|secret|csrf|^code$|^otp$|_otp$|verification_code|two_factor_code|answer|score|comment|rating/i';
+
+    // Name shown in "Performed By" for each job allowed to log as the system
+    // (must match ActivityLogRepository::SYSTEM_JOB_MODULES).
+    private const SYSTEM_JOBS_NAME = [
+        'periods'         => 'Evaluation period scheduler',
+        'notifications'   => 'Reminder email worker',
+        'teacher_reports' => 'Teacher report worker',
+        'archive'         => 'Archive backup worker',
+    ];
 
     public function __construct(private ActivityLogRepository $logs)
     {
@@ -43,9 +53,65 @@ class ActivityLogService
         array $metadata = [],
         ?array $actor = null,
     ): void {
-        try {
-            $actor ??= $this->currentActor();
+        $actor ??= $this->currentActor();
 
+        // System entries come only from the background jobs (see logJob()).
+        // Anything else that cannot be tied to an admin or student is not logged.
+        if (($actor['type'] ?? 'system') === 'system') {
+            return;
+        }
+
+        $this->write($module, $action, $description, $targetType, $targetId, $department, $metadata, $actor);
+    }
+
+    /**
+     * Background (cron) job result, shown in the System tab.
+     * Only these jobs log as the system:
+     *
+     *   periods         - auto activate / close     (cron/evaluation_period.php)
+     *   notifications   - evaluation reminder emails (cron/process-notification-queue.php)
+     *   teacher_reports - teacher report emails     (cron/process-teacher-reports.php)
+     *   archive         - archive + backup          (cron/archive-worker.php)
+     *
+     * Pass counts only (no emails, names or evaluation data).
+     */
+    public function logJob(
+        string $job,
+        string $action,
+        string $description,
+        array $metadata = [],
+        ?string $targetType = null,
+        ?string $targetId = null,
+        ?string $department = null,
+    ): void {
+        if (!in_array($job, ActivityLogRepository::SYSTEM_JOB_MODULES, true) || !isset(self::SYSTEM_JOBS_NAME[$job])) {
+            error_log("[ActivityLog] Unknown system job '{$job}' was not logged.");
+            return;
+        }
+
+        $this->write(
+            $job,
+            $action,
+            $description,
+            $targetType,
+            $targetId,
+            $department,
+            $metadata,
+            actor: ['type' => 'system', 'id' => null, 'name' => self::SYSTEM_JOBS_NAME[$job], 'role' => 'cron'],
+        );
+    }
+
+    private function write(
+        string $module,
+        string $action,
+        string $description,
+        ?string $targetType = null,
+        ?string $targetId = null,
+        ?string $department = null,
+        array $metadata = [],
+        array $actor = [],
+    ): void {
+        try {
             $this->logs->create([
                 'actor_type'  => $actor['type'],
                 'actor_id'    => self::clip($actor['id'] ?? null, 20),

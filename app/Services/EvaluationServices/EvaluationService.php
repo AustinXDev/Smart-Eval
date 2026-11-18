@@ -769,6 +769,9 @@ class EvaluationService
 
         try {
 
+            // Which periods are about to be activated (for the activity log)
+            $toActivate = $this->evaluationRepo->findPeriodsToActivate($now);
+
             // Activate scheduled evaluation periods
             $activated = $this->evaluationRepo->activateScheduledPeriods($now);
 
@@ -778,7 +781,7 @@ class EvaluationService
             // Nothing expired, but activation may have happened
             if (empty($expiredPeriods)) {
                 $this->pdo->commit();
-                $this->logAutomaticChanges($activated, []);
+                $this->logSchedulerChanges($activated > 0 ? $toActivate : [], []);
                 return;
             }
 
@@ -822,7 +825,7 @@ class EvaluationService
 
             $this->pdo->commit();
 
-            $this->logAutomaticChanges($activated, $expiredPeriods);
+            $this->logSchedulerChanges($activated > 0 ? $toActivate : [], $expiredPeriods);
 
         } catch (Exception $e) {
 
@@ -834,49 +837,67 @@ class EvaluationService
                 'Evaluation automatic update failed: '
                 . $e->getMessage()
             );
+
+            $this->schedulerLog()->logJob(
+                'periods',
+                'job_failed',
+                'Evaluation period scheduler failed; no periods were changed',
+                ['error' => get_class($e)]
+            );
         }
     }
 
 
     /**
-     * Activity log for scheduler changes (after commit). Always logged as the
-     * system, even when a web request triggered the update.
+     * Activity log (System tab) for periods the scheduler activated or closed.
+     * Written after commit, so only real changes are logged. Always logged as
+     * the system, even when a web request triggered the update.
      */
-    private function logAutomaticChanges(int $activated, array $closedPeriods): void
+    private function logSchedulerChanges(array $activatedPeriods, array $closedPeriods): void
     {
-        if ($activated === 0 && $closedPeriods === []) {
+        if ($activatedPeriods === [] && $closedPeriods === []) {
             return;
         }
 
+        $logger = $this->schedulerLog();
         $repo = new \App\Repositories\LogRepo\ActivityLogRepository($this->pdo);
-        $logger = new \App\Services\LoggingServices\ActivityLogService($repo);
-        $system = ['type' => 'system', 'id' => null, 'name' => 'System scheduler', 'role' => null];
 
-        if ($activated > 0) {
-            $logger->log(
-                'periods',
-                'auto_activate',
-                "Automatically activated {$activated} scheduled evaluation period" . ($activated === 1 ? '' : 's'),
-                metadata: ['activated' => $activated],
-                actor: $system,
-            );
+        foreach ($activatedPeriods as $period) {
+            $this->logPeriodChange($logger, 'auto_activate', 'Automatically activated', $period);
         }
 
         foreach ($closedPeriods as $period) {
+            // findExpiredPeriods() returns only id + department; add the A.Y. and semester.
             $info = $repo->findPeriod((int) $period['period_id']);
-            $department = strtolower((string) ($period['target_dept'] ?? ''));
-            $label = $department === 'shs' ? 'SHS' : 'College';
-
-            $logger->log(
-                'periods',
-                'auto_close',
-                trim("Automatically closed {$label} evaluation period A.Y. " . ($info['academic_year'] ?? '') . ' ' . ($info['semester'] ?? '')),
-                'period',
-                (string) $period['period_id'],
-                $department,
-                actor: $system,
-            );
+            $this->logPeriodChange($logger, 'auto_close', 'Automatically closed', $period + $info);
         }
+    }
+
+    private function logPeriodChange(
+        \App\Services\LoggingServices\ActivityLogService $logger,
+        string $action,
+        string $verb,
+        array $period
+    ): void {
+        $department = strtolower((string) ($period['target_dept'] ?? $period['department'] ?? ''));
+        $label = $department === 'shs' ? 'SHS' : 'College';
+        $term = trim(($period['academic_year'] ?? '') !== '' ? 'A.Y. ' . $period['academic_year'] . ' ' . ($period['semester'] ?? '') : '');
+
+        $logger->logJob(
+            'periods',
+            $action,
+            trim("{$verb} {$label} evaluation period {$term}"),
+            targetType: 'period',
+            targetId: (string) $period['period_id'],
+            department: in_array($department, ['college', 'shs'], true) ? $department : null,
+        );
+    }
+
+    private function schedulerLog(): \App\Services\LoggingServices\ActivityLogService
+    {
+        return new \App\Services\LoggingServices\ActivityLogService(
+            new \App\Repositories\LogRepo\ActivityLogRepository($this->pdo)
+        );
     }
 
 }

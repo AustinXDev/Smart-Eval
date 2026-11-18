@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Core\Container;
 use App\providers\EmailProvider;
+use App\Repositories\LogRepo\ActivityLogRepository;
 use App\Repositories\NotificationRepositories\TeacherNotificationRepository;
+use App\Services\LoggingServices\ActivityLogService;
 
 if (PHP_SAPI !== 'cli') {
     exit(1);
@@ -252,6 +254,39 @@ try {
         $stats['test'],
         $hadErrors ? 'yes' : 'no'
     ));
+
+    // Activity log (System tab). Counts only. Plain dry runs send nothing and
+    // re-check the same queue every night, so they are not logged.
+    $sentAnything = $stats['sent'] + $stats['failed'] + $stats['retry'] + $stats['test'] > 0
+        || (!$dryRun && $stats['skipped'] > 0);
+
+    if (($hadErrors || $sentAnything) && isset($pdo) && $pdo instanceof PDO) {
+        $mode = $dryRun ? 'test' : 'production';
+        $action = match (true) {
+            $hadErrors && $stats['sent'] + $stats['test'] === 0 => 'send_failed',
+            $hadErrors                                          => 'sent_with_errors',
+            $dryRun                                             => 'test_reports_sent',
+            default                                             => 'reports_sent',
+        };
+        $description = $dryRun
+            ? sprintf('Sent %d test teacher report email%s (queue unchanged)', $stats['test'], $stats['test'] === 1 ? '' : 's')
+            : sprintf(
+                'Sent %d teacher evaluation report%s (%d skipped, %d failed, %d to retry)',
+                $stats['sent'],
+                $stats['sent'] === 1 ? '' : 's',
+                $stats['skipped'],
+                $stats['failed'],
+                $stats['retry']
+            );
+
+        (new ActivityLogService(new ActivityLogRepository($pdo)))->logJob(
+            'teacher_reports',
+            $action,
+            $description,
+            ['mode' => $mode] + $stats
+        );
+    }
+
     flock($lock, LOCK_UN);
     fclose($lock);
 }

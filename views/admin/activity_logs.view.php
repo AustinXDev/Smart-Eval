@@ -34,7 +34,7 @@ $e = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES, '
 $tabs = [
     ['admin', 'Admin', 'Actions by administrators', 'fa-user-shield'],
     ['student', 'Student', 'Student sign-ins and evaluation progress', 'fa-user-graduate'],
-    ['system', 'System', 'Automatic scheduler actions', 'fa-gears'],
+    ['system', 'System', 'Background jobs: period activation and closing, reminder emails, teacher reports and archive backups', 'fa-gears'],
 ];
 
 $control = 'h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 shadow-sm outline-none transition hover:border-slate-300 focus:border-[#6010FF] focus:ring-2 focus:ring-[#6010FF]/15';

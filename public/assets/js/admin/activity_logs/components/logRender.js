@@ -22,7 +22,7 @@ function actorSubtitle(row) {
   if (row.actor_type === "student") {
     return row.actor_id ? `Student ID ${escapeHTML(row.actor_id)}` : "Student (unverified)";
   }
-  return "Automatic";
+  return "Scheduled job";
 }
 
 export function renderActor(row) {

@@ -12,6 +12,12 @@ use PDO;
  */
 class ActivityLogRepository
 {
+    /**
+     * The only modules shown under "system": the background (cron) jobs.
+     * Any other system rows stay in the table but are hidden.
+     */
+    public const SYSTEM_JOB_MODULES = ['periods', 'notifications', 'teacher_reports', 'archive'];
+
     public function __construct(private PDO $pdo)
     {
     }
@@ -78,6 +84,10 @@ class ActivityLogRepository
                 $where .= " AND {$key} = :{$key}";
                 $params[$key] = (string) $filters[$key];
             }
+        }
+
+        if (($filters['actor_type'] ?? '') === 'system') {
+            $where .= ' AND ' . self::systemModulesSql();
         }
 
         if (!empty($filters['from'])) {
@@ -150,10 +160,23 @@ class ActivityLogRepository
      */
     public function modulesFor(string $actorType): array
     {
-        $stmt = $this->pdo->prepare('SELECT DISTINCT module FROM activity_logs WHERE actor_type = ? ORDER BY module');
+        $sql = 'SELECT DISTINCT module FROM activity_logs WHERE actor_type = ?';
+        if ($actorType === 'system') {
+            $sql .= ' AND ' . self::systemModulesSql();
+        }
+
+        $stmt = $this->pdo->prepare($sql . ' ORDER BY module');
         $stmt->execute([$actorType]);
 
         return array_map('strval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    /** "module IN ('notifications', ...)" built from a fixed constant (no user input). */
+    private static function systemModulesSql(): string
+    {
+        $quoted = array_map(static fn (string $m): string => "'" . $m . "'", self::SYSTEM_JOB_MODULES);
+
+        return 'module IN (' . implode(', ', $quoted) . ')';
     }
 
     // ------------------------------------------------------------------

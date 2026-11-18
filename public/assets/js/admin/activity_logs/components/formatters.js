@@ -13,6 +13,9 @@ const MODULE_LABELS = {
   monitoring: "Monitoring",
   archive: "Archive",
   evaluation: "Evaluation",
+  // System (cron) jobs
+  notifications: "Reminder Emails",
+  teacher_reports: "Teacher Reports",
 };
 
 /** "force_close" -> "Force Close" */
@@ -35,9 +38,9 @@ export function parseDate(value) {
 /** Badge + dot classes, picked by what the action means. */
 export function actionStyle(action) {
   const a = String(action ?? "");
-  if (/failed|denied/.test(a)) return ["bg-amber-50 text-amber-700 ring-amber-600/15", "bg-amber-500"];
+  if (/failed|denied|error/.test(a)) return ["bg-amber-50 text-amber-700 ring-amber-600/15", "bg-amber-500"];
   if (/delete|remove|unassign|close|logout/.test(a)) return ["bg-rose-50 text-rose-700 ring-rose-600/15", "bg-rose-500"];
-  if (/create|add|login|activate|complete|restore|assign|register|import/.test(a)) return ["bg-emerald-50 text-emerald-700 ring-emerald-600/15", "bg-emerald-500"];
+  if (/create|add|login|activate|complete|restore|assign|register|import|sent/.test(a)) return ["bg-emerald-50 text-emerald-700 ring-emerald-600/15", "bg-emerald-500"];
   if (/update|reset|set|select|submit|verify|notify|preview/.test(a)) return ["bg-blue-50 text-blue-700 ring-blue-600/15", "bg-blue-500"];
   return ["bg-slate-50 text-slate-600 ring-slate-500/10", "bg-slate-400"];
 }

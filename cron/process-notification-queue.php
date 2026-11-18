@@ -16,7 +16,9 @@ require_once dirname(__DIR__) . '/app/init.php';
 use App\providers\EmailProvider;
 use App\Repositories\EvaluationRepo\EvaluationRepository;
 use App\Repositories\NotificationRepositories\NotificationRepository;
+use App\Repositories\LogRepo\ActivityLogRepository;
 use App\Repositories\StudentRepo\StudentRepository;
+use App\Services\LoggingServices\ActivityLogService;
 use App\Services\NotificationServices\NotificationWorkerService;
 
 $logFile = __DIR__ . '/../storage/logs/notification.log';
@@ -37,6 +39,11 @@ function cronLog(string $message): void
         FILE_APPEND
     );
 }
+
+// Activity log (System tab). Counts only, never student details.
+$jobLog = isset($pdo) && $pdo instanceof PDO
+    ? new ActivityLogService(new ActivityLogRepository($pdo))
+    : null;
 
 try {
 
@@ -205,6 +212,33 @@ try {
         $result['failed']
     ));
 
+    // Only log runs that did something (the worker runs every few minutes).
+    if ($result['claimed'] > 0 || $result['failed'] > 0) {
+        $action = match (true) {
+            $result['failed'] > 0 && $result['sent'] === 0 => 'send_failed',
+            $result['failed'] > 0                          => 'sent_with_errors',
+            default                                        => 'reminders_sent',
+        };
+
+        $jobLog?->logJob(
+            'notifications',
+            $action,
+            sprintf(
+                'Sent %d evaluation reminder email%s (%d skipped, %d failed)',
+                $result['sent'],
+                $result['sent'] === 1 ? '' : 's',
+                $result['skipped'],
+                $result['failed']
+            ),
+            [
+                'claimed' => $result['claimed'],
+                'sent'    => $result['sent'],
+                'skipped' => $result['skipped'],
+                'failed'  => $result['failed'],
+            ]
+        );
+    }
+
 } catch (Throwable $e) {
 
     cronLog(
@@ -212,6 +246,13 @@ try {
           . get_class($e)
           . ' - '
           . $e->getMessage()
+    );
+
+    $jobLog?->logJob(
+        'notifications',
+        'job_failed',
+        'Reminder email worker stopped with an error',
+        ['error' => get_class($e)]
     );
 
     exit(1);

@@ -1015,6 +1015,28 @@ class EvaluationRepository
      * AUTO LOAD REPOSITORIES
      */
 
+    // Periods that activateScheduledPeriods() is about to activate
+    // (same conditions). Used for the activity log.
+    public function findPeriodsToActivate(
+        string $now
+    ): array {
+
+        $stmt = $this->pdo->prepare("
+          SELECT period_id, target_dept, academic_year, semester
+          FROM evaluation_periods
+          WHERE is_active = 0
+            AND start_date <= ?
+            AND end_date >= ?
+            AND is_closed = 0
+            AND is_forced = 0
+        ");
+
+        $stmt->execute([ $now, $now ]);
+
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+    }
+
     //Activate scheduled evaluation periods
     public function activateScheduledPeriods(
         string $now
