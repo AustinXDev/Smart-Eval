@@ -84,6 +84,7 @@ final class ApiSecurity
             'evaluation/get_dashboard.php',
             'admin/archive/overview.php',
             'admin/archive/list.php',
+            'admin/activity_logs/list.php',
             'admin/archive/details.php',
             'admin/archive/logs.php',
         ];

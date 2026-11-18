@@ -522,322 +522,167 @@ body {
   }
 }
 
-/* Teacher list processing indicator: normal flow avoids clipping. */
-#teachersTable_wrapper #teachersTable_processing {
-  position: static;
-  float: none;
-  transform: none;
-  box-sizing: border-box;
-  width: 100%;
-  max-width: none;
-  height: auto;
-  margin: 0;
-  padding: 36px 16px;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  text-align: center;
-}
-#teachersTable_processing > .teacher-loading + div {
-  display: none;
-}
-.teacher-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.teacher-loading__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  margin-bottom: 14px;
-  border-radius: 14px;
-  background: #f5f3ff;
-}
-.teacher-loading__spinner {
-  display: block;
-  box-sizing: border-box;
-  width: 22px;
-  height: 22px;
-  border: 2px solid #e4dcff;
-  border-top-color: #8b5cf6;
-  border-radius: 50%;
-  animation: teacher-loader-spin 0.8s linear infinite;
-}
-.teacher-loading__title {
-  color: #334155;
-  font-size: 14px;
-  font-weight: 600;
-}
-.teacher-loading__subtitle {
-  margin-top: 4px;
-  color: #94a3b8;
-  font-size: 13px;
-  font-weight: 400;
-}
-@keyframes teacher-loader-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .teacher-loading__spinner {
-    animation: none;
-  }
-}
-
-/* Evaluation-period processing indicator stays in normal layout. */
-#evaluationTable_wrapper #evaluationTable_processing {
-  position: static;
-  float: none;
-  transform: none;
-  box-sizing: border-box;
-  width: 100%;
-  max-width: none;
-  height: auto;
-  margin: 0;
-  padding: 36px 16px;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  text-align: center;
-}
-#evaluationTable_processing > .period-loading + div {
-  display: none;
-}
-.period-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: #334155;
-  font-size: 14px;
-}
-.period-loading__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  margin-bottom: 14px;
-  border-radius: 14px;
-  background: #f5f3ff;
-}
-.period-loading__spinner {
-  display: block;
-  width: 22px;
-  height: 22px;
-  box-sizing: border-box;
-  border: 2px solid #e4dcff;
-  border-top-color: #8b5cf6;
-  border-radius: 50%;
-  animation: period-loader-spin 0.8s linear infinite;
-}
-.period-loading__subtitle {
-  margin-top: 4px;
-  font-size: 13px;
-  font-weight: 400;
-  color: #94a3b8;
-}
-@keyframes period-loader-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .period-loading__spinner {
-    animation: none;
-  }
-}
-
-/* Hide stale rows and empty messages while a period request is pending. */
-#evaluationTable.periods-loading > tbody {
-  display: none;
-}
-
-/* Programs: keep headers visible while replacing stale rows with the loader. */
-#programTable.is-loading > tbody {
-  display: none;
-}
-#programTable_wrapper #programTable_processing {
-  position: static;
-  float: none;
-  transform: none;
-  box-sizing: border-box;
-  width: 100%;
-  max-width: none;
-  height: auto;
-  margin: 0;
-  padding: 36px 16px;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  text-align: center;
-}
-#programTable_processing > .program-loading + div {
-  display: none;
-}
-.program-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  color: #94a3b8;
-  font-size: 13px;
-}
-.program-loading strong {
-  color: #334155;
-  font-size: 14px;
-}
-.program-loading__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  margin-bottom: 10px;
-  border-radius: 14px;
-  background: #f5f3ff;
-}
-.program-loading__spinner {
-  display: block;
-  box-sizing: border-box;
-  width: 22px;
-  height: 22px;
-  border: 2px solid #e4dcff;
-  border-top-color: #8b5cf6;
-  border-radius: 50%;
-  animation: program-loader-spin 0.8s linear infinite;
-}
-@keyframes program-loader-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .program-loading__spinner {
-    animation: none;
-  }
-}
-#programTable_wrapper .dataTables_paginate,
-#programTable_wrapper .dataTables_paginate > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-#programTable_wrapper .dataTables_paginate .paginate_button {
-  margin: 0 !important;
-}
-
 /* ============================================================
-   Evaluation Monitoring: pagination
-   Only the current page is filled violet. Colors match
-   stylePagination() in shared/datatable_config.js.
+   DATA TABLES
+   Applies to every list built with createDataTable()
+   (shared/datatable_config.js adds .se-datatable to the wrapper):
+   students, teachers, evaluation periods, programs, monitoring,
+   archive, recovery logs and activity logs.
+
+   Layout:  .se-datatable
+              > .dt-scroll   the table; scrolls sideways on small screens
+              > .dt-footer   "Showing x to y" + pagination; never scrolls away
    ============================================================ */
-/* Typography: Roboto (the app font, imported at the top of this file) for the
-   whole student list (table, info, pagination), with tabular figures so IDs
-   and counts line up. */
-:is(#monitoring-student-table_wrapper, #studentsTable_wrapper, #teachersTable_wrapper, #evaluationTable_wrapper, #programTable_wrapper, #archive-table_wrapper, #recovery-log-table_wrapper) {
+
+.dataTables_wrapper.se-datatable {
+  position: relative;
+  width: 100%;
+  min-width: 0;
   font-family: "Roboto", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-:is(#monitoring-student-table, #studentsTable, #teachersTable, #evaluationTable, #programTable, #archive-table, #recovery-log-table) {
+/* ---------- Scroll area ---------- */
+
+.se-datatable > .dt-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+
+  /* Edge shadows show that more columns are off screen; they disappear at each end. */
+  background:
+    linear-gradient(to right, #ffffff 30%, rgba(255, 255, 255, 0)) left center / 40px 100% no-repeat local,
+    linear-gradient(to left, #ffffff 30%, rgba(255, 255, 255, 0)) right center / 40px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, rgba(15, 23, 42, 0.12), transparent) left center / 12px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, rgba(15, 23, 42, 0.12), transparent) right center / 12px 100% no-repeat scroll;
+}
+
+.se-datatable > .dt-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.se-datatable > .dt-scroll::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: #cbd5e1;
+  background-clip: content-box;
+}
+
+.se-datatable > .dt-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+  background-clip: content-box;
+}
+
+.se-datatable > .dt-scroll:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: -2px;
+}
+
+/* ---------- Table ---------- */
+
+.se-datatable table.dataTable {
+  width: 100% !important; /* ignore any inline pixel width */
+  margin: 0 !important;
   font-size: 13px;
   line-height: 1.45;
   color: #334155;
 }
 
-:is(#monitoring-student-table, #studentsTable, #teachersTable, #evaluationTable, #programTable, #archive-table, #recovery-log-table) thead th {
+.se-datatable table.dataTable thead th {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  white-space: nowrap;
   color: #64748b;
 }
 
-:is(#monitoring-student-table, #studentsTable, #teachersTable, #evaluationTable, #programTable, #archive-table, #recovery-log-table) tbody td {
+.se-datatable table.dataTable tbody td {
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
 
-:is(#monitoring-student-table, #studentsTable, #teachersTable, #evaluationTable, #programTable, #archive-table, #recovery-log-table) .ms-id,
-:is(#monitoring-student-table, #studentsTable, #teachersTable, #evaluationTable, #programTable, #archive-table, #recovery-log-table) .font-mono {
+.se-datatable table.dataTable .ms-id,
+.se-datatable table.dataTable .font-mono {
   font-family: inherit !important;
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.01em;
 }
 
-:is(#monitoring-student-table, #studentsTable, #teachersTable, #evaluationTable, #programTable, #archive-table, #recovery-log-table) .ms-name {
+.se-datatable table.dataTable .ms-name {
   font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.005em;
   color: #0f172a;
 }
 
-:is(#monitoring-student-table, #studentsTable, #teachersTable, #evaluationTable, #programTable, #archive-table, #recovery-log-table) .ms-course {
+.se-datatable table.dataTable .ms-course {
   font-size: 13px;
 }
 
-:is(#monitoring-student-table_wrapper, #studentsTable_wrapper, #teachersTable_wrapper, #evaluationTable_wrapper, #programTable_wrapper, #archive-table_wrapper, #recovery-log-table_wrapper) .dataTables_info {
+/* Empty / loading / error message: keep it centred in the visible area,
+   even when the table is wider than the screen. */
+.se-datatable td.dataTables_empty {
+  padding: 0 !important;
+}
+
+.se-datatable td.dataTables_empty > * {
+  position: sticky;
+  left: 0;
+  box-sizing: border-box;
+  /* On wide screens the cell already fits; on phones cap it to about the screen width. */
+  max-width: calc(100vw - 32px);
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+/* ---------- Footer: info + pagination ---------- */
+
+.se-datatable > .dt-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  padding: 14px 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.se-datatable .dataTables_info {
+  float: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
   font-size: 12px !important;
   font-weight: 500 !important;
+  line-height: 1.4 !important;
   color: #64748b !important;
   font-variant-numeric: tabular-nums;
 }
 
-/* Footer row: "Showing x to y" on the left, buttons on the right, vertically
-   centered. Overrides dataTable.css, which pins .dataTables_paginate to the
-   bottom-right corner (position: absolute) and offsets .dataTables_info. */
-:is(#monitoring-student-table_wrapper, #studentsTable_wrapper, #teachersTable_wrapper, #evaluationTable_wrapper, #programTable_wrapper, #archive-table_wrapper, #recovery-log-table_wrapper) .dataTables_info {
-  float: none !important;
-  display: flex !important;
-  align-items: center !important;
-  width: auto !important;
-  margin: 0 !important;
-  padding: 0 0 16px 20px !important;
-  line-height: 36px !important;
-  text-align: left !important;
-}
-
-:is(#monitoring-student-table_wrapper, #studentsTable_wrapper, #teachersTable_wrapper, #evaluationTable_wrapper, #programTable_wrapper, #archive-table_wrapper, #recovery-log-table_wrapper) .dataTables_paginate {
+.se-datatable .dataTables_paginate {
   position: static !important;
   float: none !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
+  display: flex !important;
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
   gap: 6px;
-  width: auto !important;
   margin: 0 !important;
-  padding: 0 20px 16px 0 !important;
+  padding: 0 !important;
   line-height: 1 !important;
 }
 
-:is(#monitoring-student-table_wrapper, #studentsTable_wrapper, #teachersTable_wrapper, #evaluationTable_wrapper, #programTable_wrapper, #archive-table_wrapper, #recovery-log-table_wrapper) .dataTables_paginate > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+/* Page numbers wrap together with Previous / Next. */
+.se-datatable .dataTables_paginate > span {
+  display: contents;
 }
 
-/* Phones: stack and center. */
-@media (max-width: 639px) {
-  :is(#monitoring-student-table_wrapper, #studentsTable_wrapper, #teachersTable_wrapper, #evaluationTable_wrapper, #programTable_wrapper, #archive-table_wrapper, #recovery-log-table_wrapper) .dataTables_info,
-  :is(#monitoring-student-table_wrapper, #studentsTable_wrapper, #teachersTable_wrapper, #evaluationTable_wrapper, #programTable_wrapper, #archive-table_wrapper, #recovery-log-table_wrapper) .dataTables_paginate {
-    justify-content: center !important;
-    width: 100% !important;
-    padding: 0 16px 12px !important;
-  }
-}
-
-/* Every button: white, bordered (not filled). */
-:is(#monitoring-student-table_wrapper, #studentsTable_wrapper, #teachersTable_wrapper, #evaluationTable_wrapper, #programTable_wrapper, #archive-table_wrapper, #recovery-log-table_wrapper) .dataTables_paginate .paginate_button {
+/* Every button: white and bordered; only the current page is filled. */
+.se-datatable .dataTables_paginate .paginate_button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -849,7 +694,6 @@ body {
   border: 1px solid #e2e8f0 !important;
   border-radius: 8px;
   background: #ffffff !important;
-  background-image: none !important;
   box-shadow: none !important;
   color: #475569 !important;
   font-family: inherit;
@@ -857,21 +701,26 @@ body {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  text-decoration: none;
   text-shadow: none !important;
   cursor: pointer;
+  user-select: none;
   transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease;
 }
 
-/* Hover (not current, not disabled): light violet. */
-:is(#monitoring-student-table_wrapper, #studentsTable_wrapper, #teachersTable_wrapper, #evaluationTable_wrapper, #programTable_wrapper, #archive-table_wrapper, #recovery-log-table_wrapper) .dataTables_paginate .paginate_button:hover:not(.current):not(.disabled) {
+.se-datatable .dataTables_paginate .paginate_button:hover:not(.current):not(.disabled) {
   border-color: #ddd6fe !important;
   background: #f5f3ff !important;
   color: #7c3aed !important;
 }
 
-/* Active page: the only filled button. */
-:is(#monitoring-student-table_wrapper, #studentsTable_wrapper, #teachersTable_wrapper, #evaluationTable_wrapper, #programTable_wrapper, #archive-table_wrapper, #recovery-log-table_wrapper) .dataTables_paginate .paginate_button.current,
-:is(#monitoring-student-table_wrapper, #studentsTable_wrapper, #teachersTable_wrapper, #evaluationTable_wrapper, #programTable_wrapper, #archive-table_wrapper, #recovery-log-table_wrapper) .dataTables_paginate .paginate_button.current:hover {
+.se-datatable .dataTables_paginate .paginate_button:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+}
+
+.se-datatable .dataTables_paginate .paginate_button.current,
+.se-datatable .dataTables_paginate .paginate_button.current:hover {
   border-color: #7c3aed !important;
   background: #7c3aed !important;
   color: #ffffff !important;
@@ -879,9 +728,8 @@ body {
   cursor: default;
 }
 
-/* Previous / Next when unavailable. */
-:is(#monitoring-student-table_wrapper, #studentsTable_wrapper, #teachersTable_wrapper, #evaluationTable_wrapper, #programTable_wrapper, #archive-table_wrapper, #recovery-log-table_wrapper) .dataTables_paginate .paginate_button.disabled,
-:is(#monitoring-student-table_wrapper, #studentsTable_wrapper, #teachersTable_wrapper, #evaluationTable_wrapper, #programTable_wrapper, #archive-table_wrapper, #recovery-log-table_wrapper) .dataTables_paginate .paginate_button.disabled:hover {
+.se-datatable .dataTables_paginate .paginate_button.disabled,
+.se-datatable .dataTables_paginate .paginate_button.disabled:hover {
   border-color: #f1f5f9 !important;
   background: #f8fafc !important;
   color: #cbd5e1 !important;
@@ -889,9 +737,61 @@ body {
 }
 
 /* "…" between page numbers: no box. */
-:is(#monitoring-student-table_wrapper, #studentsTable_wrapper, #teachersTable_wrapper, #evaluationTable_wrapper, #programTable_wrapper, #archive-table_wrapper, #recovery-log-table_wrapper) .dataTables_paginate .ellipsis {
-  padding: 0 4px;
+.se-datatable .dataTables_paginate .ellipsis {
+  padding: 0 2px;
   color: #94a3b8;
+}
+
+/* ---------- Tablets ---------- */
+
+@media (max-width: 767px) {
+  .se-datatable > .dt-footer {
+    padding: 12px 16px;
+  }
+}
+
+/* ---------- Phones: tighter cells, stacked + centred footer ---------- */
+
+@media (max-width: 639px) {
+  .se-datatable table.dataTable thead th,
+  .se-datatable table.dataTable tbody td:not(.dataTables_empty) {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .se-datatable > .dt-footer {
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 12px 14px;
+    text-align: center;
+  }
+
+  .se-datatable .dataTables_paginate {
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .se-datatable .dataTables_paginate .paginate_button {
+    padding: 0 10px !important;
+  }
+
+  /* Previous / Next become icon-only; the label stays for screen readers. */
+  .se-datatable .dataTables_paginate .paginate_button.previous > span > span,
+  .se-datatable .dataTables_paginate .paginate_button.next > span > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .se-datatable .dataTables_paginate .paginate_button {
+    transition: none;
+  }
 }
 
 /* ============================================================

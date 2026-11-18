@@ -62,6 +62,11 @@ $navigation = [
             'icon' => 'fa-solid fa-box-archive',
             'url' => 'archive-management',
         ],
+        [
+            'label' => 'Activity Logs',
+            'icon' => 'fa-solid fa-clock-rotate-left',
+            'url' => 'activity-logs',
+        ],
     ],
 
     'dean' => [

@@ -89,14 +89,6 @@ class EnrollmentSelectionService
             }
 
             /*
-             * Update enrollment type
-             */
-            $this->studentRepo->markEnrollmentType(
-                $studentId,
-                $enrollmentType
-            );
-
-            /*
              * Create evaluation status
              * for assigned teachers
              */
@@ -105,6 +97,26 @@ class EnrollmentSelectionService
                 $periodId,
                 $programId,
                 $yearLevel
+            );
+
+            /*
+             * Only save Regular once the rows exist. Otherwise the
+             * evaluation page has nothing to show for this student.
+             */
+            if ($this->evaluationRepo->countSelectedTeachers($studentId, $periodId) === 0) {
+                throw new RuntimeException(
+                    'No teachers are currently assigned to your program and year level. ' .
+                    'Please choose Irregular to select your teachers manually, ' .
+                    'or contact the administrator.'
+                );
+            }
+
+            /*
+             * Update enrollment type
+             */
+            $this->studentRepo->markEnrollmentType(
+                $studentId,
+                $enrollmentType
             );
 
             return [

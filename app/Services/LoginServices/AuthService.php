@@ -137,13 +137,15 @@ class AuthService
         $this->session->set('authenticated_at', time());
         $this->session->set('last_activity', time());
 
+        // Resolve first: it can update the student (SHS students become Regular),
+        // and the session must carry that enrollment type.
+        $redirect = $this->redirectResolver->resolve(
+            $student
+        );
+
         $this->session->set(
             'student',
             $student->toSessionArray()
-        );
-
-        $redirect = $this->redirectResolver->resolve(
-            $student
         );
 
         $this->session->remove('2fa_pending');

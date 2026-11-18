@@ -1088,6 +1088,38 @@ class EvaluationRepository
     }
 
 
+    /**
+     * Create evaluation rows for a Regular student from the active teacher loads
+     * of their program and year level. Existing rows are left untouched.
+     */
+    public function seedAssignedLoads(
+        string $studentId,
+        int $periodId,
+        int $programId,
+        string $yearLevel
+    ): int {
+
+        if ($programId <= 0 || $yearLevel === '') {
+            return 0;
+        }
+
+        $stmt = $this->pdo->prepare("
+            INSERT IGNORE INTO evaluation_status
+                (student_id, teacher_id, period_id)
+            SELECT ?, teacher_id, ?
+            FROM teacher_load
+            WHERE program_id = ?
+                AND year_level = ?
+                AND is_active = 1
+        ");
+
+        $stmt->execute([$studentId, $periodId, $programId, $yearLevel]);
+
+        return $stmt->rowCount();
+
+    }
+
+
     public function existLoad(
         string $studentId,
         int $periodId

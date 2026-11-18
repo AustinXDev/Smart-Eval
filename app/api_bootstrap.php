@@ -18,6 +18,9 @@ try {
 
     \App\middleware\ApiSecurity::handle($pdo, substr($entry, strlen($apiRoot)));
 
+    // Activity log for endpoints that change data (no-op for everything else).
+    \App\Services\LoggingServices\ApiActivityLogger::start($pdo, substr($entry, strlen($apiRoot)));
+
 } catch (\Throwable $e) {
 
     error_log('[API boundary] ' . get_class($e) . ': ' . $e->getMessage());

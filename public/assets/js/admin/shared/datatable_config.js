@@ -29,12 +29,12 @@ export function createDataTable(
     // Your pages use their own custom search fields.
     // --------------------------------------------------------------
 
+    // The table scrolls sideways inside .dt-scroll, so the footer
+    // (info + pagination) stays in view on small screens.
+    // Layout and colours live in custom.css (.se-datatable).
     dom:
-      "tr" +
-      "<'mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between'" +
-      "<'dataTables-info'i>" +
-      "<'dataTables-pagination'p>" +
-      ">",
+      "<'dt-scroll't>" +
+      "<'dt-footer'<'dt-info'i><'dt-pagination'p>>",
 
     // ==============================================================
     // TABLE SETTINGS
@@ -162,13 +162,6 @@ export function createDataTable(
       },
     },
 
-    // ==============================================================
-    // INITIALIZATION
-    // ==============================================================
-
-    initComplete: function () {
-      stylePagination();
-    },
   };
 
   // ==============================================================
@@ -180,101 +173,32 @@ export function createDataTable(
     ...options,
   });
 
-  // ==============================================================
-  // RE-STYLE AFTER EVERY DRAW
-  // ==============================================================
-
-  table.on("draw.dt", function () {
-    stylePagination();
-  });
+  const wrapper = table.table().container();
+  wrapper.classList.add("se-datatable");
+  moveScrollRegion(wrapper);
 
   return table;
 }
 
 // ================================================================
-// STYLE PAGINATION
+// SCROLL REGION
 // ================================================================
 
-function stylePagination() {
-  $(".dataTables_info")
-    .removeClass("text-gray-600 text-sm sm:text-base mt-2")
-    .addClass("text-xs font-medium text-slate-400 mx-4");
+// The views wrap each table in a keyboard-scrollable region
+// (role="region" tabindex="0" aria-label="..."). The table now scrolls
+// inside .dt-scroll instead, so move those attributes there.
+function moveScrollRegion(wrapper) {
+  const scroller = wrapper.querySelector(":scope > .dt-scroll");
+  const region = wrapper.parentElement?.closest('[role="region"]');
+  if (!scroller || !region) return;
 
-  $(".dataTables_paginate")
-    .removeAttr("style")
+  scroller.setAttribute("role", "region");
+  scroller.setAttribute("tabindex", "0");
+  if (region.hasAttribute("aria-label")) {
+    scroller.setAttribute("aria-label", region.getAttribute("aria-label"));
+  }
 
-    .addClass(["mx-4", "my-2", "flex", "items-center"]);
-
-  $(".dataTables_paginate .paginate_button")
-    .removeAttr("style")
-
-    .addClass(
-      [
-        "inline-flex",
-        "min-h-9",
-        "min-w-9",
-        "items-center",
-        "justify-center",
-        "rounded-lg",
-        "border",
-        "border-slate-200",
-        "bg-white",
-        "px-3",
-        "mx-2",
-        "text-xs",
-        "font-semibold",
-        "text-slate-600",
-        "transition-all",
-        "duration-150",
-      ].join(" "),
-    );
-
-  // ==============================================================
-  // CURRENT PAGE
-  // ==============================================================
-
-  $(".dataTables_paginate .paginate_button.current")
-    .removeAttr("style")
-
-    .addClass(
-      [
-        "!border-violet-600",
-        "!bg-violet-600",
-        "!text-white",
-        "shadow-sm",
-        "shadow-violet-600/20",
-      ].join(" "),
-    );
-
-  // ==============================================================
-  // HOVER
-  // ==============================================================
-
-  $(".dataTables_paginate .paginate_button")
-    .not(".current")
-    .not(".disabled")
-
-    .addClass(
-      [
-        "hover:border-violet-200",
-        "hover:bg-violet-50",
-        "hover:text-violet-600",
-      ].join(" "),
-    );
-
-  // ==============================================================
-  // DISABLED
-  // ==============================================================
-
-  $(".dataTables_paginate .paginate_button.disabled")
-    .removeAttr("style")
-
-    .addClass(
-      [
-        "!cursor-not-allowed",
-        "!border-slate-100",
-        "!bg-slate-50",
-        "!text-slate-300",
-      ].join(" "),
-    );
+  region.removeAttribute("role");
+  region.removeAttribute("tabindex");
+  region.removeAttribute("aria-label");
 }

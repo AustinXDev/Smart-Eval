@@ -91,6 +91,11 @@ class StudentMiddleware
         $enrollmentType = $student['enrollment_type'] ?? null;
         $department = $student['department'] ?? null;
 
+        // Teacher selection is only for Irregular students.
+        if ($enrollmentType === 'Regular' && $currentPage === 'teacher-selection') {
+            self::redirect('/Smart-Eval/public/evaluation');
+        }
+
         if (
             $enrollmentType !== 'Irregular' ||
             $currentPage !== 'teacher-selection'
@@ -149,6 +154,26 @@ class StudentMiddleware
 
         // Check assigned loads / teacher selection
         $hasSetLoads = $this->evaluationRepo->existLoad($studentId, $periodId);
+
+        if (!$hasSetLoads && $studentEnrollmentType === 'Regular') {
+            // Regular students never pick teachers. Their rows come from teacher_load,
+            // so rebuild them if they are missing (e.g. a new period started).
+            $this->evaluationRepo->seedAssignedLoads(
+                $studentId,
+                (int) $periodId,
+                (int) ($student['program_id'] ?? 0),
+                (string) ($student['year_level'] ?? '')
+            );
+
+            $hasSetLoads = $this->evaluationRepo->existLoad($studentId, $periodId);
+
+            if (!$hasSetLoads) {
+                // No teachers assigned to the program/year: let the student choose again.
+                $this->studentRepo->clearEnrollmentType($studentId);
+                unset($_SESSION['student']['enrollment_type']);
+                self::redirect('/Smart-Eval/public/enrollment-selection');
+            }
+        }
 
         if (!$hasSetLoads) {
             self::redirect('/Smart-Eval/public/teacher-selection');

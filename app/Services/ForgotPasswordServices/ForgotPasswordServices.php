@@ -39,6 +39,14 @@ class ForgotPasswordServices
       ];
     }
 
+    // A pending account has no password to reset yet: the student must
+    // finish registration through the activation link first.
+    if ($student->accountStatus === 'pending') {
+      throw new ForgotPasswordException(
+        'This account is not activated yet. Please activate it using the link sent to your email, or register again to receive a new activation link.'
+      );
+    }
+
     // Check rate limit
     $attempts = $this->resets->countRecentAttempts(
         $student->studentId,

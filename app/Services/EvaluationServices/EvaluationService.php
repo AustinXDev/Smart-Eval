@@ -778,6 +778,7 @@ class EvaluationService
             // Nothing expired, but activation may have happened
             if (empty($expiredPeriods)) {
                 $this->pdo->commit();
+                $this->logAutomaticChanges($activated, []);
                 return;
             }
 
@@ -821,6 +822,8 @@ class EvaluationService
 
             $this->pdo->commit();
 
+            $this->logAutomaticChanges($activated, $expiredPeriods);
+
         } catch (Exception $e) {
 
             if ($this->pdo->inTransaction()) {
@@ -830,6 +833,48 @@ class EvaluationService
             error_log(
                 'Evaluation automatic update failed: '
                 . $e->getMessage()
+            );
+        }
+    }
+
+
+    /**
+     * Activity log for scheduler changes (after commit). Always logged as the
+     * system, even when a web request triggered the update.
+     */
+    private function logAutomaticChanges(int $activated, array $closedPeriods): void
+    {
+        if ($activated === 0 && $closedPeriods === []) {
+            return;
+        }
+
+        $repo = new \App\Repositories\LogRepo\ActivityLogRepository($this->pdo);
+        $logger = new \App\Services\LoggingServices\ActivityLogService($repo);
+        $system = ['type' => 'system', 'id' => null, 'name' => 'System scheduler', 'role' => null];
+
+        if ($activated > 0) {
+            $logger->log(
+                'periods',
+                'auto_activate',
+                "Automatically activated {$activated} scheduled evaluation period" . ($activated === 1 ? '' : 's'),
+                metadata: ['activated' => $activated],
+                actor: $system,
+            );
+        }
+
+        foreach ($closedPeriods as $period) {
+            $info = $repo->findPeriod((int) $period['period_id']);
+            $department = strtolower((string) ($period['target_dept'] ?? ''));
+            $label = $department === 'shs' ? 'SHS' : 'College';
+
+            $logger->log(
+                'periods',
+                'auto_close',
+                trim("Automatically closed {$label} evaluation period A.Y. " . ($info['academic_year'] ?? '') . ' ' . ($info['semester'] ?? '')),
+                'period',
+                (string) $period['period_id'],
+                $department,
+                actor: $system,
             );
         }
     }

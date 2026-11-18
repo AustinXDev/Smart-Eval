@@ -44,6 +44,17 @@ class StudentRepository
     /**
      * Mark the student's enrollment type.
      */
+    public function clearEnrollmentType(string $studentId): void
+    {
+        $stmt = $this->pdo->prepare("
+            UPDATE students
+            SET enrollment_type = NULL
+            WHERE student_id = ?
+        ");
+
+        $stmt->execute([$studentId]);
+    }
+
     public function markEnrollmentType(
         string $studentId,
         string $type
