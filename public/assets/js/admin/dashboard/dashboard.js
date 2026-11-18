@@ -163,9 +163,7 @@ function renderTrend(trend, period) {
   }
 
   const ctx = canvas.getContext("2d");
-  const gradient = ctx.createLinearGradient(0, 0, 0, 280);
-  gradient.addColorStop(0, "rgba(96, 16, 255, 0.22)");
-  gradient.addColorStop(1, "rgba(96, 16, 255, 0)");
+  const colors = chartColors();
 
   trendChart = new Chart(ctx, {
     type: "line",
@@ -174,15 +172,15 @@ function renderTrend(trend, period) {
       datasets: [{
         label: "Submitted evaluations",
         data,
-        borderColor: "#6010FF",
-        backgroundColor: gradient,
+        borderColor: colors.line,
+        backgroundColor: areaGradient(ctx, colors),
         borderWidth: 2.5,
         fill: true,
         tension: 0.35,
         pointRadius: data.length > 31 ? 0 : 3,
         pointHoverRadius: 5,
-        pointBackgroundColor: "#ffffff",
-        pointBorderColor: "#6010FF",
+        pointBackgroundColor: colors.point,
+        pointBorderColor: colors.line,
         pointBorderWidth: 2,
       }],
     },
@@ -193,7 +191,9 @@ function renderTrend(trend, period) {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: "#0f172a",
+          backgroundColor: colors.tooltip,
+          borderColor: colors.tooltipBorder,
+          borderWidth: 1,
           padding: 10,
           cornerRadius: 8,
           displayColors: false,
@@ -209,21 +209,82 @@ function renderTrend(trend, period) {
       scales: {
         x: {
           grid: { display: false },
-          ticks: { color: "#94a3b8", font: { size: 11 }, maxRotation: 0, autoSkipPadding: 12 },
-          title: { display: true, text: "Date", color: "#64748b", font: { size: 11, weight: "600" } },
+          ticks: { color: colors.tick, font: { size: 11 }, maxRotation: 0, autoSkipPadding: 12 },
+          title: { display: true, text: "Date", color: colors.axisTitle, font: { size: 11, weight: "600" } },
         },
         y: {
           beginAtZero: true,
-          grid: { color: "#f1f5f9" },
+          grid: { color: colors.grid },
           border: { display: false },
-          ticks: { color: "#94a3b8", font: { size: 11 }, precision: 0 },
-          title: { display: true, text: "Submissions", color: "#64748b", font: { size: 11, weight: "600" } },
+          ticks: { color: colors.tick, font: { size: 11 }, precision: 0 },
+          title: { display: true, text: "Submissions", color: colors.axisTitle, font: { size: 11, weight: "600" } },
         },
       },
     },
   });
   trendChart.$fullDates = labels;
 }
+
+// Chart colours for the current theme (views/partials/theme_head.php sets <html data-theme>).
+function chartColors() {
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+
+  return dark
+    ? {
+        line: "#e5e5e5",
+        point: "#0a0a0a",
+        fillFrom: "rgba(250, 250, 250, 0.16)",
+        fillTo: "rgba(250, 250, 250, 0)",
+        grid: "#262626",
+        tick: "#a3a3a3",
+        axisTitle: "#737373",
+        tooltip: "#1c1c1c",
+        tooltipBorder: "#333333",
+      }
+    : {
+        line: "#6010FF",
+        point: "#ffffff",
+        fillFrom: "rgba(96, 16, 255, 0.22)",
+        fillTo: "rgba(96, 16, 255, 0)",
+        grid: "#f1f5f9",
+        tick: "#94a3b8",
+        axisTitle: "#64748b",
+        tooltip: "#0f172a",
+        tooltipBorder: "#0f172a",
+      };
+}
+
+function areaGradient(ctx, colors) {
+  const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+  gradient.addColorStop(0, colors.fillFrom);
+  gradient.addColorStop(1, colors.fillTo);
+  return gradient;
+}
+
+// Re-colour the chart when the theme button is used.
+window.addEventListener("se:themechange", () => {
+  if (!trendChart) return;
+
+  const colors = chartColors();
+  const dataset = trendChart.data.datasets[0];
+  const { scales, plugins } = trendChart.options;
+
+  dataset.borderColor = colors.line;
+  dataset.pointBorderColor = colors.line;
+  dataset.pointBackgroundColor = colors.point;
+  dataset.backgroundColor = areaGradient(trendChart.ctx, colors);
+
+  plugins.tooltip.backgroundColor = colors.tooltip;
+  plugins.tooltip.borderColor = colors.tooltipBorder;
+
+  scales.x.ticks.color = colors.tick;
+  scales.y.ticks.color = colors.tick;
+  scales.x.title.color = colors.axisTitle;
+  scales.y.title.color = colors.axisTitle;
+  scales.y.grid.color = colors.grid;
+
+  trendChart.update("none");
+});
 
 // ================================================================
 // TEACHER PERFORMANCE SNAPSHOT

@@ -147,6 +147,21 @@ $displayRole = ucwords(
         <!-- USER PROFILE -->
         <div class="flex shrink-0 items-center gap-3">
 
+            <?php if (!empty($themeEnabled)): ?>
+            <!-- Light / dark switch (only on pages that include partials/theme_head.php) -->
+            <button
+                type="button"
+                data-theme-toggle
+                class="theme-toggle flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+                aria-pressed="false"
+                aria-label="Switch to dark mode"
+                title="Dark mode"
+            >
+                <i class="theme-toggle__moon fa-regular fa-moon text-sm" aria-hidden="true"></i>
+                <i class="theme-toggle__sun fa-regular fa-sun text-sm" aria-hidden="true"></i>
+            </button>
+            <?php endif; ?>
+
             <div class="hidden text-right leading-tight sm:block">
                 <p class="max-w-44 truncate text-sm font-semibold text-slate-900">
                     <?= htmlspecialchars($displayName) ?>
