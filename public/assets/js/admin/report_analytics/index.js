@@ -11,6 +11,10 @@ import { startLivePolling, initVisibilityHandling } from "./modules/polling.js";
 import { renderHistoricalBanner } from "./modules/render/historical_banner.js";
 import { initDashboardBindings } from "./modules/binding.js";
 import { logout } from "../shared/logout.js";
+import { enableChartTheme } from "../../charts/chart-theme.js";
+
+// Dark-mode colours for every chart on this page (axes, grid, legend, tooltips).
+enableChartTheme();
 
 document.addEventListener("DOMContentLoaded", async () => {
   const data = await fetchAnalytics(dept, periodId, false);

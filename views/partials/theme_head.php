@@ -9,8 +9,11 @@
  * Pages that do not include this file always stay light.
  */
 $themeEnabled = true;
+
+// Version = file time, so browsers and hosts fetch dark.css again after each upload.
+$darkCssVersion = @filemtime(__DIR__ . '/../../public/assets/css/dark.css') ?: '1';
 ?>
-<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dark.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dark.css?v=<?= $darkCssVersion ?>">
 <script>
   (function () {
     var theme = "light";

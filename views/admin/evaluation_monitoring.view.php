@@ -61,6 +61,7 @@ $skeleton = '<span class="inline-block h-8 w-16 animate-pulse rounded-md bg-slat
 
   <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/custom.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <?php require __DIR__ . '/../partials/theme_head.php'; ?>
   <!-- Same DataTables setup as the student list: pagination is styled by
        stylePagination() in shared/datatable_config.js (only .current is filled). -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>

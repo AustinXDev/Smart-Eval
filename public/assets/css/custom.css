@@ -681,26 +681,29 @@ body {
   display: contents;
 }
 
-/* Every button: white and bordered; only the current page is filled. */
+/* Every button: white and bordered; only the current page is filled.
+   Shape is !important so older page styles or DataTables' default
+   stylesheet cannot change the size, corners or font. */
 .se-datatable .dataTables_paginate .paginate_button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  min-width: 36px;
-  min-height: 36px;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  min-width: 36px !important;
+  height: auto !important;
+  min-height: 36px !important;
   margin: 0 !important;
   padding: 0 12px !important;
   border: 1px solid #e2e8f0 !important;
-  border-radius: 8px;
+  border-radius: 8px !important;
   background: #ffffff !important;
   box-shadow: none !important;
   color: #475569 !important;
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
+  font-family: inherit !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
   font-variant-numeric: tabular-nums;
-  line-height: 1;
+  line-height: 1 !important;
   text-decoration: none;
   text-shadow: none !important;
   cursor: pointer;
@@ -738,7 +741,10 @@ body {
 
 /* "…" between page numbers: no box. */
 .se-datatable .dataTables_paginate .ellipsis {
-  padding: 0 2px;
+  min-width: 0 !important;
+  padding: 0 2px !important;
+  border-color: transparent !important;
+  background: transparent !important;
   color: #94a3b8;
 }
 

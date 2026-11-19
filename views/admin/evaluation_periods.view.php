@@ -65,6 +65,7 @@ $lineSkeleton = static fn (string $w): string => '<span class="inline-block h-3 
 
   <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/custom.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <?php require __DIR__ . '/../partials/theme_head.php'; ?>
 
   <!-- Same DataTables setup as Evaluation Monitoring; table and pagination
        styles are shared in custom.css (#evaluationTable_wrapper). -->
