@@ -213,6 +213,7 @@ class AnalyticsService
 
 
         $teacherRanking = $this->getTeacherRankingList($periodId, $department, $isClosed);
+        
         $ratingDistribution = array_fill_keys(
             ['Outstanding', 'Very Satisfactory', 'Satisfactory', 'Fair', 'Poor'],
             0

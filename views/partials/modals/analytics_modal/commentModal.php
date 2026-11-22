@@ -25,7 +25,12 @@
             </span>
             <div class="min-w-0">
               <p id="tName" class="truncate text-sm font-semibold text-slate-900"></p>
-              <p class="text-xs text-slate-500">Mean Score: <span id="mean" class="font-semibold text-violet-700"></span></p>
+              <p class="text-xs text-slate-500">Mean Score: <span id="mean" class="font-semibold text-violet-700"></span> <span class="text-slate-400">/ 5.00</span></p>
+              <!-- Filled by updateTeacherMean() in shared/table-config.js (width = mean / 5). -->
+              <div id="mean-progress" class="mt-1.5 h-1.5 w-40 max-w-full overflow-hidden rounded-full bg-slate-100"
+                   role="progressbar" aria-label="Mean score" aria-valuemin="0" aria-valuemax="5">
+                <div id="mean-progress-fill" class="h-full w-0 rounded-full bg-violet-600 transition-[width] duration-500 ease-out motion-reduce:transition-none"></div>
+              </div>
             </div>
           </div>
 

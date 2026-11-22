@@ -51,6 +51,7 @@ $filterLabel = 'block text-[11px] font-semibold uppercase tracking-wide text-sla
 
   <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/custom.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <?php require __DIR__ . '/../partials/theme_head.php'; ?>
 
   <!-- Table and pagination styles: custom.css (.se-datatable). The class is added at runtime by
        createDataTable() in assets/js/admin/shared/datatable_config.js, so it is not in this markup. -->

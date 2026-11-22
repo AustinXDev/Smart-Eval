@@ -43,15 +43,15 @@ class TwoFactorRepository
     ): ?array {
 
         $stmt = $this->pdo->prepare("
-      SELECT *
-      FROM 2fa_codes
-      WHERE student_id = ?
-        AND purpose = ?
-        AND used = 0
-        AND expires_at > NOW()
-      ORDER BY created_at DESC
-      LIMIT 1
-    ");
+        SELECT *
+        FROM 2fa_codes
+        WHERE student_id = ?
+          AND purpose = ?
+          AND used = 0
+          AND expires_at > NOW()
+        ORDER BY created_at DESC
+        LIMIT 1
+      ");
 
         $stmt->execute([
           $studentId,

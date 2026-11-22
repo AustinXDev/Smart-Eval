@@ -16,6 +16,7 @@ if (($_ENV['APP_ENV'] ?? 'production') === 'production') {
     ini_set('display_errors', '0');
     ini_set('log_errors', '1');
 }
+
 if (PHP_SAPI !== 'cli') {
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: SAMEORIGIN');

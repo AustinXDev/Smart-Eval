@@ -1434,6 +1434,49 @@ html[data-theme="dark"]
   border-color: var(--dk-border-soft) !important;
 }
 
+/* ============================================================
+   ARCHIVE MANAGEMENT + ACTIVITY LOGS
+   ============================================================ */
+
+/* Active tab underline (archive navigation.js and activity logs tabs). */
+html[data-theme="dark"] .border-violet-600,
+html[data-theme="dark"] .border-\[\#6010FF\] {
+  border-color: var(--dk-text);
+}
+
+/* Violet info box and dividers. */
+html[data-theme="dark"] .bg-\[\#6010FF\]\/\[0\.04\] {
+  background-color: var(--dk-raised);
+}
+html[data-theme="dark"] .border-\[\#6010FF\]\/10 {
+  border-color: var(--dk-border);
+}
+
+/* Backup upload: dashed drop area and the "Choose file" button. */
+html[data-theme="dark"] .hover\:border-\[\#6010FF\]\/40:hover {
+  border-color: #525252;
+}
+html[data-theme="dark"] .file\:bg-\[\#6010FF\]\/10::file-selector-button {
+  background-color: var(--dk-raised-2);
+}
+html[data-theme="dark"] .file\:text-\[\#6010FF\]::file-selector-button {
+  color: var(--dk-text);
+}
+
+/* Amber notices (restore warning, record notice). */
+html[data-theme="dark"] .bg-amber-50\/60 {
+  background-color: rgba(245, 158, 11, 0.1);
+}
+html[data-theme="dark"] .text-amber-800,
+html[data-theme="dark"] .text-amber-900 {
+  color: #fcd34d;
+}
+
+/* Disabled items in the row action menu. */
+html[data-theme="dark"] .disabled\:text-slate-400:disabled {
+  color: var(--dk-dim);
+}
+
 /* ---------- Theme toggle button (views/partials/header.php) ---------- */
 
 .theme-toggle .theme-toggle__sun {
