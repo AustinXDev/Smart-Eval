@@ -1539,3 +1539,12 @@ body {
 .se-choice__text {
   white-space: normal;
 }
+
+/* ---------- Cards: flat with a hairline border ----------
+   Content cards inside <main> (bordered, rounded boxes) drop their shadows,
+   including hover shadows. Buttons, links and form fields are skipped so their
+   focus rings (also box-shadow) still work; icon tiles use ring-1, not .border. */
+main :is(div, section, article, header, aside, li, form, fieldset).border:is(.rounded-xl, .rounded-2xl, .rounded-3xl),
+main :is(div, section, article, header, aside, li, form, fieldset).border:is(.rounded-xl, .rounded-2xl, .rounded-3xl):hover {
+  box-shadow: none !important;
+}

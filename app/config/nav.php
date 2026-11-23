@@ -42,6 +42,7 @@ $navigation = [
             'url'   => 'manage-program',
         ],
         [
+            'section' => 'Analytics & Governance',
             'label' => 'Reports & Analytics',
             'icon'  => 'fa-solid fa-chart-bar',
             'url'   => [
@@ -79,6 +80,7 @@ $navigation = [
             ],
         ],
         [
+            'section' => 'Analytics & Governance',
             'label' => 'Reports & Analytics',
             'icon'  => 'fa-solid fa-chart-bar',
             'url'   => [

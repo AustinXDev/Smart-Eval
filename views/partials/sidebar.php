@@ -30,8 +30,7 @@ $sidebarRole = ucwords(
             <div
                 class="flex h-10 w-10 shrink-0
                        items-center justify-center
-                       rounded-xl border border-violet-100
-                       bg-violet-50"
+                       rounded-xl border border-slate-200 bg-white"
             >
                 <img
                     src="<?= BASE_URL ?>assets/images/aite-logo.png"
@@ -48,12 +47,7 @@ $sidebarRole = ucwords(
                     Smart-Eval
                 </p>
 
-                <p
-                    class="mt-0.5 text-[10px] font-semibold
-                           uppercase tracking-wider text-violet-600"
-                >
-                    Teacher Evaluation
-                </p>
+                <p class="mt-0.5 truncate text-xs text-slate-500">Teacher Evaluation System</p>
             </div>
 
         </div>
@@ -65,18 +59,7 @@ $sidebarRole = ucwords(
         class="min-h-0 flex-1 overflow-y-auto
                px-3 py-5"
     >
-        <div class="mb-3 flex items-center gap-3 px-3">
-            <span
-                class="text-[10px] font-bold uppercase
-                       tracking-widest text-slate-400"
-            >
-                Main Menu
-            </span>
-
-            <div class="h-px flex-1 bg-slate-100"></div>
-        </div>
-
-        <div class="space-y-1">
+<div class="space-y-0.5">
             <?php require __DIR__ . '/sidebar_nav.php'; ?>
         </div>
     </nav>

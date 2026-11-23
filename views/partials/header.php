@@ -15,7 +15,7 @@ $displayRole = ucwords(
 
 <!-- TOP HEADER -->
 <header
-    class="fixed inset-x-0 top-0 z-40 h-16
+    class="fixed inset-x-0 top-0 z-40 h-17
            border-b border-slate-200
            bg-white/95 backdrop-blur-md
            lg:left-70"
@@ -226,8 +226,7 @@ $displayRole = ucwords(
         <div class="flex min-w-0 items-center gap-3">
             <div
                 class="flex h-10 w-10 shrink-0 items-center
-                       justify-center rounded-xl
-                       border border-violet-100 bg-violet-50"
+                       justify-center rounded-xl border border-slate-200 bg-white"
             >
                 <img
                     src="<?= BASE_URL ?>assets/images/aite-logo.png"
@@ -240,10 +239,7 @@ $displayRole = ucwords(
                 <p class="text-base font-bold tracking-tight text-slate-900">
                     Smart-Eval
                 </p>
-                <p class="text-[10px] font-semibold uppercase
-                          tracking-wider text-violet-600">
-                    Teacher Evaluation
-                </p>
+                <p class="mt-0.5 truncate text-xs text-slate-500">Teacher Evaluation System</p>
             </div>
         </div>
 
@@ -268,18 +264,7 @@ $displayRole = ucwords(
         aria-label="Mobile main navigation"
         class="min-h-0 flex-1 overflow-y-auto px-3 py-5"
     >
-        <div class="mb-3 flex items-center gap-3 px-3">
-            <span
-                class="text-[10px] font-bold uppercase
-                       tracking-widest text-slate-400"
-            >
-                Main Menu
-            </span>
-
-            <div class="h-px flex-1 bg-slate-100"></div>
-        </div>
-
-        <div class="space-y-1">
+    <div class="space-y-0.5">
             <?php require __DIR__ . '/sidebar_nav.php'; ?>
         </div>
     </nav>
