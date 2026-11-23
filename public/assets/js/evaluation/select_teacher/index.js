@@ -1,297 +1,189 @@
-import { fetchAvailableTeachers, submitTeacherSelection } from "./api/api.js";
+import { submitTeacherSelection } from "./api/api.js";
+import { createRoster } from "./components/roster.js";
+import { createChipStrip } from "./components/chips.js";
+import { createActionBar } from "./components/actionBar.js";
+import { createConfirmSheet } from "./components/confirmSheet.js";
 
-import { createSelectionState } from "./components/state.js";
+const $ = (id) => document.getElementById(id);
 
-import { createTeacherCard, setCardSelected } from "./components/card.js";
+function showError(message) {
+  if (window.StatusModal) {
+    window.StatusModal.show("Failed", message, "error");
+  } else {
+    alert(message);
+  }
+}
 
-import {
-  updateSummaryUI,
-  setProceedButtonState,
-} from "./components/summary.js";
+function isTyping(target) {
+  return (
+    target instanceof Element &&
+    !!target.closest("input, textarea, select, [contenteditable]")
+  );
+}
 
-import { confirm } from "./components/Confimation.js";
+function initTeacherSelection() {
+  const rosterRoot = $("roster");
+  if (!rosterRoot) return; // no instructors set up: the page shows a message instead
 
-document.addEventListener("DOMContentLoaded", async () => {
-  // ==========================================================
-  // ELEMENTS
-  // ==========================================================
+  const search = $("teacherSearch");
+  const clearSearch = $("clearSearch");
+  const searchKbd = $("searchKbd");
+  const toggleAll = $("toggleAllBtn");
+  const continueButton = $("continueBtn");
 
-  const grid = document.getElementById("teachersGrid");
-  const proceedBtn = document.getElementById("proceedBtn");
-  const count = document.getElementById("selectedCount");
-  const list = document.getElementById("selectedList");
-  const summary = document.getElementById("summarySection");
+  const updateBar = createActionBar({
+    dot: $("statusDot"),
+    ping: $("statusPing"),
+    label: $("statusLabel"),
+    clearButton: $("clearBtn"),
+    continueButton,
+    continueText: $("continueText"),
+  });
 
-  const searchInput = document.getElementById("teacherSearch");
-  const emptyState = document.getElementById("emptyTeachersState");
-  const clearSearchBtn = document.getElementById("emptyClearSearchBtn");
-  const teacherCount = document.getElementById("teacherCount");
+  let renderChips = () => {};
 
-  // ==========================================================
-  // STATE
-  // ==========================================================
+  const roster = createRoster(rosterRoot, {
+    onChange(teachers) {
+      renderChips(teachers);
+      updateBar(teachers.length);
+      syncToggleAll();
+    },
+  });
 
-  const selectionState = createSelectionState();
+  renderChips = createChipStrip(
+    {
+      strip: $("chipStrip"),
+      list: $("chipList"),
+      count: $("chipCount"),
+      clearAll: $("chipClearAll"),
+    },
+    { onRemove: (id) => roster.toggle(id), onClear: () => roster.clear() },
+  );
 
-  const department = window.studentContext?.department ?? "";
+  // ---------- Select all / Deselect all (applies to the cards shown) ----------
 
-  let teachers = [];
-
-  // ==========================================================
-  // INITIALIZE
-  // ==========================================================
-
-  const refreshSummary = () =>
-    updateSummaryUI({
-      grid,
-      count,
-      list,
-      summary,
-      proceedBtn,
-      selectionState,
-    });
-
-  await loadTeachers();
-
-  bindSearch();
-
-  bindProceedButton();
-
-  // ==========================================================
-  // LOAD AVAILABLE TEACHERS
-  // ==========================================================
-
-  async function loadTeachers() {
-    try {
-      const response = await fetchAvailableTeachers(department);
-
-      // Correct error check
-      if (response?.status === "error") {
-        alert(response.message);
-        return;
-      }
-
-      const teachersData = response?.data?.teachers ?? [];
-
-      teachers = teachersData.filter((teacher) => teacher.is_active === 1);
-
-      if (teachers.length === 0) {
-        showEmptyState();
-        return;
-      }
-
-      console.log("Teachers:", teachers);
-
-      // Initial render
-      renderTeachers(teachers);
-
-      refreshSummary();
-    } catch (err) {
-      console.error("Failed to load teachers:", err);
-
-      alert("Failed to load available teachers. Please try again.");
-    }
+  function syncToggleAll() {
+    const all = roster.allVisibleSelected();
+    const filtered = search.value.trim() !== "";
+    toggleAll.textContent = `${all ? "Deselect" : "Select"} all${filtered ? " shown" : ""}`;
+    toggleAll.dataset.mode = all ? "deselect" : "select";
   }
 
-  // ==========================================================
-  // RENDER TEACHERS
-  // ==========================================================
+  toggleAll.addEventListener("click", () => {
+    roster.setVisible(toggleAll.dataset.mode !== "deselect");
+  });
 
-  function renderTeachers(teacherList) {
-    // Remove existing cards
-    grid.innerHTML = "";
+  // ---------- Search + Total Faculty badge ----------
 
-    // No results
-    if (teacherList.length === 0) {
-      showEmptyState();
-      return;
-    }
+  function applySearch() {
+    const query = search.value;
+    const { shown, total } = roster.filter(query);
+    const has = query.trim() !== "";
 
-    hideEmptyState();
+    clearSearch.classList.toggle("hidden", !has);
+    clearSearch.classList.toggle("flex", has);
+    searchKbd.classList.toggle("lg:block", !has);
 
-    // Update count
-    updateTeacherCount(teacherList.length);
+    $("facultyCount").textContent = has ? `${shown} of ${total}` : total;
+    $("facultyLabel").textContent = has ? "Faculty" : "Total Faculty";
 
-    teacherList.forEach((teacher) => {
-      const card = createTeacherCard(teacher, {
-        isSelected: selectionState.isSelected(teacher.teacher_id),
+    rosterRoot.hidden = shown === 0;
+    $("noResults").classList.toggle("hidden", shown !== 0);
+    $("noResultsQuery").textContent = query.trim();
 
-        onToggle: (id, cardEl) => {
-          const nowSelected = selectionState.toggle(id);
-
-          setCardSelected(cardEl, nowSelected);
-
-          refreshSummary();
-        },
-      });
-
-      grid.appendChild(card);
-    });
+    toggleAll.disabled = shown === 0;
+    toggleAll.classList.toggle("opacity-50", shown === 0);
+    syncToggleAll();
   }
 
-  // ==========================================================
-  // SEARCH
-  // ==========================================================
-
-  function bindSearch() {
-    if (!searchInput) return;
-
-    const debouncedSearch = debounce((value) => {
-      searchTeachers(value);
-    }, 300);
-
-    searchInput.addEventListener("input", (event) => {
-      debouncedSearch(event.target.value);
-    });
-
-    // Clear search button
-    if (clearSearchBtn) {
-      clearSearchBtn.addEventListener("click", () => {
-        searchInput.value = "";
-
-        searchInput.focus();
-
-        renderTeachers(teachers);
-      });
-    }
+  function resetSearch() {
+    search.value = "";
+    applySearch();
+    search.focus();
   }
 
-  // ==========================================================
-  // SEARCH TEACHERS
-  // ==========================================================
-
-  function searchTeachers(searchTerm) {
-    const query = searchTerm.trim().toLowerCase();
-
-    // Empty search = show everything
-    if (!query) {
-      renderTeachers(teachers);
-
-      return;
+  search.addEventListener("input", applySearch);
+  search.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && search.value) {
+      event.stopPropagation();
+      search.value = "";
+      applySearch();
     }
+  });
+  clearSearch.addEventListener("click", resetSearch);
+  $("noResultsClear").addEventListener("click", resetSearch);
+  $("clearBtn").addEventListener("click", () => roster.clear());
 
-    const filteredTeachers = teachers.filter((teacher) => {
-      const fullName = String(teacher.full_name ?? "").toLowerCase();
+  // ---------- Confirm + save ----------
 
-      return fullName.includes(query);
-    });
+  const sheet = createConfirmSheet($("confirmSheet"), {
+    async onConfirm({ setBusy, close }) {
+      const ids = roster.selectedIds;
+      if (!ids.length) return;
 
-    renderTeachers(filteredTeachers);
-  }
-
-  // ==========================================================
-  // DEBOUNCE
-  // ==========================================================
-
-  function debounce(callback, delay = 300) {
-    let timeoutId;
-
-    return (...args) => {
-      clearTimeout(timeoutId);
-
-      timeoutId = setTimeout(() => {
-        callback(...args);
-      }, delay);
-    };
-  }
-
-  // ==========================================================
-  // EMPTY STATE
-  // ==========================================================
-
-  function showEmptyState() {
-    if (emptyState) {
-      emptyState.classList.remove("hidden");
-    }
-
-    if (grid) {
-      grid.classList.add("hidden");
-    }
-
-    if (teacherCount) {
-      teacherCount.textContent = "No teachers";
-    }
-  }
-
-  function hideEmptyState() {
-    if (emptyState) {
-      emptyState.classList.add("hidden");
-    }
-
-    if (grid) {
-      grid.classList.remove("hidden");
-    }
-  }
-
-  // ==========================================================
-  // TEACHER COUNT
-  // ==========================================================
-
-  function updateTeacherCount(total) {
-    if (!teacherCount) return;
-
-    teacherCount.textContent = `${total} ${total === 1 ? "Teacher" : "Teachers"}`;
-  }
-
-  // ==========================================================
-  // SUBMIT SELECTION
-  // ==========================================================
-
-  function bindProceedButton() {
-    proceedBtn.addEventListener("click", async () => {
-      const selectedIds = selectionState.getAll();
-
-      if (selectedIds.length === 0) {
-        alert("Please select at least one teacher.");
-        return;
-      }
-
-      const selectedTeachers = teachers.filter((teacher) =>
-        selectedIds.includes(Number(teacher.teacher_id)),
-      );
-
-      const confirmed = await confirm(selectedTeachers);
-
-      if (!confirmed) {
-        return;
-      }
-
-      setProceedButtonState(proceedBtn, {
-        disabled: true,
-        text: "Saving...",
-      });
-
+      setBusy(true);
       try {
-        const data = await submitTeacherSelection(selectedIds);
-
-        if (!data.success) {
+        const data = await submitTeacherSelection(ids.map(Number));
+        if (!data?.success) {
           throw new Error(
-            data.message || data.error || "Unable to save teacher selection.",
+            data?.message ||
+              data?.error ||
+              "Unable to save your teacher selection.",
           );
         }
-
-        if (data.success) {
-          window.location.href = "evaluation";
-
-          return;
-        }
-
-        setProceedButtonState(proceedBtn, {
-          disabled: false,
-          text: "Continue to Evaluation",
-        });
-      } catch (err) {
-        console.error("Failed to save selection:", err);
-
-        alert(
-          err.message || "Failed to save teacher selection. Please try again.",
+        window.location.href = data.redirect || "evaluation";
+      } catch (error) {
+        setBusy(false);
+        close();
+        showError(
+          error.message ||
+            "Unable to save your teacher selection. Please try again.",
         );
-
-        setProceedButtonState(proceedBtn, {
-          disabled: false,
-          text: "Continue to Evaluation",
-        });
       }
-    });
-  }
-});
+    },
+  });
+
+  continueButton.addEventListener("click", () => {
+    const teachers = roster.selected;
+    if (!teachers.length) return;
+    sheet.open({ teachers, trigger: continueButton });
+  });
+
+  // ---------- Keyboard shortcuts ----------
+  // "/" focuses search; 1–9 toggle the first nine cards shown.
+  document.addEventListener("keydown", (event) => {
+    if (
+      sheet.isOpen ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.altKey ||
+      isTyping(event.target)
+    )
+      return;
+
+    if (event.key === "/") {
+      event.preventDefault();
+      search.focus();
+      search.select();
+      return;
+    }
+
+    if (/^[1-9]$/.test(event.key)) {
+      const card = roster.visibleAt(Number(event.key) - 1);
+      if (!card) return;
+      event.preventDefault();
+      roster.toggle(card.dataset.id);
+      card.focus();
+    }
+  });
+
+  // Ready: swap the loading placeholders for the real cards and enable the controls.
+  $("rosterLoading").hidden = true;
+  search.disabled = false;
+  toggleAll.disabled = false;
+
+  applySearch();
+  updateBar(0);
+}
+
+document.addEventListener("DOMContentLoaded", initTeacherSelection);

@@ -1332,4 +1332,43 @@ class EvaluationRepository
     }
 
 
+    /**
+     * Active teachers an Irregular student can pick, with the program/year
+     * blocks each one handles ("BSIT|3,BSIT|2"), for the selection screen.
+     *
+     * @return array<int, array{teacher_id:int, employee_id:string, full_name:string,
+     *                          department:string, image_path:?string, loads:?string}>
+     */
+    public function findSelectableTeachers(string $department): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT
+                t.teacher_id,
+                t.employee_id,
+                t.full_name,
+                t.department,
+                t.image_path,
+                GROUP_CONCAT(
+                    DISTINCT CONCAT(p.program_code, '|', tl.year_level)
+                    ORDER BY p.program_code, tl.year_level
+                    SEPARATOR ','
+                ) AS loads
+            FROM teachers t
+            LEFT JOIN teacher_load tl
+                ON tl.teacher_id = t.teacher_id
+                AND tl.is_active = 1
+            LEFT JOIN programs p
+                ON p.program_id = tl.program_id
+            WHERE t.department = ?
+                AND t.is_active = 1
+            GROUP BY t.teacher_id, t.employee_id, t.full_name, t.department, t.image_path
+            ORDER BY t.full_name ASC
+        ");
+
+        $stmt->execute([$department]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
 }
