@@ -215,9 +215,9 @@ $starters = [
     <header class="sticky top-0 z-30 border-b border-[#E2E8F0] bg-white/95 backdrop-blur-md">
         <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
             <div class="flex min-w-0 items-center gap-3">
-                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#4F46E5] text-white" aria-hidden="true">
-                    <i class="fa-solid fa-book-open text-sm"></i>
-                </span>
+                <img src="<?= BASE_URL ?>assets/images/aite-logo.webp" alt="AITE logo" width="40" height="40"
+                     class="h-10 w-10 shrink-0 rounded-xl border border-[#E2E8F0] bg-white object-contain p-0.5">
+
                 <div class="min-w-0">
                     <p class="ff-display truncate text-[15px] font-bold leading-5 text-[#0F172A]">Smart-Eval Student Portal</p>
                     <p class="hidden truncate text-xs text-[#64748B] min-[420px]:block">Better Feedback. Better Learning.</p>
