@@ -605,6 +605,14 @@ html[data-theme="dark"] .se-datatable table.dataTable {
 html[data-theme="dark"] .se-datatable table.dataTable thead th {
   color: var(--dk-muted);
 }
+html[data-theme="dark"] .se-datatable table.dataTable thead th,
+html[data-theme="dark"] .se-datatable table.dataTable thead td {
+  border-bottom-color: var(--dk-border) !important;
+  background-color: var(--dk-raised);
+}
+html[data-theme="dark"] .se-datatable table.dataTable tbody td {
+  border-bottom-color: var(--dk-border);
+}
 html[data-theme="dark"] .se-datatable table.dataTable .ms-name {
   color: var(--dk-text);
 }

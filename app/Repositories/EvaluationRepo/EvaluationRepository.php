@@ -1275,4 +1275,61 @@ class EvaluationRepository
     }
 
 
+    /**
+     * Instructors a Regular student gets automatically: the active teacher
+     * loads for the program and year level (same rows seedAssignedLoads uses).
+     *
+     * @return array<int, array{teacher_id:int, full_name:string, employee_id:string}>
+     */
+    public function findAssignedTeachers(
+        int $programId,
+        string $yearLevel
+    ): array {
+
+        if ($programId <= 0 || $yearLevel === '') {
+            return [];
+        }
+
+        $stmt = $this->pdo->prepare("
+            SELECT DISTINCT
+                t.teacher_id,
+                t.full_name,
+                t.employee_id
+            FROM teacher_load tl
+            INNER JOIN teachers t
+                ON t.teacher_id = tl.teacher_id
+            WHERE tl.program_id = ?
+                AND tl.year_level = ?
+                AND tl.is_active = 1
+            ORDER BY t.full_name ASC
+        ");
+
+        $stmt->execute([$programId, $yearLevel]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
+    /**
+     * Academic year and semester of the department's active period, or null.
+     *
+     * @return array{academic_year:string, semester:string}|null
+     */
+    public function findActiveTerm(string $department): ?array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT academic_year, semester
+            FROM evaluation_periods
+            WHERE is_active = 1
+                AND target_dept = ?
+            LIMIT 1
+        ");
+
+        $stmt->execute([$department]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ?: null;
+    }
+
+
 }

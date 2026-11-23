@@ -81,7 +81,7 @@ $skeleton = '<span class="inline-block h-8 w-16 animate-pulse rounded-md bg-slat
     <?php require __DIR__ . '/../partials/header.php'; ?>
     <?php require __DIR__ . '/../partials/sidebar.php'; ?>
 
-    <main class="min-h-screen w-full px-2 pb-8 pt-20 lg:ml-70 lg:px-10">
+    <main class="min-h-screen w-full min-w-0 px-2 pb-8 pt-20 lg:ml-70 lg:px-10">
       <div class="mx-auto max-w-[1500px] space-y-6">
 
         <!-- ===== PAGE HEADER ===== -->

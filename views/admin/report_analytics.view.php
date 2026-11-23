@@ -78,7 +78,7 @@ $pageTitle = "Reports & Analytics";
     <!-- Sidebar -->
     <?php require __DIR__ . '/../partials/sidebar.php'; ?>
 
-    <main class="min-h-screen w-full pt-20 pb-8 px-2 lg:px-10 lg:ml-70">
+    <main class="min-h-screen w-full min-w-0 pt-20 pb-8 px-2 lg:px-10 lg:ml-70">
         <div class="mx-auto max-w-[1500px]">
     
             <!-- ===== PAGE HEADER ===== -->

@@ -76,7 +76,7 @@ $control = 'h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm
     <?php require __DIR__ . '/../partials/header.php'; ?>
     <?php require __DIR__ . '/../partials/sidebar.php'; ?>
 
-    <main class="min-h-screen w-full px-2 pb-8 pt-20 lg:ml-70 lg:px-10">
+    <main class="min-h-screen w-full min-w-0 px-2 pb-8 pt-20 lg:ml-70 lg:px-10">
       <div class="mx-auto max-w-[1500px] space-y-6">
 
         <!-- ===== PAGE HEADER ===== -->

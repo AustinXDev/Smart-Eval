@@ -358,13 +358,13 @@ export function initRankingTable() {
             ${
               isClosed
                 ? `
-                    <!-- Download -->
+                    <!-- View teacher report (PDF opens in a new tab) -->
                     <button
-                        id="downloadTeacherReportBtn"
+                        type="button"
                         class="
                             btn-act
                             btn-act--green
-                            btn-download
+                            btn-teacher-report
                             inline-flex
                             h-8 w-8
                             items-center justify-center
@@ -386,8 +386,8 @@ export function initRankingTable() {
                         "
                         data-id="${row.teacher_id}"
                         data-name="${escapeHTML(row.full_name)}"
-                        title="Download"
-                        aria-label="Download"
+                        title="View Report"
+                        aria-label="View report for ${escapeHTML(row.full_name)}"
                     >
                         <svg
                             width="14"
@@ -400,9 +400,8 @@ export function initRankingTable() {
                             stroke-linejoin="round"
                             aria-hidden="true"
                         >
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                            <polyline points="7 10 12 15 17 10" />
-                            <line x1="12" y1="15" x2="12" y2="3" />
+                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                            <circle cx="12" cy="12" r="3" />
                         </svg>
                     </button>
                     `
@@ -837,12 +836,11 @@ export function initTableButtonEvents(dept) {
       return;
     }
 
-    const downloadBtn = e.target.closest(".btn-download");
-    if (downloadBtn) {
-      const teacherId = downloadBtn.dataset.id;
-      const name = downloadBtn.dataset.name;
-
-      console.log(teacherId);
+    // View teacher report: opens the PDF in a new tab right away (no confirmation).
+    const reportBtn = e.target.closest(".btn-teacher-report");
+    if (reportBtn) {
+      const teacherId = reportBtn.dataset.id;
+      const name = reportBtn.dataset.name;
 
       const currentPeriodId = state.lastData?.period?.period_id;
 
@@ -864,13 +862,7 @@ export function initTableButtonEvents(dept) {
         `&period_id=${encodeURIComponent(currentPeriodId)}` +
         `&teacher_name=${encodeURIComponent(name)}`;
 
-      showConfirmation({
-        title: "Download Report ",
-        message: `Are you sure you want to download the report for ${name}`,
-        onConfirm: () => {
-          window.open(url, "_blank");
-        },
-      });
+      window.open(url, "_blank", "noopener");
       return;
     }
 

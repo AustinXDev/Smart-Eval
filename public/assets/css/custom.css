@@ -600,6 +600,68 @@ body {
   color: #64748b;
 }
 
+/* Same header, row and edge lines on every management table, even when a page's
+   markup lacks the Tailwind classes. Replaces DataTables' dark default borders. */
+.se-datatable table.dataTable thead th,
+.se-datatable table.dataTable thead td {
+  border-top: 0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  background-color: #f8fafc;
+}
+
+.se-datatable table.dataTable tbody td {
+  border-top: 0 !important;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.se-datatable table.dataTable.no-footer,
+.se-datatable table.dataTable tfoot th,
+.se-datatable table.dataTable tfoot td {
+  border-bottom: 0 !important;
+  border-top: 0 !important;
+}
+
+.se-datatable table.dataTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Cell padding: DataTables' default stylesheet (8px 10px) is not in a CSS layer,
+   so it beats Tailwind's px-/py- classes. Re-apply the ones the tables use. */
+.se-datatable table.dataTable th.px-5,
+.se-datatable table.dataTable td.px-5 {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+.se-datatable table.dataTable th.pr-5,
+.se-datatable table.dataTable td.pr-5 {
+  padding-right: 1.25rem;
+}
+
+.se-datatable table.dataTable th.py-3,
+.se-datatable table.dataTable td.py-3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.se-datatable table.dataTable th.py-3\.5,
+.se-datatable table.dataTable td.py-3\.5 {
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+}
+
+.se-datatable table.dataTable th.py-4,
+.se-datatable table.dataTable td.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.se-datatable table.dataTable th.py-5,
+.se-datatable table.dataTable td.py-5 {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
 .se-datatable table.dataTable tbody td {
   font-size: 13px;
   font-variant-numeric: tabular-nums;
@@ -663,7 +725,7 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-.se-datatable .dataTables_paginate {
+.dataTables_wrapper.se-datatable .dataTables_paginate {
   position: static !important;
   float: none !important;
   display: flex !important;
@@ -677,14 +739,14 @@ body {
 }
 
 /* Page numbers wrap together with Previous / Next. */
-.se-datatable .dataTables_paginate > span {
+.dataTables_wrapper.se-datatable .dataTables_paginate > span {
   display: contents;
 }
 
 /* Every button: white and bordered; only the current page is filled.
    Shape is !important so older page styles or DataTables' default
    stylesheet cannot change the size, corners or font. */
-.se-datatable .dataTables_paginate .paginate_button {
+.dataTables_wrapper.se-datatable .dataTables_paginate .paginate_button {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -711,19 +773,19 @@ body {
   transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease;
 }
 
-.se-datatable .dataTables_paginate .paginate_button:hover:not(.current):not(.disabled) {
+.dataTables_wrapper.se-datatable .dataTables_paginate .paginate_button:hover:not(.current):not(.disabled) {
   border-color: #ddd6fe !important;
   background: #f5f3ff !important;
   color: #7c3aed !important;
 }
 
-.se-datatable .dataTables_paginate .paginate_button:focus-visible {
+.dataTables_wrapper.se-datatable .dataTables_paginate .paginate_button:focus-visible {
   outline: 2px solid #7c3aed;
   outline-offset: 2px;
 }
 
-.se-datatable .dataTables_paginate .paginate_button.current,
-.se-datatable .dataTables_paginate .paginate_button.current:hover {
+.dataTables_wrapper.se-datatable .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper.se-datatable .dataTables_paginate .paginate_button.current:hover {
   border-color: #7c3aed !important;
   background: #7c3aed !important;
   color: #ffffff !important;
@@ -731,8 +793,8 @@ body {
   cursor: default;
 }
 
-.se-datatable .dataTables_paginate .paginate_button.disabled,
-.se-datatable .dataTables_paginate .paginate_button.disabled:hover {
+.dataTables_wrapper.se-datatable .dataTables_paginate .paginate_button.disabled,
+.dataTables_wrapper.se-datatable .dataTables_paginate .paginate_button.disabled:hover {
   border-color: #f1f5f9 !important;
   background: #f8fafc !important;
   color: #cbd5e1 !important;
@@ -740,7 +802,7 @@ body {
 }
 
 /* "…" between page numbers: no box. */
-.se-datatable .dataTables_paginate .ellipsis {
+.dataTables_wrapper.se-datatable .dataTables_paginate .ellipsis {
   min-width: 0 !important;
   padding: 0 2px !important;
   border-color: transparent !important;
@@ -759,7 +821,7 @@ body {
 /* ---------- Phones: tighter cells, stacked + centred footer ---------- */
 
 @media (max-width: 639px) {
-  .se-datatable table.dataTable thead th,
+  .se-datatable table.dataTable thead th:not(.dataTables_empty),
   .se-datatable table.dataTable tbody td:not(.dataTables_empty) {
     padding-left: 12px;
     padding-right: 12px;
@@ -773,18 +835,18 @@ body {
     text-align: center;
   }
 
-  .se-datatable .dataTables_paginate {
+  .dataTables_wrapper.se-datatable .dataTables_paginate {
     justify-content: center;
     gap: 4px;
   }
 
-  .se-datatable .dataTables_paginate .paginate_button {
+  .dataTables_wrapper.se-datatable .dataTables_paginate .paginate_button {
     padding: 0 10px !important;
   }
 
   /* Previous / Next become icon-only; the label stays for screen readers. */
-  .se-datatable .dataTables_paginate .paginate_button.previous > span > span,
-  .se-datatable .dataTables_paginate .paginate_button.next > span > span {
+  .dataTables_wrapper.se-datatable .dataTables_paginate .paginate_button.previous > span > span,
+  .dataTables_wrapper.se-datatable .dataTables_paginate .paginate_button.next > span > span {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -795,7 +857,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .se-datatable .dataTables_paginate .paginate_button {
+  .dataTables_wrapper.se-datatable .dataTables_paginate .paginate_button {
     transition: none;
   }
 }
