@@ -1,7 +1,5 @@
 <?php
 
-
-
 require_once dirname(__DIR__, 2) . '/app/api_bootstrap.php';
 
 require_once __DIR__ . '/../../app/init.php';
@@ -10,165 +8,119 @@ use App\Repositories\StudentRepo\StudentRepository;
 use App\Services\Student\StudentService;
 use App\Controllers\students\StudentController;
 
-header('Content-type: application/json');
+header('Content-type: application/json; charset=utf-8');
+
+/**
+ * Import students from a CSV file
+ * (columns: student_id, full_name, email, program_id, year_level).
+ */
+const STUDENT_CSV_MAX_ROWS = 5000;
+const STUDENT_CSV_MAX_BYTES = 2 * 1024 * 1024;
 
 try {
 
-  $department = trim($_POST['department'] ?? '');
+  $department = strtolower(trim((string) ($_POST['department'] ?? '')));
 
-  if($department === '') {
-    throw new RuntimeException(
-      "Department is missing."
-    );
+  if (!in_array($department, ['college', 'shs'], true)) {
+    throw new RuntimeException('Department is missing or invalid.');
   }
 
+  $upload = $_FILES['csv'] ?? null;
 
-  /**
-   * Check upload csv file
-   */
-  if(
-    !isset($_FILES['csv']) ||
-    $_FILES['csv']['error'] !== UPLOAD_ERR_OK
-  ) {
-
-    throw new RuntimeException(
-      "No file uploaded or upload error."
-    );
-
+  if (!is_array($upload) || ($upload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+    throw new RuntimeException('No file uploaded or upload error.');
   }
 
-  if ((int) ($_FILES['csv']['size'] ?? 0) > 2 * 1024 * 1024) {
+  if ((int) ($upload['size'] ?? 0) > STUDENT_CSV_MAX_BYTES) {
     throw new RuntimeException('CSV must be less than 2MB.');
   }
 
-  $file = $_FILES['csv']['tmp_name'];
-  $filename = $_FILES['csv']['name'];
-
-  /**
-   * Validate file extension
-   */
-  if(
-    strtolower(
-      pathinfo($filename, PATHINFO_EXTENSION)
-    ) !== 'csv'
-  ) {
-
-    throw new RuntimeException(
-      "Invalid file type. Only CSV files are allowed."
-    );
-
+  if (strtolower(pathinfo((string) $upload['name'], PATHINFO_EXTENSION)) !== 'csv') {
+    throw new RuntimeException('Invalid file type. Only CSV files are allowed.');
   }
 
+  $handle = fopen($upload['tmp_name'], 'r');
 
-  /**
-   * Open CSV
-   */
-  $handle = fopen($file, 'r');
-
-  if($handle === false) {
-    throw new RuntimeException(
-      "Unable to open CSV file."
-    );
+  if ($handle === false) {
+    throw new RuntimeException('Unable to open CSV file.');
   }
 
-  /**
-   * Expected content
-   */
-  $expectedHeaders = [
-    'student_id',
-    'full_name',
-    'email',
-    'program_id',
-    'year_level'
-  ];
+  try {
 
+    // Excel saves "CSV UTF-8" with a byte-order mark and plain "CSV" in
+    // Windows-1252, so names such as "Peña" arrive in either encoding.
+    $toUtf8 = static function ($value): string {
+      $value = (string) $value;
+      return mb_check_encoding($value, 'UTF-8')
+        ? $value
+        : mb_convert_encoding($value, 'UTF-8', 'Windows-1252');
+    };
 
-  /**
-   * Read headers
-   */
-  $headers = fgetcsv($handle);
+    $headers = fgetcsv($handle, 0, ',', '"', '');
 
-  if($headers === false) {
-    fclose($handle);
+    if ($headers === false || $headers === [null]) {
+      throw new RuntimeException('CSV file is empty.');
+    }
 
-    throw new RuntimeException(
-      "CSV file is empty"
-    );
-  }
-
-
-  /**
-   * Normalize headers
-   */
-  $headers = array_map(
-    fn($header) => trim($header),
-    $headers
-  );
-
-
-  if($headers !== $expectedHeaders) {
-    fclose($handle);
-
-    throw new RuntimeException(
-      "Invalid template. CSV columns must be " .
-      implode(', ', $expectedHeaders)
+    $headers = array_map(
+      static fn ($header) => strtolower(trim(preg_replace('/^\xEF\xBB\xBF/', '', (string) $header))),
+      $headers
     );
 
-  }
+    // Ignore empty trailing header cells left by spreadsheet apps.
+    while ($headers && end($headers) === '') {
+      array_pop($headers);
+    }
 
+    if ($headers !== StudentService::CSV_HEADERS) {
+      throw new RuntimeException(
+        'Invalid template. CSV columns must be ' . implode(', ', StudentService::CSV_HEADERS)
+        . '. Download the template and try again.'
+      );
+    }
 
-  /**
-   * Read rows
-   */
-  $rows = [];
+    $rows = [];
 
-  while (($row = fgetcsv($handle)) !== false) {
+    while (($row = fgetcsv($handle, 0, ',', '"', '')) !== false) {
 
-    // Ignore the empty rows
-    if(
-      count($row) === 1 &&
-      trim($row[0]) === ''
-    ) {
+      // Skip blank lines (including ",,,," rows from spreadsheets)
+      if (implode('', array_map(static fn ($v) => trim((string) $v), $row)) === '') {
+        continue;
+      }
 
-      continue;
+      if (count($rows) >= STUDENT_CSV_MAX_ROWS) {
+        throw new RuntimeException('CSV must contain no more than ' . STUDENT_CSV_MAX_ROWS . ' student rows.');
+      }
+
+      $rows[] = array_map($toUtf8, $row);
 
     }
 
-    if (count($rows) >= 5000) {
-      fclose($handle);
-      throw new RuntimeException('CSV must contain no more than 5000 student rows.');
-    }
-    $rows[] = $row;
-
+  } finally {
+    fclose($handle);
   }
 
-  fclose($handle);
+  if ($rows === []) {
+    throw new RuntimeException('The CSV has no student rows below the header.');
+  }
 
-  /**
-   * Call dependencies
-   */
   require_once __DIR__ . '/../../app/config/database.php';
 
-  $studentRepo = new StudentRepository($pdo);
-
-  $service = new StudentService($studentRepo);
-
-  $controller = new StudentController($service);
-
-
-  $response = $controller->importCsv(
-    $rows,
-    $department
+  $controller = new StudentController(
+    new StudentService(new StudentRepository($pdo))
   );
 
+  $result = $controller->importCsv($rows, $department);
 
   echo json_encode([
     'status' => 'success',
-    ...$response
+    'message' => $result['success'] > 0
+      ? "{$result['success']} of {$result['total']} students imported."
+      : 'No students were imported.',
+    ...$result
   ]);
 
-
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
 
   http_response_code(400);
 
@@ -178,5 +130,3 @@ try {
   ]);
 
 }
-
-?>

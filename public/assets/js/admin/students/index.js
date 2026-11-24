@@ -5,7 +5,7 @@ import {
   renderViewModal,
   renderEditModal,
 } from "./components/studentRender.js";
-import { initCsvUpload } from "./components/csvUpload.js";
+import { initCsvImport } from "./components/csvImport.js";
 import {
   initAddForm,
   initEditForm,
@@ -17,7 +17,7 @@ import { logout } from "../shared/logout.js";
 const wrapper = document.getElementById("tableWrapper");
 const department = wrapper ? wrapper.dataset.department : "";
 
-initCsvUpload(department);
+initCsvImport(department);
 initAddForm();
 initEditForm();
 initResetPasswordButton();
@@ -32,7 +32,7 @@ document.addEventListener("click", (e) => {
   const closeBtn = e.target.closest("[data-close-modal]");
 
   if (addBtn) return handleAddClick();
-  if (csvBtn) return openModal("uploadCSVModal");
+  if (csvBtn) return openModal("csvImportModal");
   if (viewBtn) return handleViewClick(viewBtn);
   if (editBtn) return handleEditClick(editBtn);
   if (deleteBtn) return handleDeleteClick(deleteBtn);

@@ -46,7 +46,7 @@ document.addEventListener("click", (e) => {
   const closeBtn = e.target.closest("[data-close-modal]");
 
   if (addBtn) return openModal("addTeacherModal");
-  if (csvBtn) return openModal("teacherCsvModal");
+  if (csvBtn) return openModal("csvImportModal");
   if (viewBtn) return handleViewClick(viewBtn);
   if (editBtn) return handleEditClick(editBtn);
   if (deleteBtn) return handleDeleteClick(deleteBtn);

@@ -233,7 +233,25 @@ $control = 'h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm
     <?php require_once __DIR__ . '/../partials/modals/teachers_modal/confirmation_modal.php'; ?>
     <?php require_once __DIR__ . '/../partials/modals/teachers_modal/view_teacher_modal.php'; ?>
     <?php require_once __DIR__ . '/../partials/modals/teachers_modal/edit_teacher_modal.php'; ?>
-    <?php require_once __DIR__ . '/../partials/modals/teachers_modal/import_csv_modal.php'; ?>
+    <?php
+    $csvImport = [
+        'title'      => 'Import Teachers from CSV',
+        'subtitle'   => "Add many {$departmentLabel} teachers at once.",
+        'noun'       => 'teachers',
+        'id_label'   => 'Employee ID',
+        'columns'    => [
+            ['employee_id', 'Employee ID', 'Up to 20 characters, unique in this department', 'EMP-0001'],
+            ['full_name', 'Full name', 'Up to 100 characters', 'Maria Santos'],
+            ['email', 'Email', 'A valid email address, unique in this department', 'maria.santos@example.com'],
+        ],
+        'downloads'  => [
+            ['Template', 'fa-download', rtrim((string) ($_ENV['APP_API'] ?? ''), '/') . '/teacher/download_template.php'],
+        ],
+        'note_title' => 'Photos and duplicates',
+        'note'       => "Photos can't be included in a CSV. Imported teachers get the default photo; upload theirs later from <strong>Edit</strong>. Rows whose Employee ID, email or name already exists in this department, or appears twice in the file, are skipped and listed in the summary.",
+    ];
+    require_once __DIR__ . '/../partials/modals/csv_import_modal.php';
+    ?>
 
   </div>
 

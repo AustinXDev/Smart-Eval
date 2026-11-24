@@ -283,9 +283,29 @@ $control = 'h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm
     <!-- Modal Content -->
     <?php require_once __DIR__ . '/../partials/modals/students_modal/add_student_modal.php'; ?>
     <?php require_once __DIR__ . '/../partials/modals/students_modal/confirmation_modal.php'; ?>
-    <?php require_once __DIR__ . '/../partials/modals/students_modal/import_csv_modal.php'; ?>
-    <?php require_once __DIR__ . '/../partials/modals/students_modal/summary_report_modal.php'; ?>
-    <?php require_once __DIR__ . '/../partials/modals/students_modal/loader_modal.php'; ?>
+    <?php
+    $csvApi = rtrim((string) ($_ENV['APP_API'] ?? ''), '/');
+    $csvImport = [
+        'title'      => 'Import Students from CSV',
+        'subtitle'   => "Add many {$departmentLabel} students at once.",
+        'noun'       => 'students',
+        'id_label'   => 'Student ID',
+        'columns'    => [
+            ['student_id', 'Student ID', 'Unique student number', '20-0101'],
+            ['full_name', 'Full name', 'Up to 100 characters', 'Juan Dela Cruz'],
+            ['email', 'Email', 'A valid email address, unique', 'juan@gmail.com'],
+            ['program_id', 'Program number', 'From the Program Guide for this department', '1'],
+            ['year_level', 'Year level', 'Whole number', '3'],
+        ],
+        'downloads'  => [
+            ['Template', 'fa-download', $csvApi . '/student/download_template.php'],
+            ['Program Guide', 'fa-book', $csvApi . '/student/download_legend.php?department=' . urlencode($department)],
+        ],
+        'note_title' => 'Programs and duplicates',
+        'note'       => 'Enter the program <strong>number</strong> from the Program Guide, not its name. Rows whose Student ID or email already exists, appears twice in the file, or uses a program from another department are skipped and listed in the summary.',
+    ];
+    require_once __DIR__ . '/../partials/modals/csv_import_modal.php';
+    ?>
     <?php require_once __DIR__ . '/../partials/modals/students_modal/view_student_modal.php'; ?>
     <?php require_once __DIR__ . '/../partials/modals/students_modal/edit_student_modal.php'; ?>
 

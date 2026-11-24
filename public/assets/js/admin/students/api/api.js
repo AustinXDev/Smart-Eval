@@ -77,13 +77,7 @@ export async function resetStudentPassword(studentId) {
   }
 }
 
-export async function uploadCsv(formData) {
-  try {
-    return await post("student/csv.php", formData);
-  } catch (error) {
-    return {
-      status: "error",
-      message: error.message,
-    };
-  }
+/** Import students from a CSV file. Throws (error.message) when the whole file is rejected. */
+export function uploadCsv(formData) {
+  return post("student/csv.php", formData);
 }

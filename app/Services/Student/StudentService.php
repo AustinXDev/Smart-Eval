@@ -400,8 +400,13 @@ class StudentService
     }
 
 
+    /** Columns of the student CSV template, in order. */
+    public const CSV_HEADERS = ['student_id', 'full_name', 'email', 'program_id', 'year_level'];
+
     /**
-     * Import csv
+     * Imports students from CSV rows (header already removed). Valid rows are
+     * saved even when other rows fail; each failed row is reported with its
+     * row number, Student ID, name and reason for the import summary.
      */
     public function importCsv(
         array $rows,
@@ -409,135 +414,134 @@ class StudentService
     ): array {
 
         if ($department === '') {
-
-            throw new RuntimeException(
-                "Department is required"
-            );
-
+            throw new RuntimeException('Department is required');
         }
 
-        $total = count($rows);
+        $columns = count(self::CSV_HEADERS);
+        $firstRow = ['student_id' => [], 'email' => []];
+        $labels = ['student_id' => 'Student ID', 'email' => 'Email'];
         $success = 0;
         $errors = [];
 
         foreach ($rows as $index => $row) {
 
-            $line = $index + 2;
+            $line = $index + 2; // row 1 is the header
 
-            /**
-             * Check row exactly 5 column
-             */
-            if (count($row) !== 5) {
+            $cells = array_map(static fn ($value): string => trim((string) $value), $row);
 
-                $errors[] = "Row {$line}: Invalid number of columns.";
-                continue;
-
+            // Spreadsheet apps often save empty trailing cells ("a,b,c,d,e,,").
+            while (count($cells) > $columns && end($cells) === '') {
+                array_pop($cells);
             }
 
-            [
-                $studentId,
-                $fullName,
-                $email,
-                $programId,
-                $yearLevel
-            ] = array_map('trim', $row);
+            [$studentId, $fullName, $email, $programId, $yearLevel] = array_pad($cells, $columns, '');
+            $fullName = preg_replace('/\s+/u', ' ', $fullName) ?? $fullName;
 
+            $fail = static function (string $message) use (&$errors, $line, $studentId, $fullName): void {
+                $errors[] = [
+                    'row'        => $line,
+                    'student_id' => mb_substr($studentId, 0, 40),
+                    'full_name'  => mb_substr($fullName, 0, 100),
+                    'message'    => $message,
+                ];
+            };
 
-            /**
-             * Required fields
-             */
-            if (
-                $studentId === '' ||
-                $fullName === '' ||
-                $email === '' ||
-                $programId === '' ||
-                $yearLevel === ''
-            ) {
-
-                $errors[] = "Row {$line}: Missing field(s).";
+            if (count($cells) !== $columns) {
+                $fail("Expected {$columns} columns (" . implode(', ', self::CSV_HEADERS) . ') but found ' . count($cells) . '.');
                 continue;
-
             }
 
+            // Repeated inside the file (case-insensitive, like the database).
+            $repeated = [];
+            foreach (['student_id' => $studentId, 'email' => $email] as $field => $value) {
+                $key = mb_strtolower($value);
+                if ($key === '') {
+                    continue;
+                }
+                if (isset($firstRow[$field][$key])) {
+                    $repeated[] = "{$labels[$field]} is repeated (first used on row {$firstRow[$field][$key]})";
+                } else {
+                    $firstRow[$field][$key] = $line;
+                }
+            }
 
-            /**
-             * validate numeric values
-             */
+            $missing = array_keys(array_filter([
+                'Student ID' => $studentId,
+                'Name'       => $fullName,
+                'Email'      => $email,
+                'Program'    => $programId,
+                'Year Level' => $yearLevel,
+            ], static fn (string $value): bool => $value === ''));
+
+            if ($missing) {
+                $fail('Missing ' . implode(', ', $missing) . '.');
+                continue;
+            }
+
+            if ($repeated) {
+                $fail(implode('; ', $repeated) . '.');
+                continue;
+            }
+
+            if (mb_strlen($studentId) > 20) {
+                $fail('Student ID must not exceed 20 characters.');
+                continue;
+            }
+
+            if (mb_strlen($fullName) > 100) {
+                $fail('Name must not exceed 100 characters.');
+                continue;
+            }
+
+            if (mb_strlen($email) > 100 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $fail('Invalid email format.');
+                continue;
+            }
+
             if (!ctype_digit($programId)) {
-                $errors[] = "Row {$line}: Invalid Program ID.";
+                $fail('Program must be the program number from the Program Guide.');
                 continue;
             }
 
             if (!ctype_digit($yearLevel)) {
-                $errors[] = "Row {$line}: Invalid Year Level.";
+                $fail('Year Level must be a whole number.');
                 continue;
             }
 
-
-            /**
-             * Check program
-             */
-            if (
-                !$this->studentRepo->programExist(
-                    $programId,
-                    $department
-                )
-            ) {
-
-                $errors[] = "Row {$line}: Invalid Program ID for this department.";
+            if (!$this->studentRepo->programExist($programId, $department)) {
+                $fail('Program number does not exist in this department.');
                 continue;
-
             }
 
-
-            /**
-             * Check duplicate student
-             */
-            if (
-                $this->studentRepo->existsByStudentIdOrEmail(
-                    $studentId,
-                    $email
-                )
-            ) {
-
-                $errors[] = "Row {$line}: Duplicate Student ID or email";
+            if ($this->studentRepo->existsByStudentIdOrEmail($studentId, $email)) {
+                $fail('Student ID or email already exists.');
                 continue;
-
             }
 
             try {
 
-                $created = $this->studentRepo->create(
-                    $studentId,
-                    $fullName,
-                    $email,
-                    $programId,
-                    $yearLevel
-                );
-
-                if (!$created) {
-
-                    $errors[] = "Row {$line}: Unable to create student.";
+                if (!$this->studentRepo->create($studentId, $fullName, $email, $programId, $yearLevel)) {
+                    $fail('Unable to create student.');
                     continue;
-
                 }
 
                 $success++;
 
             } catch (PDOException $e) {
 
-                $errors[] = "Row {$line}: Database error.";
-                continue;
+                $fail($e->getCode() === '23000'
+                    ? 'Student ID or email already exists.'
+                    : 'Unable to save this student.');
 
             }
 
         }
 
         return [
-          'total' => $total,
+          'total'   => count($rows),
           'success' => $success,
-          'failed' => count($errors),
-          'errors' => $errors
+          'failed'  => count($errors),
+          'errors'  => $errors
         ];
 
     }
