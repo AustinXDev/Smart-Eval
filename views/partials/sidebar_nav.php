@@ -22,7 +22,7 @@ $isSidebarLinkActive = static function (string $url) use ($sidebarRoute, $sideba
 };
 
 // Shared styles. Current page = filled violet; parent of the current page = violet tint.
-$navBase  = 'group flex min-h-10 w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-[15px] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500';
+$navBase  = 'group flex min-h-10 w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-[15px] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500';
 $navIdle  = 'font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900';
 $navOpen  = 'font-semibold bg-violet-50 text-violet-700';
 $navHere  = 'font-semibold bg-violet-600 text-white';

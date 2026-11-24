@@ -1540,11 +1540,88 @@ body {
   white-space: normal;
 }
 
-/* ---------- Cards: flat with a hairline border ----------
-   Content cards inside <main> (bordered, rounded boxes) drop their shadows,
-   including hover shadows. Buttons, links and form fields are skipped so their
-   focus rings (also box-shadow) still work; icon tiles use ring-1, not .border. */
-main :is(div, section, article, header, aside, li, form, fieldset).border:is(.rounded-xl, .rounded-2xl, .rounded-3xl),
-main :is(div, section, article, header, aside, li, form, fieldset).border:is(.rounded-xl, .rounded-2xl, .rounded-3xl):hover {
+/* ---------- Admin cards: flat, 12px corners, hairline border ----------
+   Matches the admin reference: content cards inside the admin <main> (the one
+   beside the sidebar, .lg:ml-70) get a 1px #E2E8F0 border, 12px radius and no
+   shadow (hover included). Buttons, links and form fields are not listed, so
+   their focus rings (box-shadow) still work; icon tiles use ring-1, not .border.
+   (Written without :is() so older CSS editors don't flag it.) */
+main.lg\:ml-70 div.border.rounded-xl,
+main.lg\:ml-70 div.border.rounded-2xl,
+main.lg\:ml-70 div.border.rounded-3xl,
+main.lg\:ml-70 section.border.rounded-xl,
+main.lg\:ml-70 section.border.rounded-2xl,
+main.lg\:ml-70 section.border.rounded-3xl,
+main.lg\:ml-70 article.border.rounded-xl,
+main.lg\:ml-70 article.border.rounded-2xl,
+main.lg\:ml-70 article.border.rounded-3xl,
+main.lg\:ml-70 header.border.rounded-xl,
+main.lg\:ml-70 header.border.rounded-2xl,
+main.lg\:ml-70 header.border.rounded-3xl,
+main.lg\:ml-70 aside.border.rounded-xl,
+main.lg\:ml-70 aside.border.rounded-2xl,
+main.lg\:ml-70 aside.border.rounded-3xl,
+main.lg\:ml-70 li.border.rounded-xl,
+main.lg\:ml-70 li.border.rounded-2xl,
+main.lg\:ml-70 li.border.rounded-3xl,
+main.lg\:ml-70 form.border.rounded-xl,
+main.lg\:ml-70 form.border.rounded-2xl,
+main.lg\:ml-70 form.border.rounded-3xl,
+main.lg\:ml-70 fieldset.border.rounded-xl,
+main.lg\:ml-70 fieldset.border.rounded-2xl,
+main.lg\:ml-70 fieldset.border.rounded-3xl,
+main.lg\:ml-70 div.border.rounded-xl:hover,
+main.lg\:ml-70 div.border.rounded-2xl:hover,
+main.lg\:ml-70 div.border.rounded-3xl:hover,
+main.lg\:ml-70 section.border.rounded-xl:hover,
+main.lg\:ml-70 section.border.rounded-2xl:hover,
+main.lg\:ml-70 section.border.rounded-3xl:hover,
+main.lg\:ml-70 article.border.rounded-xl:hover,
+main.lg\:ml-70 article.border.rounded-2xl:hover,
+main.lg\:ml-70 article.border.rounded-3xl:hover,
+main.lg\:ml-70 header.border.rounded-xl:hover,
+main.lg\:ml-70 header.border.rounded-2xl:hover,
+main.lg\:ml-70 header.border.rounded-3xl:hover,
+main.lg\:ml-70 aside.border.rounded-xl:hover,
+main.lg\:ml-70 aside.border.rounded-2xl:hover,
+main.lg\:ml-70 aside.border.rounded-3xl:hover,
+main.lg\:ml-70 li.border.rounded-xl:hover,
+main.lg\:ml-70 li.border.rounded-2xl:hover,
+main.lg\:ml-70 li.border.rounded-3xl:hover,
+main.lg\:ml-70 form.border.rounded-xl:hover,
+main.lg\:ml-70 form.border.rounded-2xl:hover,
+main.lg\:ml-70 form.border.rounded-3xl:hover,
+main.lg\:ml-70 fieldset.border.rounded-xl:hover,
+main.lg\:ml-70 fieldset.border.rounded-2xl:hover,
+main.lg\:ml-70 fieldset.border.rounded-3xl:hover {
+  border-radius: 12px;
   box-shadow: none !important;
+}
+
+/* Light theme border colour (dark.css keeps its own). Hover colours still apply. */
+html:not([data-theme="dark"]) main.lg\:ml-70 div.border.rounded-xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 div.border.rounded-2xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 div.border.rounded-3xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 section.border.rounded-xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 section.border.rounded-2xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 section.border.rounded-3xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 article.border.rounded-xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 article.border.rounded-2xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 article.border.rounded-3xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 header.border.rounded-xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 header.border.rounded-2xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 header.border.rounded-3xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 aside.border.rounded-xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 aside.border.rounded-2xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 aside.border.rounded-3xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 li.border.rounded-xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 li.border.rounded-2xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 li.border.rounded-3xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 form.border.rounded-xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 form.border.rounded-2xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 form.border.rounded-3xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 fieldset.border.rounded-xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 fieldset.border.rounded-2xl:not(:hover),
+html:not([data-theme="dark"]) main.lg\:ml-70 fieldset.border.rounded-3xl:not(:hover) {
+  border-color: #e2e8f0;
 }

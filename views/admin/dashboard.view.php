@@ -105,11 +105,11 @@ $lineSkeleton = static fn (string $w): string => '<span class="inline-block h-3 
     <main class="min-h-screen w-full min-w-0 px-2 pb-8 pt-20 lg:ml-70 lg:px-10">
       <div class="mx-auto max-w-[1500px] space-y-6">
 
-        <!-- ===== HEADER ===== -->
-        <header class="space-y-5">
+        <!-- ===== HEADER (one card: title row + active period row) ===== -->
+        <header class="overflow-hidden rounded-xl border border-slate-200 bg-white">
 
           <!-- Title row -->
-          <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div class="flex flex-col gap-4 px-5 py-5 sm:px-7 sm:py-6 lg:flex-row lg:items-end lg:justify-between">
             <div class="min-w-0">
               <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-stone-500">
                 <span>Overview</span>
@@ -146,8 +146,8 @@ $lineSkeleton = static fn (string $w): string => '<span class="inline-block h-3 
             </div>
           </div>
 
-          <!-- Active period strip -->
-          <div class="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+          <!-- Active period row (bottom of the header card) -->
+          <div class="flex flex-col gap-3 border-t border-slate-200 px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
             <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm">
               <span class="inline-flex items-center gap-2 text-xs font-medium text-stone-500">
                 <i class="far fa-calendar text-stone-400" aria-hidden="true"></i>
