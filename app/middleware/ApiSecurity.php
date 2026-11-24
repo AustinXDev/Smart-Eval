@@ -87,6 +87,7 @@ final class ApiSecurity
             'admin/activity_logs/list.php',
             'admin/archive/details.php',
             'admin/archive/logs.php',
+            'admin/accounts/list.php',
         ];
 
         if (in_array($endpoint, $manageRead, true)) {
@@ -124,7 +125,11 @@ final class ApiSecurity
             'admin/archive/verify.php',
             'admin/archive/preview.php',
             'admin/archive/restore.php',
-            'admin/archive/delete.php'
+            'admin/archive/delete.php',
+            'admin/accounts/create.php',
+            'admin/accounts/update.php',
+            'admin/accounts/delete.php',
+            'admin/accounts/pin.php'
         ];
 
         if (in_array($endpoint, $manage, true)) {
@@ -287,11 +292,14 @@ final class ApiSecurity
 
         $admin = (new AdminRepository($pdo))->findById((int) $_SESSION['admin_id']);
 
-        if (!$admin) {
+        // Deleted or deactivated accounts lose their session on the next request
+        // (the auto-logout status check calls this on every admin page).
+        if (!$admin || !$admin->isActive()) {
+            unset($_SESSION['admin_authenticated'], $_SESSION['admin_id']);
             self::fail(401, 'Unauthenticated. Please log in again.');
         }
 
-        $role = strtolower(str_replace(' ', '_', $admin->role));
+        $role = $admin->roleKeyValue();
 
         if (!in_array($role, $manage ? ['super_admin'] : ['super_admin', 'dean'], true)) {
             self::fail(403, 'You do not have permission to perform this operation.');

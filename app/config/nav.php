@@ -68,6 +68,11 @@ $navigation = [
             'icon' => 'fa-solid fa-clock-rotate-left',
             'url' => 'activity-logs',
         ],
+        [
+            'label' => 'Account Management',
+            'icon' => 'fa-solid fa-users-gear',
+            'url' => 'account-management',
+        ],
     ],
 
     'dean' => [

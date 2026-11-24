@@ -108,7 +108,17 @@ class AdminAuthService
         * Credentials are correct
         */
 
-        $this->admins->clearFailedAttempts($ip);
+        // Deactivated in Account Management: refuse after the password check,
+        // so the message does not reveal whether a username exists.
+        if (!$admin->isActive()) {
+            throw new \Exception(
+                'This account has been deactivated. Please contact a super admin.'
+            );
+        }
+
+        // Clears this username's failed attempts (it was called with the IP,
+        // which never matched the admin_username column).
+        $this->admins->clearFailedAttempts($username);
 
         /**
          * Check whether the administrator's browser is trusted
@@ -425,6 +435,13 @@ class AdminAuthService
     private function completeLogin(
         $admin
     ): array {
+
+        // Also covers an account deactivated between the password and 2FA steps.
+        if (!$admin->isActive()) {
+            throw new \Exception(
+                'This account has been deactivated. Please contact a super admin.'
+            );
+        }
 
         session_regenerate_id(true);
 

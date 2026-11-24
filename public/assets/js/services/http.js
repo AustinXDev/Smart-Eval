@@ -49,7 +49,7 @@ export async function post(url, data) {
   const result = await response.json();
 
   if (!response.ok) {
-    throw new Error(result.message || (typeof result.error === "string" ? result.error : "Request failed."));
+    throw requestError(response, result);
   }
 
   return result;
@@ -66,8 +66,22 @@ export async function get(url) {
   const result = await response.json();
 
   if (!response.ok) {
-    throw new Error(result.message || (typeof result.error === "string" ? result.error : "Request failed."));
+    throw requestError(response, result);
   }
 
   return result;
+}
+
+/**
+ * Error for a failed API call. Same message as before; also carries the HTTP
+ * status and the response body (e.g. field "errors" or a "code"), so callers
+ * that need them can read error.status / error.data.
+ */
+function requestError(response, result) {
+  const error = new Error(
+    result.message || (typeof result.error === "string" ? result.error : "Request failed."),
+  );
+  error.status = response.status;
+  error.data = result;
+  return error;
 }

@@ -131,10 +131,9 @@ try {
 
     http_response_code(400);
 
+    // No file path in the response; database/engine errors get a generic message.
     echo json_encode([
         'status' => 'error',
-        'message' => $e->getMessage(),
-        'file' => $e->getFile(),
-        'code' => $e->getCode()
+        'message' => \App\middleware\ApiSecurity::publicMessage($e),
     ]);
 }

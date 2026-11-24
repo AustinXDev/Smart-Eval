@@ -94,13 +94,18 @@ try {
         $e->getMessage()
     );
 
-    http_response_code(500);
+    // Sign-in messages from AdminAuthService (wrong password, attempts left,
+    // locked, deactivated) are shown as-is; database/engine errors stay generic.
+    // (Previously every failure was a generic 500 that also exposed the file path.)
+    $isServerError = $e instanceof \PDOException || $e instanceof \Error;
+
+    http_response_code($isServerError ? 500 : 400);
 
     echo json_encode([
         'status' => 'error',
-        'message' => 'Unable to complete login. Please try again later.',
-        'file' => $e->getFile(),
-        'code' => $e->getCode()
+        'message' => $isServerError
+            ? 'Unable to complete login. Please try again later.'
+            : \App\middleware\ApiSecurity::publicMessage($e),
     ]);
 
 }

@@ -783,6 +783,13 @@ html[data-theme="dark"] .se-select:disabled {
   color: var(--dk-muted);
 }
 
+html[data-theme="dark"] .se-field-error {
+  color: #fca5a5;
+}
+html[data-theme="dark"] .se-input[aria-invalid="true"],
+html[data-theme="dark"] .se-select[aria-invalid="true"] {
+  border-color: #f87171;
+}
 html[data-theme="dark"] .se-input-icon > i {
   color: var(--dk-faint);
 }

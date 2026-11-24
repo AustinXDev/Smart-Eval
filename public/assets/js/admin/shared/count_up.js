@@ -49,7 +49,8 @@ export function countUp(target, value, options = {}) {
 
   const start = performance.now();
   const step = (now) => {
-    const t = Math.min(1, (now - start) / duration);
+    // The frame timestamp can be slightly earlier than `start`; never go below 0 (it showed "-0").
+    const t = Math.min(1, Math.max(0, (now - start) / duration));
     const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
     render(from + (to - from) * eased);
     el._countUpFrame = t < 1 ? requestAnimationFrame(step) : null;

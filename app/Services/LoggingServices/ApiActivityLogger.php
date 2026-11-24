@@ -100,6 +100,11 @@ final class ApiActivityLogger
         'admin/archive/preview.php' => ['module' => 'archive', 'action' => 'preview_backup', 'text' => 'Validated a backup file for restoration'],
         'admin/archive/restore.php' => ['module' => 'archive', 'action' => 'restore', 'target' => 'period', 'id' => 'period_id', 'text' => 'Restored archived period #{period_id}'],
         'admin/archive/delete.php'  => ['module' => 'archive', 'action' => 'delete', 'target' => 'period', 'id' => 'period_id', 'text' => 'Deleted archived period #{period_id}'],
+
+        // Account Management (super admin). Passwords and the PIN are never stored (see SECRET_KEY).
+        'admin/accounts/create.php' => ['module' => 'accounts', 'action' => 'create', 'target' => 'admin', 'id' => 'admin_id', 'text' => 'Added administrator {full_name} ({username})', 'keep' => ['role', 'status']],
+        'admin/accounts/update.php' => ['module' => 'accounts', 'action' => 'update', 'target' => 'admin', 'id' => 'admin_id', 'lookup' => ['admin' => 'admin_id'], 'text' => 'Updated administrator {full_name} ({username})', 'keep' => ['role', 'status']],
+        'admin/accounts/delete.php' => ['module' => 'accounts', 'action' => 'delete', 'target' => 'admin', 'id' => 'admin_id', 'lookup' => ['admin' => 'admin_id'], 'text' => 'Removed administrator {full_name} ({username})', 'prefer_lookup' => true],
     ];
 
     /**
@@ -107,7 +112,7 @@ final class ApiActivityLogger
      * codes and secrets. ("code" only as a whole key or *_otp/verification
      * code, so fields like program_code are still usable.)
      */
-    private const SECRET_KEY = '/password|passwd|token|secret|csrf|^code$|^otp$|_otp$|verification_code|two_factor_code|trust_device/i';
+    private const SECRET_KEY = '/password|passwd|token|secret|csrf|^code$|^otp$|_otp$|verification_code|two_factor_code|trust_device|pin/i';
 
     private static bool $started = false;
 
@@ -338,6 +343,7 @@ final class ApiActivityLogger
             }
             $row = match ($type) {
                 'teacher'  => $repo->findTeacher((int) $id),
+                'admin'    => $repo->findAdmin((int) $id),
                 'student'  => $repo->findStudent($id),
                 'program'  => $repo->findProgram((int) $id),
                 'load'     => $repo->findTeacherLoad((int) $id),

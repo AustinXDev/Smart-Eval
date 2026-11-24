@@ -209,20 +209,20 @@ $initials = implode('', array_map(
             <section class="rounded-xl border border-[#E2E8F0] bg-white p-5 lg:col-span-2" aria-labelledby="helperTitle">
                 <h2 id="helperTitle" class="ff-display flex items-center gap-2 text-sm font-bold text-[#0F172A]">
                     <i class="fa-regular fa-circle-question text-indigo-600" aria-hidden="true"></i>
-                    Not sure? Answer one question
+                    Not sure which one your are? Answer one question
                 </h2>
                 <p class="mt-2 text-sm leading-6 text-[#475569]">
-                    Are <strong class="font-semibold text-[#0F172A]">all</strong> your subjects this semester from the standard
+                    Are <strong class="font-semibold text-[#0F172A]">all</strong> your subjects this semester from your current course and year level?
                     <span class="ff-mono rounded bg-[#F1F5F9] px-1.5 py-0.5 text-xs font-semibold text-[#0F172A]"><?= $e($blockLabel) ?></span>
                     block schedule?
                 </p>
                 <div class="mt-4 grid grid-cols-2 gap-2">
                     <button type="button" data-helper-answer="regular"
-                        class="helper-btn min-h-11 rounded-lg border border-[#E2E8F0] bg-white px-3 text-sm font-semibold text-[#0F172A] transition-colors hover:border-indigo-300 hover:bg-indigo-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 aria-pressed:border-indigo-600 aria-pressed:bg-indigo-50"
+                        class="helper-btn grid-cols-1 min-h-11 rounded-lg border border-[#E2E8F0] bg-white px-3 text-sm font-semibold text-[#0F172A] transition-colors hover:border-indigo-300 hover:bg-indigo-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 aria-pressed:border-indigo-600 aria-pressed:bg-indigo-50"
                         aria-pressed="false">Yes, all of them</button>
                     <button type="button" data-helper-answer="irregular"
-                        class="helper-btn min-h-11 rounded-lg border border-[#E2E8F0] bg-white px-3 text-sm font-semibold text-[#0F172A] transition-colors hover:border-amber-300 hover:bg-amber-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 aria-pressed:border-amber-600 aria-pressed:bg-amber-50"
-                        aria-pressed="false">No, some differ</button>
+                        class="helper-btn grid-cols-2 min-h-11 rounded-lg border border-[#E2E8F0] bg-white px-3 text-sm font-semibold text-[#0F172A] transition-colors hover:border-amber-300 hover:bg-amber-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 aria-pressed:border-amber-600 aria-pressed:bg-amber-50"
+                        aria-pressed="false">No, some are from other year levels</button>
                 </div>
                 <p id="helperMessage" class="mt-3 hidden rounded-lg border px-3 py-2.5 text-xs leading-5" role="status" aria-live="polite"></p>
             </section>

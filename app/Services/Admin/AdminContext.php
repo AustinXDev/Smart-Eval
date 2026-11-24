@@ -34,6 +34,16 @@ class AdminContext
         );
     }
 
+    // Deactivated in Account Management: end the session and go to sign-in.
+    // (Only page views use this class; APIs are blocked by ApiSecurity::admin.)
+    if (!$admin->isActive()) {
+      unset($_SESSION['admin_authenticated'], $_SESSION['admin_id']);
+      if (!headers_sent()) {
+        header('Location: ' . BASE_URL . 'admin-login');
+      }
+      exit;
+    }
+
     return $admin;
 
   } 
@@ -43,12 +53,10 @@ class AdminContext
 
     $admin = $this->getCurrentAdmin();
 
-    return strtolower(
-        str_replace(' ', '_', $admin->role)
-    );
+    return $admin->roleKeyValue();
 
   }
 
 }
 
-?>
+?>

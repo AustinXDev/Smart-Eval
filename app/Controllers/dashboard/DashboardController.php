@@ -20,9 +20,8 @@ class DashboardController
 
         $department = $_GET['dept'] ?? '';
 
-        $role = strtolower(
-            str_replace(' ', '_', $admin->role)
-        );
+        // 'super admin' -> 'super_admin', 'department head' -> 'dean' (nav.php keys).
+        $role = $admin->roleKeyValue();
 
         return [
             'admin' => $admin,

@@ -1115,6 +1115,27 @@ body {
   font-size: 12px;
 }
 
+/* Field error under an input (filled by page scripts from the server's
+   field messages; the input gets aria-invalid="true"). */
+.se-field-error {
+  margin-top: 6px;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.se-input[aria-invalid="true"],
+.se-select[aria-invalid="true"],
+.se-textarea[aria-invalid="true"] {
+  border-color: #ef4444;
+}
+
+.se-input[aria-invalid="true"]:focus,
+.se-select[aria-invalid="true"]:focus,
+.se-textarea[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
 .se-input,
 .se-select,
 .se-textarea {
