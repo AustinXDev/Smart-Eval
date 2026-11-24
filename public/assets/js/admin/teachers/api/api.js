@@ -98,3 +98,8 @@ export async function deleteHandle({ teacherId, loadId }) {
     };
   }
 }
+
+/** Import teachers from a CSV file. Throws (error.message) when the whole file is rejected. */
+export function importTeachersCsv(formData) {
+  return post("teacher/csv.php", formData);
+}

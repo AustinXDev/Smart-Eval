@@ -243,6 +243,133 @@ class TeacherService
     }
 
 
+    /** Columns of the teacher CSV template, in order (photos are added later per teacher). */
+    public const CSV_HEADERS = ['employee_id', 'full_name', 'email'];
+
+    /**
+     * Imports teachers from CSV rows (header already removed). Every row goes
+     * through create(), so the rules match the Add Teacher form: an Employee ID,
+     * email or name already used by an active teacher in this department is
+     * rejected, and a matching inactive teacher is reactivated. A value repeated
+     * inside the file is rejected too (only its first row can be imported).
+     * Valid rows are saved even when other rows fail.
+     *
+     * @param list<array<int, string|null>> $rows
+     */
+    public function importCsv(array $rows, string $department): array
+    {
+        $department = strtolower(trim($department));
+
+        if (!in_array($department, ['college', 'shs'], true)) {
+            throw new RuntimeException('Invalid department.');
+        }
+
+        $labels = [
+            'employee_id' => 'Employee ID',
+            'email'       => 'Email',
+            'full_name'   => 'Name',
+        ];
+        $firstRow = ['employee_id' => [], 'email' => [], 'full_name' => []];
+        $created = 0;
+        $reactivated = 0;
+        $errors = [];
+
+        foreach ($rows as $index => $row) {
+            $line = $index + 2; // row 1 is the header
+
+            $cells = array_map(static fn ($value): string => trim((string) $value), $row);
+
+            // Spreadsheet apps often save empty trailing cells ("a,b,c,,").
+            while (count($cells) > count(self::CSV_HEADERS) && end($cells) === '') {
+                array_pop($cells);
+            }
+
+            $values = [
+                'employee_id' => $cells[0] ?? '',
+                'full_name'   => preg_replace('/\s+/u', ' ', $cells[1] ?? '') ?? '',
+                'email'       => $cells[2] ?? '',
+            ];
+
+            $fail = static function (string $message) use (&$errors, $line, $values): void {
+                $errors[] = [
+                    'row'         => $line,
+                    'employee_id' => mb_substr($values['employee_id'], 0, 40),
+                    'full_name'   => mb_substr($values['full_name'], 0, 100),
+                    'message'     => $message,
+                ];
+            };
+
+            if (count($cells) !== count(self::CSV_HEADERS)) {
+                $fail('Expected 3 columns (employee_id, full_name, email) but found ' . count($cells) . '.');
+                continue;
+            }
+
+            // Repeated inside the file: compare case-insensitively, like the database does.
+            $repeated = [];
+            foreach ($firstRow as $field => $seen) {
+                $key = mb_strtolower($values[$field]);
+                if ($key === '') {
+                    continue;
+                }
+                if (isset($seen[$key])) {
+                    $repeated[] = "{$labels[$field]} is repeated (first used on row {$seen[$key]})";
+                } else {
+                    $firstRow[$field][$key] = $line;
+                }
+            }
+
+            $missing = array_keys(array_filter($values, static fn (string $value): bool => $value === ''));
+            if ($missing) {
+                $fail('Missing ' . implode(', ', array_map(static fn ($f) => $labels[$f], $missing)) . '.');
+                continue;
+            }
+
+            if ($repeated) {
+                $fail(implode('; ', $repeated) . '.');
+                continue;
+            }
+
+            if (mb_strlen($values['employee_id']) > 20) {
+                $fail('Employee ID must not exceed 20 characters.');
+                continue;
+            }
+
+            if (mb_strlen($values['email']) > 100) {
+                $fail('Email must not exceed 100 characters.');
+                continue;
+            }
+
+            try {
+                $existing = $this->teacherRepo->findByIdAndDepartment($values['employee_id'], $department);
+
+                $this->create($values + ['department' => $department]);
+
+                if ($existing && !$existing->isActive) {
+                    $reactivated++;
+                } else {
+                    $created++;
+                }
+            } catch (RuntimeException $e) {
+                $fail($e->getMessage());
+            } catch (\PDOException $e) {
+                // e.g. a unique key hit by a teacher added at the same moment
+                $fail($e->getCode() === '23000'
+                    ? 'Employee ID or email already exists in this department.'
+                    : 'Unable to save this teacher.');
+            }
+        }
+
+        return [
+            'total'       => count($rows),
+            'success'     => $created + $reactivated,
+            'created'     => $created,
+            'reactivated' => $reactivated,
+            'failed'      => count($errors),
+            'errors'      => $errors,
+        ];
+    }
+
+
     /**
      * update teacher information
      */

@@ -16,6 +16,7 @@ import {
   requestDeleteTeacher,
 } from "./components/teacherForm.js";
 import { logout } from "../shared/logout.js";
+import { initCsvImport } from "./components/csvImport.js";
 
 const wrapper = document.getElementById("tableWrapper");
 const department = wrapper ? wrapper.dataset.department : "";
@@ -24,6 +25,7 @@ initAddTeacherForm();
 initEditTeacherForm();
 initAddHandleForm();
 initDeleteHandleButtons();
+initCsvImport(department);
 window.logout = logout;
 
 initImagePreview("fileInput", "teacherPhotoPreview", {
@@ -37,12 +39,14 @@ initImagePreview("fileInput", "teacherPhotoPreview", {
 
 document.addEventListener("click", (e) => {
   const addBtn = e.target.closest(".add-btn");
+  const csvBtn = e.target.closest(".csv-btn");
   const viewBtn = e.target.closest(".viewBtn");
   const editBtn = e.target.closest(".editBtn");
   const deleteBtn = e.target.closest(".deleteBtn");
   const closeBtn = e.target.closest("[data-close-modal]");
 
   if (addBtn) return openModal("addTeacherModal");
+  if (csvBtn) return openModal("teacherCsvModal");
   if (viewBtn) return handleViewClick(viewBtn);
   if (editBtn) return handleEditClick(editBtn);
   if (deleteBtn) return handleDeleteClick(deleteBtn);

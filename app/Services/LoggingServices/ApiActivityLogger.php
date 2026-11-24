@@ -62,6 +62,7 @@ final class ApiActivityLogger
         'teacher/delete.php'        => ['module' => 'teachers', 'action' => 'delete', 'target' => 'teacher', 'id' => 'teacher_id', 'lookup' => ['teacher' => 'teacher_id'], 'text' => 'Removed teacher {full_name} ({employee_id})', 'prefer_lookup' => true],
         'teacher/add_handle.php'    => ['module' => 'teachers', 'action' => 'assign_program', 'target' => 'teacher', 'id' => 'teacher_id', 'lookup' => ['teacher' => 'teacher_id', 'program' => 'program'], 'text' => 'Assigned {program_code} {year_level_label} to teacher {full_name}', 'prefer_lookup' => true],
         'teacher/delete_handle.php' => ['module' => 'teachers', 'action' => 'unassign_program', 'target' => 'teacher', 'id' => 'teacher_id', 'lookup' => ['teacher' => 'teacher_id', 'load' => 'load_id'], 'text' => 'Removed {program_code} {year_level_label} from teacher {full_name}', 'prefer_lookup' => true],
+        'teacher/csv.php'           => ['module' => 'teachers', 'action' => 'import', 'text' => 'Imported teachers from CSV ({department_label})', 'counts' => true],
 
         // ---- Students (admin) ----------------------------------------------
         'student/create.php'     => ['module' => 'students', 'action' => 'create', 'target' => 'student', 'id' => 'student_id', 'text' => 'Added student {full_name} ({student_id})'],

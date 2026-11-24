@@ -161,7 +161,7 @@ class TeacherRepository
         $stmt = $this->pdo->prepare("
       SELECT 1
       FROM teachers
-      WHERE employee_id = ?
+      WHERE email = ?
         AND department = ?
         AND teacher_id != ?
       LIMIT 1

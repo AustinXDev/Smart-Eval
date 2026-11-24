@@ -113,6 +113,11 @@ $control = 'h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm
 
             <div class="flex w-full shrink-0 flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center xl:self-center">
               <button type="button"
+                class="csv-btn inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-[#6010FF]/30 hover:bg-[#6010FF]/5 hover:text-[#6010FF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6010FF] focus-visible:ring-offset-2 active:scale-[0.98]">
+                <i class="fas fa-file-csv text-xs" aria-hidden="true"></i>
+                Import CSV
+              </button>
+              <button type="button"
                 class="add-btn inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#7230FF] to-[#6010FF] px-4 text-sm font-semibold text-white shadow-md shadow-[#6010FF]/25 transition duration-200 hover:shadow-lg hover:shadow-[#6010FF]/30 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6010FF] focus-visible:ring-offset-2 active:scale-[0.98]">
                 <i class="fas fa-plus text-xs" aria-hidden="true"></i>
                 Add Teacher
@@ -228,6 +233,7 @@ $control = 'h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm
     <?php require_once __DIR__ . '/../partials/modals/teachers_modal/confirmation_modal.php'; ?>
     <?php require_once __DIR__ . '/../partials/modals/teachers_modal/view_teacher_modal.php'; ?>
     <?php require_once __DIR__ . '/../partials/modals/teachers_modal/edit_teacher_modal.php'; ?>
+    <?php require_once __DIR__ . '/../partials/modals/teachers_modal/import_csv_modal.php'; ?>
 
   </div>
 
@@ -242,7 +248,10 @@ window.API_URL = <?= json_encode($_ENV['APP_API'] ?? '', JSON_HEX_TAG | JSON_HEX
 <!-- Floating Add button: appears after the page header scrolls out of view -->
 <script type="module">
   import { initFloatingActions } from "<?= BASE_URL ?>assets/js/admin/shared/floating_actions.js";
-  initFloatingActions([{ target: ".add-btn", label: "Add Teacher", icon: "fa-plus" }]);
+  initFloatingActions([
+    { target: ".add-btn", label: "Add Teacher", icon: "fa-plus" },
+    { target: ".csv-btn", label: "Import CSV", icon: "fa-file-csv" },
+  ]);
 </script>
 <?php $autoLogoutRole = 'admin';
 require __DIR__ . '/../partials/auto_logout.php'; ?>

@@ -36,6 +36,18 @@ class TeacherController
     }
 
     /**
+     * Import teachers from CSV rows
+     */
+    public function importCsv(
+        array $rows,
+        string $department
+    ): array {
+
+        return $this->service->importCsv($rows, $department);
+
+    }
+
+    /**
      * Update Teacher
      */
     public function update(
